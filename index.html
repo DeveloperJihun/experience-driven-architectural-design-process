@@ -82,6 +82,21 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:48px 0}
   font-size:12px;background:var(--surface);padding:2px 6px;border-radius:4px;
   border:1px solid var(--line);color:var(--text-2);
 }
+/* 도판 대신 출처 표기 */
+.ref-cite{border-left:3px solid var(--human);padding:4px 0 4px 16px}
+.ref-cite-lbl{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--text-3)}
+.ref-cite-src{margin:0 0 9px;font-size:14.5px;line-height:1.6}
+.ref-cite-meta{margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px}
+.ref-cite-meta a{color:var(--human);text-decoration:none;border-bottom:1px solid transparent}
+.ref-cite-meta a:hover{border-bottom-color:var(--human)}
+.badge-q{
+  font-size:10.5px;font-weight:700;letter-spacing:.04em;border-radius:4px;padding:2px 7px;
+  background:var(--human-soft);color:var(--human);
+}
+.ref-cite-note{
+  margin:0;font-size:12.5px;line-height:1.65;color:var(--text-2);
+  border-top:1px dashed var(--line);padding-top:10px;
+}
 figcaption{color:var(--text-2);font-size:13px;margin-top:10px}
 figcaption b{color:var(--text);font-weight:600}
 
@@ -122,43 +137,50 @@ figcaption b{color:var(--text);font-weight:600}
 /* =========================================================================
    3. 노드 영역 (플로우)
    ========================================================================= */
-.flow-wrap{position:relative;padding:158px 4px 44px}  /* 상단 여백 = 빨간 점선 아치 공간 */
-.flow{position:relative;z-index:1;display:flex;align-items:stretch;gap:8px}
+.flow-wrap{position:relative;padding:16px 4px 190px}  /* 하단 여백 = 피드백 루프 레인 */
+.flow{
+  position:relative;z-index:1;
+  display:flex;align-items:flex-start;justify-content:center;
+  flex-wrap:wrap;gap:14px 6px;
+}
 
-/* Design Studio 점선 박스 (Define ~ Testing) */
-.studio{
-  flex:1;display:flex;align-items:stretch;gap:8px;
+/* 건축 프로세스 그룹 */
+.grp{
   border:1.5px dashed var(--line);border-radius:var(--radius);
-  padding:14px 14px 30px;position:relative;min-width:0;
+  padding:26px 12px 12px;position:relative;
+  display:flex;align-items:stretch;
 }
-.studio::after{
-  content:'With in Design Studio context';
-  position:absolute;left:0;right:0;bottom:8px;text-align:center;
-  font-size:11.5px;color:var(--text-3);
+.grp-name{
+  position:absolute;top:7px;left:14px;
+  font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--text-3);
+  white-space:nowrap;
 }
+.grp-row{display:flex;align-items:stretch;gap:6px}
+.grp-arrow{display:flex;align-items:center;align-self:center;padding-top:14px}
 
 /* 단계 노드 */
-.node-slot{display:flex;flex-direction:column;align-items:center;min-width:0;flex:1}
-.node-slot.is-first{flex:0 0 210px}
+.node-slot{display:flex;flex-direction:column;align-items:center;min-width:0}
 
 .node{
-  width:100%;min-height:104px;position:relative;
+  width:168px;min-height:104px;position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  border-radius:var(--radius);padding:16px 12px 20px;
+  border-radius:var(--radius);padding:16px 11px 20px;
   font-family:inherit;text-align:center;cursor:pointer;
   background:var(--surface);color:var(--text);
   border:1.5px solid var(--line);
   transition:background .18s,border-color .18s,color .18s,transform .18s var(--ease);
 }
+/* 산출물 노드 — 펼칠 내용 없음 */
+.node--term{
+  cursor:default;min-height:64px;width:132px;padding:12px 10px;
+  background:var(--accent-soft);border-color:var(--accent);
+}
+.node--term:hover{transform:none}
+/* Insight 등 산출물 성격의 단계 */
+.node[data-kind="artifact"]{background:var(--accent-soft);border-style:solid}
 .node:hover{transform:translateY(-2px)}
 .node:active{transform:translateY(0) scale(.985)}
 .node:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-
-/* 본 프로세스가 상세화한 구간 */
-.node[data-scope="detailed"]{background:var(--accent-soft);border-color:var(--accent)}
-/* 원본 Design Thinking 단계 (성격 구분일 뿐, 진행 상태가 아님) */
-.node[data-scope="original"]{background:var(--surface);border-color:var(--line);color:var(--text-2)}
-.node[data-scope="original"] .node-title{color:var(--text)}
 
 .node[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .node .caretmark{
@@ -249,8 +271,7 @@ figcaption b{color:var(--text);font-weight:600}
 
 /* --- 내용 순차 등장 --- */
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.panel .anim{opacity:0}
-.panel.is-open .anim{animation:rise .5s var(--ease) both;animation-delay:var(--d,0s)}
+/* .anim 은 기본이 '보임'. 등장 효과는 JS(Web Animations)가 얹으며, 실패해도 내용은 남는다 */
 
 .panel-head{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
@@ -293,6 +314,16 @@ figcaption b{color:var(--text);font-weight:600}
   background:var(--surface-2);border-radius:0 6px 6px 0;font-size:13.5px;
 }
 .cite + .cite{margin-top:8px}
+.ev-tag{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;
+  border-radius:4px;padding:1px 6px;margin-left:6px;
+  background:var(--human-soft);color:var(--human);white-space:nowrap;
+}
+.ev-q{display:inline-block;margin-top:6px;font-size:12.5px;line-height:1.6;color:var(--text-2)}
+.ev-note{
+  display:block;font-size:12.5px;line-height:1.65;color:var(--qual);
+}
+.cite:has(.ev-note){border-left-color:var(--qual);background:var(--qual-soft)}
 
 /* --- 세부 프로세스 스텝 카드 --- */
 .steps{margin-top:24px}
@@ -386,6 +417,70 @@ figcaption b{color:var(--text);font-weight:600}
   border:1px dashed var(--qual);border-radius:6px;background:var(--qual-soft);
   padding:8px 12px;font-size:12.5px;color:var(--text);margin:0 0 8px !important;
 }
+
+/* --- 공통 블록 --- */
+.block{margin-top:22px}
+.block-h{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px;
+  font-size:12px;font-weight:700;color:var(--text-2);letter-spacing:.02em;
+}
+.block-h em{font-style:normal;font-weight:500;font-size:11.5px;color:var(--text-3)}
+
+/* 0. Diagnosis 진단 축 */
+.axes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.axis{
+  border:1px solid var(--line);border-top:3px solid var(--human);border-radius:8px;
+  background:var(--surface-2);padding:12px 14px;position:relative;
+}
+.axis-no{
+  position:absolute;top:8px;right:10px;font-size:10px;font-weight:700;color:var(--text-3);
+}
+.axis b{display:block;font-size:13.5px;margin-bottom:4px}
+.axis span{font-size:12.5px;color:var(--text-2);line-height:1.5}
+
+/* 목록형 */
+.bul{display:flex;flex-wrap:wrap;gap:8px}
+.bul span{
+  border:1px solid var(--line);border-radius:6px;background:var(--surface-2);
+  padding:7px 12px;font-size:13px;
+}
+
+/* Insight HX */
+.hx-cross{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
+.hx-axis{
+  font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 14px;
+  background:var(--human-soft);color:var(--human);
+}
+.hx-x{color:var(--text-3);font-weight:700}
+.hx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.hx-item{
+  border:1px solid var(--quant);border-radius:8px;background:var(--quant-soft);
+  color:var(--quant);font-size:13px;font-weight:700;text-align:center;padding:11px 8px;
+}
+.hx-out{margin-top:10px;text-align:center;font-size:12.5px;color:var(--text-2)}
+
+/* 내부 흐름 */
+.ifl{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px}
+.ifl-arw{align-self:center;color:var(--text-3);font-size:13px}
+.ifl-box{
+  flex:1;min-width:150px;
+  border:1px solid var(--line);border-radius:8px;background:var(--surface-2);
+  padding:11px 13px;
+}
+.ifl-box b{display:block;font-size:13.5px;margin-bottom:3px}
+.ifl-box span{display:block;font-size:12px;color:var(--text-2);line-height:1.5}
+.ifl-box.is-q{border-color:var(--text-3);border-style:dashed;text-align:center}
+.ifl-box.is-from{border-left:3px solid var(--quant)}
+.ifl-box.is-yes{border-top:3px solid var(--quant)}
+.ifl-box.is-no{border-top:3px solid var(--qual)}
+.ifl-box .yn{
+  display:inline-block;font-size:10.5px;font-weight:700;margin-bottom:5px;
+  border-radius:999px;padding:1px 8px;border:1px solid currentColor;
+}
+.ifl-box.is-yes .yn{color:var(--quant)}
+.ifl-box.is-no .yn{color:var(--qual)}
+.ifl-branch{margin-top:4px}
+.ifl-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* --- 다음 단계 연결 배너 --- */
 .linknote{
@@ -784,6 +879,27 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
 .nonq-steps i{font-style:normal;color:var(--qual);font-weight:700}
 .nonq-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 
+/* =========================================================================
+   5-D. 참고문헌
+   ========================================================================= */
+.refs{margin-top:56px}
+.reflist{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:11px}
+.reflist li{font-size:13.5px;line-height:1.65;color:var(--text-2)}
+.reflist li i{color:var(--text)}
+.reflist li a{color:var(--human);text-decoration:none;font-weight:600;font-size:12px}
+.reflist li a:hover{text-decoration:underline}
+.reflist li.key{
+  color:var(--text);background:var(--human-soft);
+  border-radius:8px;padding:11px 14px;margin-left:-14px;list-style-position:inside;
+}
+.pending{
+  margin-top:24px;border:1px dashed var(--qual);border-radius:9px;
+  background:var(--qual-soft);padding:16px 20px;
+}
+.pending-h{margin:0 0 10px;font-size:12.5px;font-weight:700;color:var(--qual);letter-spacing:.03em}
+.pending ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.pending li{font-size:13px;line-height:1.65}
+
 /* 다음 단계 버튼 */
 .cnext{
   display:block;margin:20px 0 0 auto;font-family:inherit;font-size:12.5px;font-weight:700;
@@ -808,7 +924,12 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   .flow-wrap{padding:8px 0}
   .empathy-svg{display:none}          /* 아치 대신 노드별 배지로 대체 */
   .flow{flex-direction:column;align-items:stretch}
-  .studio{flex-direction:column;padding:14px 14px 32px}
+  .grp,.grp-row{flex-direction:column}
+  .grp-arrow .sep{transform:rotate(90deg)}
+  .node{width:100%}
+  .node--term{width:100%}
+  .axes,.hx-grid{grid-template-columns:1fr 1fr}
+  .ifl-cols{grid-template-columns:1fr}
   .node-slot.is-first{flex:0 0 auto}
   .sep-wrap{flex:0 0 26px;height:26px}
   .sep{transform:rotate(90deg)}
@@ -846,8 +967,10 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   <p class="h1-ko">경험 주도 건축 설계 프로세스</p>
   <p class="sub">
     사용자 경험에서 출발해 건축을 설계하려는 누구나 따를 수 있도록 제안하는 <b>일반 프로세스</b>입니다.
-    원본 Design Thinking 5단계 중 <b>Empathize(①) – Define(②–④)</b>를 네 개의 세부 스텝으로 세분화하여,
-    경험을 감각·원인·수치로 분해하고 그중 <b>수치화 가능 여부</b>에 따라 정량/정성 경로로 나누어 다룹니다.
+    Design Thinking을 건축 실무 단계(Pre-design → Programming → Schematic Design → Design Development →
+    Construction Documents)에 맞춰 <b>0. Diagnosis부터 6. Deliver까지 일곱 단계</b>로 확장했습니다.
+    경험을 <b>HX 목표</b>로 정의하고, 그중 <b>정량 지표화 가능 여부</b>에 따라 갈래를 나누며,
+    Evaluate와 POE Data가 <b>다시 Empathize로 되돌아오는 순환 구조</b>를 갖습니다.
     각 단계 노드를 클릭하면 상세 내용이 펼쳐집니다.
   </p>
   <p class="sub" style="margin-top:-24px">
@@ -862,16 +985,31 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   <p class="section-title">원본 참고 자료</p>
   <figure class="ref">
     <div class="ref-frame">
-      <img id="refImg" src="" alt="Fig. 4 Design process model followed in conventional design studio">
-      <div class="ref-placeholder" id="refPlaceholder">
-        <span>참고 이미지 자리</span>
-        <code>&lt;img id="refImg" src="여기에_파일명.png"&gt;</code>
+      <div class="ref-cite">
+        <p class="ref-cite-lbl">Fig. 4 — Design process model followed in conventional design studio (developed by authors)</p>
+        <p class="ref-cite-src">
+          Hettithanthri, U., Hansen, P., &amp; Munasinghe, H. (2023).
+          <i>Exploring the architectural design process assisted in conventional design studio:
+          a systematic literature review.</i>
+          <b>International Journal of Technology and Design Education</b>, 33(5), 1835–1859.
+        </p>
+        <p class="ref-cite-meta">
+          <span class="badge-q">SSCI Q1</span><span class="badge-q">SCIE</span>
+          <a href="https://doi.org/10.1007/s10798-022-09792-9" target="_blank" rel="noopener">
+            doi:10.1007/s10798-022-09792-9</a>
+        </p>
+        <p class="ref-cite-note">
+          해당 도판은 구독 저널에 수록된 그림이라 이 페이지에 복제하지 않고 <b>출처만 표기</b>합니다.
+          원문 Fig. 4에서 확인하실 수 있습니다.
+        </p>
       </div>
     </div>
     <figcaption>
-      <b>Fig. 4</b> Design process model followed in conventional design studio (developed by authors).
-      위 다이어그램이 <b>원본 참고 자료</b>이며, 아래 인터랙티브 버전은 이를 발전시켜
-      Empathize–Define 구간을 세부 스텝으로 상세화한 <b>Experience Driven Architectural Design Process</b>입니다.
+      선행 연구 50편을 Grounded Theory로 분석해 도출된 <b>관행적 설계 스튜디오의 5단계 프로세스 모델</b>입니다.
+      이 논문의 저자들은 설계 후반(Ideation·Prototype·Testing)에서 사용자·맥락으로 되돌아갈 메커니즘이 없다는 점을
+      <b>"missing connection to the empathising phase"</b>로 명명했습니다.
+      본 <b>Experience Driven Architectural Design Process</b>는 그 단절을 <b>피드백 루프</b>로 닫고,
+      앞뒤로 <b>0. Diagnosis</b>와 <b>5. Evaluate · 6. Deliver</b>를 붙여 건축 실무 단계에 대응시킨 제안입니다.
     </figcaption>
   </figure>
 
@@ -884,7 +1022,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   <div class="toolbar">
     <button class="toggle" id="linkToggle" type="button" aria-pressed="true">
       <span class="dot" aria-hidden="true"></span>
-      Missing connection to Empathy 표시
+      피드백 루프 표시
     </button>
     <button class="toggle toggle--lang" id="langToggle" type="button" aria-pressed="false">
       <span class="glyph" aria-hidden="true">가</span>
@@ -897,9 +1035,16 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     </div>
   </div>
   <p class="toolbar-note">
-    빨간 점선은 <b>원본 모델의 한계</b>입니다 — 설계 후반(Ideate·Prototype·Test)이 초기 공감과 끊겨,
-    수집한 사용자 경험이 설계 결정까지 이어지지 못하는 지점을 뜻합니다.
-    <b>본 프로세스가 메우려는 지점</b>이 바로 여기입니다.
+    원본 모델에서 이 자리는 <b>"Missing connection to Empathy"</b> — 설계 후반이 초기 공감과 끊겨
+    수집한 사용자 경험이 설계 결정까지 이어지지 못한다는 <b>한계 표시</b>였습니다.
+    본 프로세스는 그 단절을 <b>피드백 루프로 해결한 것</b>이므로, 같은 자리의 빨간 점선이
+    이제는 <b>Ideate · Prototype · Evaluate · Deliver · POE Data가 Empathize로 되돌아가는 경로</b>를 뜻합니다.
+    <br><span style="color:var(--text-3);font-size:12px">
+      이 표현은 Hettithanthri et al. (2023)이 명명한 것입니다 —
+      <i>"We observed the design process has no mechanism to revert back to the user nor context during
+      ideation, prototyping and testing phases… We further, identified this as a missing connection to
+      the empathising phase."</i> (p.1857)
+    </span>
   </p>
 
   <!-- ===================================================================
@@ -1185,7 +1330,62 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
         B(일과 생활의 경계)와 D(단절되긴 싫다)는 A·C·E와 함께 <b>하나의 가변 개구부 설계</b>로 수렴합니다.
         요구서 세 줄이 <b>세 개의 수치와 한 개의 태그</b>로 바뀐 것이 이 사례의 결과입니다.
       </div>
+      <div class="memo canim" style="border-left-color:var(--text-3);background:var(--surface-2)">
+        <span class="tag" style="color:var(--text-3)">사례 근거</span>
+        재택근무로 주거 요구가 바뀐 배경 — Moshaver, S., Ozarisoy, B., Altan, H., &amp; Gosula, S. K. (2024).
+        <i>Designing Multi-Family Residences in the Post-COVID-19 Era: Addressing Workspace Privacy Needs.</i>
+        Buildings, 14(11), 3590. <span class="ev-tag">Scopus Q1</span><br>
+        개방형 평면의 정리 부담 — Roster, C. A., Ferrari, J. R., &amp; Jurkat, M. P. (2016).
+        <i>The dark side of home: Assessing possession 'clutter' on subjective well-being.</i>
+        Journal of Environmental Psychology, 46, 32–41. <span class="ev-tag">SSCI Q1</span>
+        <span class="ev-note" style="margin-top:6px">후자는 개방형 평면이 아니라 클러터 일반을 다루므로,
+        "트여 있으면 정리 부담이 커진다"로 잇는 데는 추론 한 단계가 필요합니다.</span>
+      </div>
       <button class="cnext canim" type="button" data-next="0">처음으로 ↺</button>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       [ 참고문헌 ] 확보 현황 포함
+       =================================================================== -->
+  <section class="refs">
+    <hr class="rule">
+    <p class="section-title">참고문헌</p>
+    <h2 class="case-h">근거 현황</h2>
+    <p class="demo-note" style="margin:0 0 20px">
+      각 단계의 "근거" 칸에 인용된 문헌입니다. 저널 등급은 Scimago(SJR) 및 WoS 색인 기준이며,
+      <b>아직 확보하지 못한 것과 보류 중인 것도 함께 밝힙니다.</b>
+    </p>
+
+    <ol class="reflist">
+      <li>Auernhammer, J., &amp; Roth, B. (2021). <i>The origin and evolution of Stanford University's design thinking: From product design to design thinking in innovation management.</i> Journal of Product Innovation Management, 38(6), 623–644. <span class="ev-tag">Q1</span> <a href="https://doi.org/10.1111/jpim.12594" target="_blank" rel="noopener">doi</a></li>
+      <li>Aburamadan, R., &amp; Trillo, C. (2020). <i>Applying design science approach to architectural design development.</i> Frontiers of Architectural Research, 9, 216–235. <span class="ev-tag">AHCI · Scopus Q1</span> <a href="https://doi.org/10.1016/j.foar.2019.07.008" target="_blank" rel="noopener">doi</a></li>
+      <li>Benedikt, M. L. (1979). <i>To take hold of space: isovists and isovist fields.</i> Environment and Planning B, 6(1), 47–65. <span class="ev-tag">원전</span> <a href="https://doi.org/10.1068/b060047" target="_blank" rel="noopener">doi</a></li>
+      <li>Buchanan, R. (1992). <i>Wicked Problems in Design Thinking.</i> Design Issues, 8(2), 5–21. <span class="ev-tag">AHCI</span></li>
+      <li>Dow, S. P., Glassco, A., Kass, J., Schwarz, M., Schwartz, D. L., &amp; Klemmer, S. R. (2010). <i>Parallel prototyping leads to better design results, more divergence, and increased self-efficacy.</i> ACM Transactions on Computer-Human Interaction, 17(4), Article 18. <span class="ev-tag">SCIE · Q1</span> <a href="https://doi.org/10.1145/1879831.1879836" target="_blank" rel="noopener">doi</a></li>
+      <li>Ghaznavi, S., Haghparast, F., Pourahmad Ghalejough, A., &amp; Sakian Mohamadi, H. (2025). <i>Implementing user-centered design in architecture using virtual reality: A case study of a micro coworking space.</i> Design Studies, 99, 101329. <span class="ev-tag">SSCI Q1</span> <a href="https://doi.org/10.1016/j.destud.2025.101329" target="_blank" rel="noopener">doi</a></li>
+      <li class="key">Hettithanthri, U., Hansen, P., &amp; Munasinghe, H. (2023). <i>Exploring the architectural design process assisted in conventional design studio: a systematic literature review.</i> International Journal of Technology and Design Education, 33(5), 1835–1859. <span class="ev-tag">SSCI Q1 · SCIE</span> <a href="https://doi.org/10.1007/s10798-022-09792-9" target="_blank" rel="noopener">doi</a> — <b>본 프로세스가 출발점으로 삼은 원본 모델(Fig. 4)의 출처</b></li>
+      <li>Lee, P.-H., &amp; Han, Q. (2026). <i>User-centric sustainable design in mass-customized housing using Kano model and quality function deployment.</i> Architectural Engineering and Design Management, 22(2), 308–324. <span class="ev-tag">Q1</span> <a href="https://doi.org/10.1080/17452007.2025.2456761" target="_blank" rel="noopener">doi</a></li>
+      <li>Moshaver, S., Ozarisoy, B., Altan, H., &amp; Gosula, S. K. (2024). <i>Designing Multi-Family Residences in the Post-COVID-19 Era: Addressing Workspace Privacy Needs.</i> Buildings, 14(11), 3590. <span class="ev-tag">Scopus Q1 · JCR Q2</span> <a href="https://doi.org/10.3390/buildings14113590" target="_blank" rel="noopener">doi</a></li>
+      <li>Postle, B., &amp; Salingaros, N. A. (2025). <i>LLM and Pattern Language Synthesis: A Hybrid Tool for Human-Centered Architectural Design.</i> Buildings, 15, 2400. <span class="ev-tag">Scopus Q1 · JCR Q2</span> <a href="https://doi.org/10.3390/buildings15142400" target="_blank" rel="noopener">doi</a></li>
+      <li>Roster, C. A., Ferrari, J. R., &amp; Jurkat, M. P. (2016). <i>The dark side of home: Assessing possession 'clutter' on subjective well-being.</i> Journal of Environmental Psychology, 46, 32–41. <span class="ev-tag">SSCI Q1</span> <a href="https://doi.org/10.1016/j.jenvp.2016.03.003" target="_blank" rel="noopener">doi</a></li>
+      <li>Scupin, R. (1997). <i>The KJ Method: A Technique for Analyzing Data Derived from Japanese Ethnology.</i> Human Organization, 56(2), 233–237. <span class="ev-tag">SSCI · Q2</span> <a href="https://doi.org/10.17730/humo.56.2.x335923511444655" target="_blank" rel="noopener">doi</a></li>
+      <li>Stamps, A. E., III. (2005). <i>Isovists, enclosure, and permeability theory.</i> Environment and Planning B: Planning and Design, 32(5), 735–762. <span class="ev-tag">Q1</span> <a href="https://doi.org/10.1068/b31138" target="_blank" rel="noopener">doi</a></li>
+      <li>Turner, A., Doxa, M., O'Sullivan, D., &amp; Penn, A. (2001). <i>From isovists to visibility graphs: a methodology for the analysis of architectural space.</i> Environment and Planning B, 28(1), 103–121. <span class="ev-tag">원전</span> <a href="https://doi.org/10.1068/b2684" target="_blank" rel="noopener">doi</a></li>
+      <li>van der Linden, V., Dong, H., &amp; Heylighen, A. (2019). <i>Populating architectural design: Introducing scenario-based design in residential care projects.</i> International Journal of Design, 13(1), 21–36. <span class="ev-tag">SSCI Q1</span></li>
+      <li>Wang, X., Yang, L., Huang, T., &amp; Jun, B.-K. (2025). <i>A Comparative Study on Unit Plans of Public Rental Housing in China, Japan, and South Korea.</i> Buildings, 15(17), 3068. <span class="ev-tag">Scopus Q1 · JCR Q2</span> <a href="https://doi.org/10.3390/buildings15173068" target="_blank" rel="noopener">doi</a></li>
+      <li>Zhu, J., Gao, W., Zhu, N., &amp; Wang, L. (2026). <i>Specific design strategies for elderly-friendly residential spaces in nursing homes: an integrated model approach based on empathy map-KANO-AHP-PUGH.</i> Frontiers in Psychology, 17, 1824564. <span class="ev-tag">Q1</span> <a href="https://doi.org/10.3389/fpsyg.2026.1824564" target="_blank" rel="noopener">doi</a></li>
+    </ol>
+
+    <div class="pending">
+      <p class="pending-h">확보하지 못했거나 보류 중인 것</p>
+      <ul>
+        <li><b>Rittel, H. W. J., &amp; Webber, M. M. (1973).</b> Dilemmas in a General Theory of Planning. — Wicked Problem 원전. 미확보</li>
+        <li><b>Kano, N., et al. (1984).</b> Attractive quality and must-be quality. — Kano 원전. 미확보(현재 2차 문헌 재인용 상태)</li>
+        <li><b>Hillier, B., &amp; Hanson, J. (1984).</b> The Social Logic of Space. — Space Syntax 원전. 미확보</li>
+        <li><b>Stamps, A. E., III. (2011).</b> Effects of Area, Height, Elongation, and Color on Perceived Spaciousness. Environment and Behavior, 43(2), 252–273. — <b>보류.</b> "경계가 낮을수록 더 넓게 느낀다(r = −.22)"고 보고해 본 프로세스의 "낮은 천장 → 둘러싸인 감각"과 방향이 반대일 수 있습니다. 해당 연구의 boundary 정의를 확인하기 전까지 인용하지 않습니다.</li>
+        <li><b>수치화 가능/불가의 판별 기준</b> — 이 구분 자체를 명시적으로 제시한 선행 연구는 아직 찾지 못했습니다. 본 프로세스의 기여점일 가능성이 있어 조사를 계속하고 있습니다.</li>
+      </ul>
     </div>
   </section>
 
@@ -1198,167 +1398,234 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
    - scope  : 'detailed'(본 프로세스가 상세화한 구간) | 'original'(원본 Design Thinking 단계)
               ※ 진행 상태가 아니라 성격 구분입니다.
    - table  : [{ no, act, method, owner:'human'|'ai'|'both'|'expert', output }]
-   - evidence : 논문 인용 자리 — 전부 비워둠. 여기에 채우세요.
+   - evidence : 단계별 근거 문헌. 세부 스텝은 steps[].cite 에 넣는다.
+                미확보·보류 항목은 <span class="ev-note"> 로 감싸 주황으로 표시된다.
    ========================================================================= */
+/* 건축 프로세스 그룹 — 노드를 이 순서대로 감싼다 */
+const GROUPS = [
+  { id:'pre',  name:'Pre-design',             nodes:['diagnosis','empathize'] },
+  { id:'prog', name:'Programming',            nodes:['define','insight'] },
+  { id:'sd',   name:'Schematic Design',       nodes:['ideate'] },
+  { id:'dd',   name:'Design Development',     nodes:['prototype','evaluate'] },
+  { id:'cd',   name:'Construction Documents', nodes:['deliver','final','poe'] }
+];
+
+/* 피드백 루프 — 이 노드들에서 Empathize로 되돌아간다 */
+const FEEDBACK_FROM = ['ideate','prototype','evaluate','deliver','poe'];
+
 const STAGES = [
+  /* ---------------------------------------------------------------- 0 */
+  {
+    id:'diagnosis', no:'0', kind:'stage',
+    en:'Diagnosis', ko:'진단', sub:'Research Scope 설정',
+    accent:'human',
+    tagline:'프로젝트 성격을 진단해 이후 단계에서 쓸 방법론을 결정한다.',
+
+    purpose:'프로젝트의 성격을 먼저 진단하여, 이후 단계에서 <b>어떤 방법론을 어디까지 적용할지</b>의 범위(Research Scope)를 정한다.',
+    method:'네 개의 축으로 진단한다 — Client-User Relation · User Scale · Project Type · Stakeholder Complexity.',
+    owner:{
+      human:'네 축을 판단하고 이후 단계에 적용할 방법론 범위를 결정한다.',
+      ai:'이 단계에는 AI 역할을 두지 않는다.'
+    },
+    evidence:[],
+    outputs:['이후 단계에 적용할 방법론 범위 (Research Scope)'],
+    axes:[
+      { t:'Client-User Relation', d:'클라이언트와 사용자가 같은가, 다른가' },
+      { t:'User Scale',           d:'사용자 규모' },
+      { t:'Project Type',         d:'프로젝트 유형' },
+      { t:'Stakeholder Complexity', d:'이해관계자 복잡도' }
+    ],
+    table:[]
+  },
+
   /* ---------------------------------------------------------------- 1 */
   {
-    id:'empathizing', no:1,
-    en:'Empathizing', ko:'공감', sub:'Inception',
-    scope:'detailed', accent:'human',
-    stepsLabel:'STEP ①',
-    caption:'With in and outside the<br>Design Studio context',
-    innerList:'User Analysis · User Observations<br>Real user Interactions · Inputs from user<br>Contextual Analysis · Contextual Inputs',
-    missingLink:false,
+    id:'empathize', no:'1', kind:'stage',
+    en:'Empathize', ko:'공감', sub:'적합한 UX 방법론을 선정하여 경험 수집',
+    accent:'human',
+    tagline:'0번 진단 결과에 따라 방법론을 선택 적용한다.',
 
-    purpose:'사용자와 클라이언트의 경험을 <b>복합적으로 수집</b>한다.',
-    method:'페르소나, 고객여정지도, 인터뷰, 데이터 조사 등 <b>여러 UX 방법론을 종합</b>해 한 가지 기법에 의존하지 않는다.',
+    purpose:'사용자와 클라이언트의 경험을 <b>복합적으로 수집</b>한다. 0번 진단 결과에 따라 쓸 방법론을 골라 적용한다.',
+    method:'사용자 인터뷰 · 사용자 관찰 · 생활 시나리오 조사 · 기존 공간 불편 수집 · 대지/지역 맥락 분석 · 이해관계자 맵(Stakeholder map)',
     owner:{
       human:'경험 수집의 전 과정을 사람이 수행한다.',
       ai:'이 단계에는 AI 역할을 두지 않는다.'
     },
-    evidence:[],
+    evidence:[
+      'Hettithanthri, U., Hansen, P., &amp; Munasinghe, H. (2023). <i>Exploring the architectural design process assisted in conventional design studio: a systematic literature review.</i> International Journal of Technology and Design Education, 33(5), 1835–1859. <span class="ev-tag">SSCI Q1 · SCIE</span><br><span class="ev-q">"…the lack of integrating the intended user in the design process has impacted the solutions."</span>',
+      'van der Linden, V., Dong, H., &amp; Heylighen, A. (2019). <i>Populating architectural design: Introducing scenario-based design in residential care projects.</i> International Journal of Design, 13(1), 21–36. <span class="ev-tag">SSCI Q1</span><br><span class="ev-q">"Architects typically take an expert mind-set of designing for users, rarely involving users directly." (p.22)</span>',
+      'Ghaznavi, S., Haghparast, F., Pourahmad Ghalejough, A., &amp; Sakian Mohamadi, H. (2025). <i>Implementing user-centered design in architecture using virtual reality.</i> Design Studies, 99, 101329. <span class="ev-tag">SSCI Q1</span>'
+    ],
     outputs:['수집된 경험 원자료 (사용자·클라이언트 경험 기록)'],
-    table:[
-      { no:'①', act:'경험 수집 (Collect)', method:'페르소나 · 고객여정지도 · 인터뷰 · 데이터 조사', owner:'human', output:'경험 원자료' }
-    ],
-
-    /* 세부 스텝 카드 */
-    steps:[
-      {
-        n:'①', title:'경험 수집', en:'Collect', color:'human',
-        purpose:'사용자·클라이언트의 경험을 복합적으로 수집한다.',
-        method:'페르소나, 고객여정지도, 인터뷰, 데이터 조사 등 <b>여러 UX 방법론을 종합</b>해 한 가지 기법에 의존하지 않는다.',
-        owner:'human'
-      }
-    ],
-    linkNote:'<b>①의 산출물(경험 원자료)</b>은 다음 단계인 <b>Define</b>의 ② 경험 군집화로 이어집니다.'
+    bullets:['사용자 인터뷰','사용자 관찰','생활 시나리오 조사','기존 공간 불편 수집','대지 · 지역 맥락 분석','이해관계자 맵 (Stakeholder map)'],
+    table:[]
   },
 
   /* ---------------------------------------------------------------- 2 */
   {
-    id:'define', no:2,
-    en:'Define', ko:'정의', sub:'',
-    scope:'detailed', accent:'human',
-    stepsLabel:'STEP ② – ④',
-    caption:'', innerList:'', missingLink:false,
+    id:'define', no:'2', kind:'stage',
+    en:'Define', ko:'정의', sub:'HX 목표 정의',
+    accent:'human',
+    tagline:'수집한 경험을 묶고 우선순위를 매겨 HX 목표로 정의한다.',
 
-    purpose:'수집된 경험을 정리·분해하여 설계에 쓸 수 있는 <b>인사이트</b>로 만들고, 그 인사이트로 <b>예시 스케치를 여러 개</b> 생성한다.',
-    method:'세 개의 세부 스텝으로 진행한다 — ② 경험 군집화 → ③ 수치화 가능 여부 분기(정량 / 정성) → ④ Ideation.',
+    purpose:'수집된 경험을 정리·분해하여 <b>HX(Human Experience) 목표</b>로 정의한다.',
+    method:'경험 군집화 → 우선순위 결정 → 정량 지표화 가능 여부 판별 → 분기.',
     owner:{
-      human:'군집화, 수치화 가능 여부 판별, 정성 경로 판단, 스케치 방향 결정을 담당한다.',
-      ai:'정량 경로의 공간 분석 지표를 계산하고, 수치 조건을 만족하는 스케치 대안을 다수 생성한다.'
+      human:'군집화, 우선순위 결정, 정성 해석을 담당한다.',
+      ai:'정량 지표 산출과 정성 해석 보조(LLM 기반)를 담당한다.'
+    },
+    evidence:[
+      'Scupin, R. (1997). <i>The KJ Method: A Technique for Analyzing Data Derived from Japanese Ethnology.</i> Human Organization, 56(2), 233–237. <span class="ev-tag">SSCI · Q2</span><br><span class="ev-q">"The actual application of the KJ method involves four essential steps: 1) label making, 2) label grouping, 3) chart-making, 4) written or verbal explanation." (p.235)</span>',
+      'Lee, P.-H., &amp; Han, Q. (2026). <i>User-centric sustainable design in mass-customized housing using Kano model and quality function deployment.</i> Architectural Engineering and Design Management, 22(2), 308–324. <span class="ev-tag">Q1</span>',
+      'Zhu, J., Gao, W., Zhu, N., &amp; Wang, L. (2026). <i>Specific design strategies for elderly-friendly residential spaces in nursing homes: an integrated model approach based on empathy map-KANO-AHP-PUGH.</i> Frontiers in Psychology, 17, 1824564. <span class="ev-tag">Q1</span>'
+    ],
+    outputs:['HX 목표','정량 지표 / 정성 해석으로 갈린 경험 항목','→ Insight'],
+    inner:{
+      steps:[
+        { t:'경험 군집화',    d:'어피니티 다이어그램(KJ 방법) · 카드소팅' },
+        { t:'우선순위 결정',  d:'Kano · QFD' },
+        { t:'정량 지표화 가능한가?', d:'', q:true }
+      ],
+      branch:{
+        yes:{ t:'정량 지표화', d:'Isovist · VGA · LDK 등' },
+        no: { t:'정성 해석',   d:'전문가 혹은 LLM 기반' }
+      }
+    },
+    table:[]
+  },
+
+  /* ------------------------------------------------------- Insight 산출물 */
+  {
+    id:'insight', no:'', kind:'artifact',
+    en:'Insight', ko:'인사이트', sub:'2. Define의 산출물',
+    accent:'human',
+    tagline:'HX Goal과 Spatial Direction이 교차하는 지점.',
+
+    purpose:'<b>HX Goal</b>과 <b>Spatial Direction</b>이 교차하는 지점. 정의된 경험 목표가 공간의 방향으로 번역되는 자리다.',
+    method:'두 축의 교차점을 HX 지표 네 가지가 받친다. 이 지표는 <b>3. Ideate의 입력</b>으로 다시 사용된다.',
+    owner:{
+      human:'HX Goal과 Spatial Direction의 교차 지점을 해석한다.',
+      ai:'HX 지표 산출을 보조한다.'
     },
     evidence:[],
-    outputs:[
-      '경험 군집 (경험1, 경험2 …)',
-      '정량 경로: 감각의 원인에 대응하는 공간 지표 값',
-      '정성 경로: 전문가 판단이 필요한 경험 항목 (Kano·QFD로 선별)',
-      '두 경로를 합친 인사이트',
-      '예시 스케치 여러 안 → Schematic Design 단계로 전송'
-    ],
-    table:[
-      { no:'②', act:'경험 군집화', method:'KJ법 등 군집화 기법', owner:'human', output:'경험 군집' },
-      { no:'③', act:'수치화 가능 여부 판별', method:'군집별로 "이 경험은 수치화 가능한가?" 판별', owner:'human', output:'정량 / 정성 분류' },
-      { no:'③-1', act:'정량 경로 분석', method:'isovist · VGA · LDK · Space Syntax', owner:'ai', output:'감각 원인의 수치값' },
-      { no:'③-2', act:'정성 경로 선별', method:'Kano · QFD로 경험 걸러내기', owner:'expert', output:'전문가 판단 항목' },
-      { no:'④', act:'인사이트 → 아이디에이션', method:'인사이트 기반 대안 발상, 스케치 다수 생성', owner:'both', output:'예시 스케치 여러 안' }
-    ],
-
-    steps:[
-      {
-        n:'②', title:'경험 군집화', en:'Clustering', color:'human',
-        purpose:'수집한 경험을 비슷한 것끼리 묶어 정리한다.',
-        method:'<b>KJ법</b>으로 진행한다 — 분류 항목을 미리 정해 두고 카드를 넣는 것이 아니라, ① 라벨을 전부 펼치고 ② <b>끌리는 것끼리 2~3장씩 모은 뒤</b> ③ <b>그제서야</b> 그 뭉치를 한 문장으로 요약한 <b>표찰</b>을 써 붙이고 ④ 표찰끼리 같은 방식으로 다시 모아 올라간다. 어디에도 붙지 않는 카드는 <b>외톨이로 그대로 둔다</b>.',
-        owner:'human',
-        demo:{ mode:'kj', cap:'경험 카드 18장이 KJ법으로 묶여 올라가는 과정',
-               sub:'펼치기 → 끌리는 것끼리 모으기 → <b>모은 뒤에</b> 표찰 붙이기 → 표찰끼리 다시 모으기' }
-      },
-      {
-        n:'③', title:'수치화 가능 여부 분기', en:'Quantifiability Branch', color:'human',
-        purpose:'각 경험 군집이 공간 지표로 환산 가능한지 판별하여 이후 처리 경로를 나눈다.',
-        method:'판별 질문 — <b>"이 경험은 수치화 가능한가?"</b>',
-        owner:'human',
-        demo:{ mode:'verdict', cap:'2차 편성 결과가 게이트를 지나며 정량 / 정성으로 갈라지는 과정',
-               sub:'판정 대상은 개별 카드가 아니라 <b>KJ로 올라온 표찰 단위</b>입니다' },
-        branch:true      /* ← 이 스텝에만 분기 시각화가 붙는다 */
-      },
-      {
-        n:'④', title:'인사이트 → 스케치', en:'Ideation', color:'human',
-        purpose:'①–③으로 도출된 인사이트를 바탕으로 예시 스케치를 여러 개 생성한다.',
-        method:'정량 지표를 만족하는 공간 구성안과, 정성 요구를 반영한 구성안을 각각 스케치로 옮겨 비교한다.',
-        owner:'both',
-        output:'예시 스케치 여러 안 → Schematic Design(원본 Ideate) 단계로 전송'
-      }
-    ],
-    linkNote:'<b>④의 산출물(예시 스케치)</b>이 다음 단계인 <b>Ideate — Schematic Design Stage</b>의 입력이 됩니다.'
+    outputs:['HX 지표 4종 → 3. Ideate의 입력'],
+    hx:['Restorativeness','Stress &amp; Anxiety','Aesthetics &amp; Pleasure','Motivation'],
+    table:[]
   },
 
   /* ---------------------------------------------------------------- 3 */
   {
-    id:'ideation', no:3,
-    en:'Ideation', ko:'아이디어', sub:'Schematic Design Stage',
-    scope:'original', accent:'muted',
-    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+    id:'ideate', no:'3', kind:'stage',
+    en:'Ideate', ko:'아이디어', sub:'정의된 HX 목표를 구체적인 공간 관계, 평면 대안으로 전환',
+    accent:'human',
+    tagline:'HX 지표를 공간의 관계와 배치로 옮긴다.',
 
-    purpose:'확산적 사고로 다수의 설계 대안을 탐색하고, 기본 계획(Schematic Design) 수준의 방향을 잡는다. — 원본 Design Thinking 단계',
-    method:'브레인스토밍, 대안 스터디, 매스·조닝 검토 등 설계 스튜디오의 통상적 발상 과정.',
+    purpose:'정의된 <b>HX 목표를 구체적인 공간 관계와 평면 대안으로</b> 전환한다.',
+    method:'HX 지표 → 공간 간 관계 정의 → 배치 구조화 → 초기 설계 대안.',
     owner:{
-      human:'설계자가 대안을 발상하고 선별한다.',
-      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+      human:'공간 관계와 배치 방향을 결정한다.',
+      ai:'조건을 만족하는 대안을 다수 생성해 탐색 폭을 넓힌다.'
     },
-    evidence:[],
-    outputs:['기본 계획안 (Schematic Design)'],
-    table:[],
-    linkNote:'<b>입력</b> — 본 프로세스 <b>④단계의 예시 스케치</b>(Define 단계 산출물)가 이 단계로 전달됩니다.'
+    evidence:[
+      'Dow, S. P., Glassco, A., Kass, J., Schwarz, M., Schwartz, D. L., &amp; Klemmer, S. R. (2010). <i>Parallel prototyping leads to better design results, more divergence, and increased self-efficacy.</i> ACM Transactions on Computer-Human Interaction, 17(4), Article 18. <span class="ev-tag">SCIE · Q1</span>',
+      'Postle, B., &amp; Salingaros, N. A. (2025). <i>LLM and Pattern Language Synthesis: A Hybrid Tool for Human-Centered Architectural Design.</i> Buildings, 15, 2400. <span class="ev-tag">Scopus Q1 · JCR Q2</span>'
+    ],
+    outputs:['초기 설계 대안 (단선 평면 · 단면 · 입면 · 매스 스터디)'],
+    inner:{
+      steps:[
+        { t:'HX 지표',          d:'Insight에서 전달' , from:true },
+        { t:'공간 간 관계 정의', d:'인접행렬 · 기능관계도 · 버블 다이어그램' },
+        { t:'배치 구조화',      d:'조닝도 · 블로킹 · 동선도 · 매싱' },
+        { t:'초기 설계 대안',   d:'단선 평면 · 단면 · 입면 · 매스 스터디' }
+      ]
+    },
+    table:[]
   },
 
   /* ---------------------------------------------------------------- 4 */
   {
-    id:'prototype', no:4,
-    en:'Prototype', ko:'프로토타입', sub:'Design Development Stage',
-    scope:'original', accent:'muted',
-    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+    id:'prototype', no:'4', kind:'stage',
+    en:'Prototype', ko:'프로토타입', sub:'초기 설계안의 치수 · 재료 · 시스템 구체화',
+    accent:'human',
+    tagline:'설계안을 지을 수 있는 물건으로 만든다.',
 
-    purpose:'선택한 대안을 도면·모델·목업으로 구체화한다. — 원본 Design Thinking 단계',
-    method:'실시설계 전 단계의 도면화, 3D 모델링, 부분 목업 제작.',
+    purpose:'초기 설계안의 <b>치수 · 재료 · 시스템</b>을 구체화한다.',
+    method:'설계안 상세화 착수 → 치수 및 구조 구체화 → 재료 및 마감 결정 → BIM / Mockup.',
     owner:{
       human:'설계자가 구체화를 주도한다.',
-      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+      ai:'치수·물량 검토를 보조한다.'
     },
     evidence:[],
-    outputs:['구체화된 설계안 (Design Development)'],
+    outputs:['BIM 모델 · Mockup'],
+    inner:{
+      steps:[
+        { t:'설계안 상세화 착수', d:'3번 산출물을 받아 상세 전개 시작' },
+        { t:'치수 및 구조 구체화', d:'' },
+        { t:'재료 및 마감 결정',  d:'' },
+        { t:'BIM / Mockup',      d:'' }
+      ]
+    },
     table:[]
   },
 
   /* ---------------------------------------------------------------- 5 */
   {
-    id:'testing', no:5,
-    en:'Testing', ko:'테스트', sub:'Testing Design Solutions',
-    scope:'original', accent:'muted',
-    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+    id:'evaluate', no:'5', kind:'stage',
+    en:'Evaluate', ko:'검증', sub:'HX 기반 검증 및 피드백',
+    accent:'quant',
+    tagline:'HX 목표가 실제로 달성되었는지 검증하고 되돌린다.',
 
-    purpose:'설계 해법을 검증하고 피드백을 반영한다. — 원본 Design Thinking 단계',
-    method:'사용자·클라이언트 리뷰, 성능 검토, 수정 반영.',
+    purpose:'설계안이 <b>HX 목표를 실제로 달성했는지</b> 검증하고, 그 결과를 이전 단계로 되돌린다.',
+    method:'도면 기반 HX 평가 · 사용자 선호도 테스트 · 의미분별척도(SD Scale) · A/B 테스트 · Isovist / Space Syntax 분석 · VR 기반 사용성 테스트 · 피드백 수집',
     owner:{
-      human:'설계자와 사용자·클라이언트가 함께 검증한다.',
-      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+      human:'평가 설계와 해석, 피드백 반영 판단을 담당한다.',
+      ai:'Isovist · Space Syntax 분석과 VR 사용성 데이터 처리를 담당한다.'
     },
     evidence:[],
-    outputs:['검증된 설계 해법'],
+    outputs:['HX 검증 결과','이전 단계로 되돌아가는 피드백'],
+    bullets:['도면 기반 HX 평가','사용자 선호도 테스트','의미분별척도 (SD Scale)','A/B 테스트','Isovist / Space Syntax 분석','VR 기반 사용성 테스트','피드백 수집'],
+    feedbackNote:'이 단계의 피드백은 <b>Ideate · Prototype · Empathize</b>로 되돌아갑니다.',
     table:[]
-  }
+  },
+
+  /* ---------------------------------------------------------------- 6 */
+  {
+    id:'deliver', no:'6', kind:'stage',
+    en:'Deliver', ko:'실시설계', sub:'실시설계 반영 및 최종 검증',
+    accent:'human',
+    tagline:'지을 수 있는 도면으로 확정하고 POE를 준비한다.',
+
+    purpose:'검증된 설계안을 <b>실시설계에 반영</b>하고 최종 검증한다.',
+    method:'실시설계 도면 반영 · 창호/재료/조명/방음 상세 검토 · HX 체크리스트 검증 · 시공 가능성 검토 · POE 계획 수립',
+    owner:{
+      human:'실시설계 반영과 시공 가능성 판단, POE 계획 수립을 담당한다.',
+      ai:'이 단계에는 AI 역할을 두지 않는다.'
+    },
+    evidence:[],
+    outputs:['Final Design','POE Data (입주 후 평가 데이터) → 1. Empathize로 순환'],
+    bullets:['실시설계 도면 반영','창호 · 마감 · 조명 · 차음 상세 검토','HX 체크리스트 검증','시공 가능성 검토','POE 계획 수립'],
+    table:[]
+  },
+
+  /* --------------------------------------------------- 최종 산출물 노드 */
+  { id:'final', no:'', kind:'terminal', en:'Final Design', ko:'', sub:'', accent:'quant' },
+  { id:'poe',   no:'', kind:'terminal', en:'POE Data',     ko:'', sub:'입주 후 평가', accent:'quant' }
 ];
+
 
 /* 빨간 점선 라벨 — 영문 / 한국어 토글 */
 const MISS_LABEL = {
-  en:'Missing connection to Empathy',
-  ko:'초기 공감과의 단절'
+  en:'Feedback to Empathize',
+  ko:'Empathize로 피드백'
 };
 let labelLang = 'en';
 
 /* 단계 사이 화살표에 붙는 전달물 라벨 (i번째 → i+1번째) */
-const SEP_LABELS = { 'define→ideation':'④ 스케치 전달' };
+const SEP_LABELS = {
+  'define→insight':'HX 목표',
+  'deliver→final':'확정',
+  'final→poe':'입주 후'
+};
 
 /* ------------------------------------------------------------------ */
 /* 렌더링                                                              */
@@ -1442,7 +1709,32 @@ function renderBranch(){
           <p>${OWNER_CHIP.ai} &nbsp;AI·분석 툴로 <b>정답에 가까운 결론</b>을 도출할 수 있는 영역.</p>
 
           <p class="path-lbl">근거</p>
-          <blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote>
+          <blockquote class="cite">
+            Benedikt, M. L. (1979). <i>To take hold of space: isovists and isovist fields.</i>
+            Environment and Planning B, 6(1), 47–65. <span class="ev-tag">원전</span><br>
+            <span class="ev-q">"The method seems relevant to behavioral and perceptual studies in architecture,
+            especially in the areas of view control, privacy, 'defensibility', and in dynamic complexity
+            and spaciousness judgements." (p.47)</span>
+          </blockquote>
+          <blockquote class="cite">
+            Turner, A., Doxa, M., O'Sullivan, D., &amp; Penn, A. (2001).
+            <i>From isovists to visibility graphs.</i>
+            Environment and Planning B, 28(1), 103–121. <span class="ev-tag">원전</span><br>
+            <span class="ev-q">"…visibility graph properties may be closely related to manifestations of
+            spatial perception, such as way-finding, movement, and space use." (p.103)</span>
+          </blockquote>
+          <blockquote class="cite">
+            Stamps, A. E., III. (2005). <i>Isovists, enclosure, and permeability theory.</i>
+            Environment and Planning B: Planning and Design, 32(5), 735–762. <span class="ev-tag">Q1</span><br>
+            <span class="ev-q">15,521개 환경 분석 — 지각된 둘러싸임이 isovist 수평 크기와 가장 강하게 상관.
+            지표값과 주관적 평가의 상관을 통계로 제시한 핵심 실증.</span>
+          </blockquote>
+          <blockquote class="cite">
+            <span class="ev-note"><b>보류</b> — 천장고와 아늑함의 관계는 아직 근거가 확정되지 않았습니다.
+            Stamps (2011)은 "경계가 낮을수록 더 넓게 느낀다(r = −.22)"고 보고해 방향이 반대일 수 있어,
+            해당 연구의 boundary 정의(천장 vs 외부 벽)를 확인하기 전까지 인용을 보류합니다.
+            Space Syntax 원전(Hillier &amp; Hanson, 1984)도 미확보입니다.</span>
+          </blockquote>
 
         </div></div>
       </div>
@@ -1471,7 +1763,25 @@ function renderBranch(){
           <p style="margin-top:8px">두 기법으로 다뤄야 할 경험을 <b>걸러낸다</b>.</p>
 
           <p class="path-lbl">근거</p>
-          <blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote>
+          <blockquote class="cite">
+            Buchanan, R. (1992). <i>Wicked Problems in Design Thinking.</i>
+            Design Issues, 8(2), 5–21. <span class="ev-tag">AHCI</span><br>
+            <span class="ev-q">"…the 'wickedness' has already been taken out to yield determinate or analytic
+            problems. To understand what this means, it is important to recognize that indeterminacy is
+            quite different from undetermined."</span>
+          </blockquote>
+          <blockquote class="cite">
+            Lee, P.-H., &amp; Han, Q. (2026). <i>User-centric sustainable design in mass-customized housing
+            using Kano model and quality function deployment.</i>
+            Architectural Engineering and Design Management, 22(2), 308–324. <span class="ev-tag">Q1</span><br>
+            <span class="ev-q">576명 설문을 Kano 5개 범주(매력적·일원적·당연적·무관심·역품질)로 분류하고
+            QFD로 설계 전략에 환산한 실증 사례.</span>
+          </blockquote>
+          <blockquote class="cite">
+            <span class="ev-note"><b>미확보</b> — Wicked Problem 원전(Rittel &amp; Webber, 1973)과
+            Kano 원전(Kano et al., 1984)은 아직 확보하지 못했습니다. 현재 Kano 관련 기술은 2차 문헌을 통한
+            재인용 상태입니다.</span>
+          </blockquote>
 
         </div></div>
       </div>
@@ -1495,7 +1805,9 @@ function renderSteps(s){
         <dt>방법</dt><dd>${st.method||''}</dd>
         <dt>담당</dt><dd>${OWNER_CHIP[st.owner]||''}</dd>
         ${st.output ? `<dt>산출물</dt><dd>${st.output}</dd>` : ''}
-        <dt>근거</dt><dd><blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote></dd>
+        <dt>근거</dt><dd>${st.cite
+          ? st.cite.map(c=>`<blockquote class="cite">${c}</blockquote>`).join('')
+          : '<blockquote class="cite ph">논문 인용 자리 — 조사 중입니다.</blockquote>'}</dd>
       </dl>
       ${st.demo ? `<div class="demo"><p class="demo-cap">${st.demo.cap} <em>— ${st.demo.sub}</em></p><div data-demo="${st.demo.mode}"></div></div>` : ''}
       ${st.branch ? renderBranch() : ''}
@@ -1508,6 +1820,74 @@ function renderSteps(s){
         <em>번호 ①–④는 본 프로세스의 세부 스텝 번호입니다 (Empathize의 ① → Define의 ②–④로 이어집니다)</em>
       </div>
       <div class="graph">${nodes}</div>
+    </div>`;
+}
+
+/* ---------- 0. Diagnosis 진단 축 ---------- */
+function renderAxes(s){
+  if(!s.axes) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">진단 축 <em>이 네 가지가 이후 단계의 방법론 범위를 정한다</em></div>
+      <div class="axes">
+        ${s.axes.map((a,i)=>`
+          <div class="axis"><span class="axis-no">${i+1}</span>
+            <b>${a.t}</b><span>${a.d}</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ---------- 목록형 방법 ---------- */
+function renderBullets(s){
+  if(!s.bullets) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">세부 항목</div>
+      <div class="bul">${s.bullets.map(b=>`<span>${b}</span>`).join('')}</div>
+    </div>`;
+}
+
+/* ---------- Insight HX 지표 ---------- */
+function renderHX(s){
+  if(!s.hx) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">HX 지표 <em>Insight를 받치는 네 가지 · 3. Ideate의 입력으로 다시 사용된다</em></div>
+      <div class="hx-cross">
+        <span class="hx-axis">HX Goal</span><span class="hx-x">×</span><span class="hx-axis">Spatial Direction</span>
+      </div>
+      <div class="hx-grid">${s.hx.map(h=>`<div class="hx-item">${h}</div>`).join('')}</div>
+      <div class="hx-out">→ <b>3. Ideate</b>의 입력</div>
+    </div>`;
+}
+
+/* ---------- 단계 내부 흐름 ---------- */
+function renderInner(s){
+  if(!s.inner) return '';
+  const st = s.inner.steps.map((x,i)=>`
+    ${i ? '<span class="ifl-arw" aria-hidden="true">→</span>' : ''}
+    <div class="ifl-box${x.q ? ' is-q' : ''}${x.from ? ' is-from' : ''}">
+      <b>${x.t}</b>${x.d ? `<span>${x.d}</span>` : ''}
+    </div>`).join('');
+
+  const br = s.inner.branch ? `
+    <div class="ifl-branch">
+      <svg class="fork" viewBox="0 0 200 34" preserveAspectRatio="none" aria-hidden="true">
+        <path class="stem" d="M100 0 V10"/>
+        <path class="l" d="M100 10 H25 V34"/>
+        <path class="r" d="M100 10 H175 V34"/>
+      </svg>
+      <div class="ifl-cols">
+        <div class="ifl-box is-yes"><span class="yn">예</span><b>${s.inner.branch.yes.t}</b><span>${s.inner.branch.yes.d}</span></div>
+        <div class="ifl-box is-no"><span class="yn">아니오</span><b>${s.inner.branch.no.t}</b><span>${s.inner.branch.no.d}</span></div>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="block anim">
+      <div class="block-h">내부 흐름</div>
+      <div class="ifl">${st}</div>
+      ${br}
     </div>`;
 }
 
@@ -1544,40 +1924,57 @@ function sepHTML(fromId, toId){
   return `<div class="sep-wrap">${ARROW_SVG}${label ? `<span class="sep-label">${label}</span>` : ''}</div>`;
 }
 
-function renderFlow(){
-  const flow  = document.getElementById('flow');
-  const first = STAGES[0];
-  const rest  = STAGES.slice(1);
+const byId = (id)=> STAGES.find(s=> s.id === id);
 
-  const nodeHTML = (s) => `
-    <div class="node-slot${s.no===1?' is-first':''}">
+function renderFlow(){
+  const flow = document.getElementById('flow');
+
+  /* 단계 노드 — 클릭하면 상세 패널이 열린다 */
+  const stageHTML = (s)=> `
+    <div class="node-slot">
       <button class="node" type="button"
-              id="node-${s.id}" data-id="${s.id}" data-scope="${s.scope}"
+              id="node-${s.id}" data-id="${s.id}" data-kind="${s.kind}"
               style="${accentVars(s.accent)}"
               aria-expanded="false" aria-controls="panel-${s.id}">
-        <span class="node-idx">${s.no}</span>
-        <span class="node-title">${s.en} <span class="ko">${s.ko}</span></span>
+        ${s.no !== '' ? `<span class="node-idx">${s.no}</span>` : ''}
+        <span class="node-title">${s.en}${s.ko ? ` <span class="ko">${s.ko}</span>` : ''}</span>
         ${s.sub ? `<span class="node-sub">${s.sub}</span>` : ''}
-        ${s.stepsLabel ? `<span class="node-steps">${s.stepsLabel}</span>` : ''}
         <span class="caretmark" aria-hidden="true">▼</span>
       </button>
-      ${s.innerList ? `<div class="inner-list">${s.innerList}</div>` : ''}
-      ${s.missingLink ? `<span class="miss-badge">↩ <span class="miss-text">${MISS_LABEL[labelLang]}</span></span>` : ''}
-      ${s.caption ? `<div class="node-caption">${s.caption}</div>` : ''}
+      ${FEEDBACK_FROM.includes(s.id)
+        ? `<span class="miss-badge">↩ <span class="miss-text">${MISS_LABEL[labelLang]}</span></span>` : ''}
     </div>`;
 
-  const studioInner = rest.map((s,i)=>
-    (i === 0 ? '' : sepHTML(rest[i-1].id, s.id)) + nodeHTML(s)
-  ).join('');
+  /* 산출물 노드 — 펼칠 내용이 없다 */
+  const termHTML = (s)=> `
+    <div class="node-slot">
+      <div class="node node--term" id="node-${s.id}" style="${accentVars(s.accent)}">
+        <span class="node-title">${s.en}</span>
+        ${s.sub ? `<span class="node-sub">${s.sub}</span>` : ''}
+      </div>
+      ${FEEDBACK_FROM.includes(s.id)
+        ? `<span class="miss-badge">↩ <span class="miss-text">${MISS_LABEL[labelLang]}</span></span>` : ''}
+    </div>`;
 
-  flow.innerHTML =
-    nodeHTML(first) + sepHTML(first.id, rest[0].id) +
-    `<div class="studio">${studioInner}</div>`;
+  const nodeHTML = (s)=> s.kind === 'terminal' ? termHTML(s)
+                       : s.kind === 'artifact' ? stageHTML(s)
+                       : stageHTML(s);
+
+  flow.innerHTML = GROUPS.map((g,gi)=>{
+    const inner = g.nodes.map((id,i)=>
+      (i ? sepHTML(g.nodes[i-1], id) : '') + nodeHTML(byId(id))
+    ).join('');
+    return (gi ? `<div class="grp-arrow" aria-hidden="true">${ARROW_SVG}</div>` : '') +
+      `<div class="grp" data-g="${g.id}">
+         <span class="grp-name">${g.name}</span>
+         <div class="grp-row">${inner}</div>
+       </div>`;
+  }).join('');
 }
 
 /* ---------- 상세 패널 ---------- */
 function renderPanels(){
-  document.getElementById('panels').innerHTML = STAGES.map(s => `
+  document.getElementById('panels').innerHTML = STAGES.filter(s=> s.kind !== 'terminal').map(s => `
     <section class="panel" id="panel-${s.id}" style="${accentVars(s.accent)}"
              role="region" aria-labelledby="node-${s.id}">
       <div class="panel-body">
@@ -1585,10 +1982,9 @@ function renderPanels(){
         <div class="panel-card">
 
           <div class="panel-head anim">
-            <h3>${s.no}. ${s.ko} <span class="en">${s.en}${s.sub ? ' · '+s.sub : ''}</span></h3>
-            <span class="tag ${s.scope==='original'?'tag--plain':''}">
-              ${s.scope==='detailed' ? s.stepsLabel : '원본 Design Thinking'}
-            </span>
+            <h3>${s.no !== '' ? s.no+'. ' : ''}${s.ko || s.en}
+              <span class="en">${s.ko ? s.en : ''}${s.sub ? ' · '+s.sub : ''}</span></h3>
+            <span class="tag">${(GROUPS.find(g=>g.nodes.includes(s.id))||{}).name || ''}</span>
             <button class="panel-close" type="button" data-close="${s.id}">닫기 ✕</button>
           </div>
 
@@ -1628,7 +2024,12 @@ function renderPanels(){
             <div class="field-body">${phList(s.outputs,'')}</div>
           </div>
 
+          ${renderAxes(s)}
+          ${renderInner(s)}
+          ${renderBullets(s)}
+          ${renderHX(s)}
           ${renderSteps(s)}
+          ${s.feedbackNote ? `<div class="linknote anim" style="border-color:var(--red);background:rgba(217,45,32,.07)"><span class="ico" style="color:var(--red)">↩</span><span>${s.feedbackNote}</span></div>` : ''}
           ${s.linkNote ? `<div class="linknote anim"><span class="ico">→</span><span>${s.linkNote}</span></div>` : ''}
           ${renderTable(s.table)}
 
@@ -1636,12 +2037,21 @@ function renderPanels(){
       </div>
     </section>`).join('');
 
-  /* 등장 순서 딜레이 부여 (문서 순서대로) */
-  document.querySelectorAll('.panel').forEach(p=>{
-    p.querySelectorAll('.anim').forEach((el,i)=>{
-      el.style.setProperty('--d', Math.min(i*0.05, 0.6).toFixed(3)+'s');
-    });
+}
+
+/* 패널 내용의 순차 등장 — 확실히 재생되도록 직접 실행하고, 안전장치로 정리한다 */
+function playPanelAnim(panel){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches || !panel.animate) return;
+  const running = [];
+  panel.querySelectorAll('.anim').forEach((el,i)=>{
+    el.getAnimations().forEach(a=>a.cancel());
+    running.push(el.animate(
+      [{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}],
+      { duration:460, delay:Math.min(i*50, 600), fill:'backwards',
+        easing:'cubic-bezier(.16,.84,.44,1)' }
+    ));
   });
+  setTimeout(()=>running.forEach(a=>{ if(a.playState !== 'finished') a.cancel(); }), 1500);
 }
 
 /* ---------- 접기/펼치기 (한 번에 하나만) ---------- */
@@ -1660,6 +2070,7 @@ function setPanel(id, open){
     panel.classList.add('is-open');
     playDemosIn(panel);                       // 데모 크기부터 맞춘 뒤 높이 계산 → 자동 재생
     panel.style.maxHeight = panelHeight(panel) + 'px';
+    playPanelAnim(panel);
   }else{
     panel.style.maxHeight = panel.scrollHeight + 'px';
     panel.offsetHeight;                       // reflow
@@ -2198,31 +2609,32 @@ function drawEmpathyLinks(){
   svg.setAttribute('height', wr.height);
   svg.setAttribute('viewBox', `0 0 ${wr.width} ${wr.height}`);
 
-  const target = document.getElementById('node-'+STAGES[0].id);
+  const target = document.getElementById('node-empathize');
   if(!target) return;
   const tr = target.getBoundingClientRect();
-  const sources = STAGES.filter(s=>s.missingLink);
+  const ex = tr.left + tr.width/2 - wr.left;
+  const ey = tr.bottom - wr.top + 4;                      // 도착: Empathize 하단
 
-  // 1) 곡선을 먼저 전부 그린다
+  /* 피드백은 아래쪽 레인을 타고 왼쪽으로 돌아 Empathize 밑으로 올라온다 */
+  const sources = FEEDBACK_FROM.map(id=> document.getElementById('node-'+id)).filter(Boolean);
+  const base = wr.height - 24;
+
   const labels = [];
-  sources.forEach((s,i)=>{
-    const el = document.getElementById('node-'+s.id);
-    if(!el) return;
+  sources.forEach((el,i)=>{
     const r = el.getBoundingClientRect();
-
-    const sx = r.left + r.width/2 - wr.left;               // 출발: 후반 노드 상단 중앙
-    const sy = r.top  - wr.top - 5;
-    const ex = tr.left + tr.width/2 - wr.left + (i-1)*22;  // 도착: Empathizing 상단
-    const ey = tr.top - wr.top - 6;
-    const lane = 24 + (sources.length - 1 - i) * 34;       // 멀수록 높은 레인 (간격 넉넉히)
+    const sx = r.left + r.width/2 - wr.left;
+    const sy = r.bottom - wr.top + 4;                     // 출발: 노드 하단
+    const lane = base - (sources.length - 1 - i) * 30;    // 뒤쪽 단계일수록 깊은 레인
 
     const p = document.createElementNS(SVG_NS,'path');
     p.setAttribute('class','empathy-path');
     p.setAttribute('marker-end','url(#redArrow)');
-    p.setAttribute('d', `M ${sx} ${sy} C ${sx} ${lane}, ${ex} ${lane}, ${ex} ${ey}`);
+    p.setAttribute('d',
+      `M ${sx} ${sy} C ${sx} ${lane}, ${ex} ${lane}, ${ex} ${ey}`);
     svg.appendChild(p);
 
-    labels.push({ x:(sx + ex) / 2, y:(sy + ey + 6*lane) / 8 });   // 곡선 중간점(t=0.5)
+    /* 라벨은 가장 깊은 레인 하나에만 — 다섯 개를 다 붙이면 서로 겹친다 */
+    if(i === 0) labels.push({ x:(sx + ex)/2, y:lane - 12 });
   });
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
@@ -2363,6 +2775,7 @@ function initLangToggle(){
 function initRefImage(){
   const img = document.getElementById('refImg');
   const box = document.getElementById('refPlaceholder');
+  if(!img || !box) return;                 // 출처 표기 방식일 때는 도판 슬롯이 없다
   const show = ()=>{ img.style.display='none'; box.style.display='flex'; };
   const hide = ()=>{ img.style.display='block'; box.style.display='none'; };
   if(!img.getAttribute('src')) show(); else hide();
