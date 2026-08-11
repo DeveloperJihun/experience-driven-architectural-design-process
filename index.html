@@ -137,11 +137,11 @@ figcaption b{color:var(--text);font-weight:600}
 /* =========================================================================
    3. 노드 영역 (플로우)
    ========================================================================= */
-.flow-wrap{position:relative;padding:16px 4px 190px}  /* 하단 여백 = 피드백 루프 레인 */
+.flow-wrap{position:relative;padding:16px 4px 76px}   /* 하단 여백 = 같은 행 피드백 레인 */
 .flow{
   position:relative;z-index:1;
   display:flex;align-items:flex-start;justify-content:center;
-  flex-wrap:wrap;gap:14px 6px;
+  flex-wrap:wrap;gap:124px 6px;                       /* 행 간격 = 피드백 통로 */
 }
 
 /* 건축 프로세스 그룹 */
@@ -236,8 +236,8 @@ figcaption b{color:var(--text);font-weight:600}
    ========================================================================= */
 .empathy-svg{position:absolute;inset:0;z-index:2;pointer-events:none;transition:opacity .25s ease}
 .empathy-path{
-  fill:none;stroke:var(--red);stroke-width:1.8;
-  stroke-dasharray:7 5;stroke-linecap:round;
+  fill:none;stroke:var(--red);stroke-width:1.5;stroke-opacity:.75;
+  stroke-dasharray:6 5;stroke-linecap:round;stroke-linejoin:round;
   animation:march 1.4s linear infinite;
 }
 @keyframes march{to{stroke-dashoffset:-24}}
@@ -3021,31 +3021,78 @@ function drawEmpathyLinks(){
   svg.setAttribute('height', wr.height);
   svg.setAttribute('viewBox', `0 0 ${wr.width} ${wr.height}`);
 
-  /* 피드백은 아래쪽 레인을 타고 돌아 목적지 노드 밑으로 올라온다.
-     목적지는 하나가 아니다 — 문제 유형에 따라 Prototype·Ideate·Define·Empathize로 갈린다. */
-  const base = wr.height - 20;
+  /* ---- 피드백 라우팅 ----
+     곡선이 서로 가로지르면 읽히지 않으므로 직각(ㄷ자)으로 돌린다.
+     이전 행으로 가는 선은 행 사이 통로를, 같은 행이면 아래 통로를 쓴다. */
+
+  /* 노드들을 행으로 묶는다 */
+  const rows = [];
+  STAGES.forEach(s=>{
+    const el = document.getElementById('node-'+s.id);
+    if(!el) return;
+    const r = el.getBoundingClientRect();
+    const top = r.top - wr.top, bottom = r.bottom - wr.top;
+    const row = rows.find(x=> Math.abs(x.top - top) < 30);
+    if(row){ row.top = Math.min(row.top, top); row.bottom = Math.max(row.bottom, bottom); }
+    else rows.push({ top, bottom });
+  });
+  rows.sort((a,b)=> a.top - b.top);
+  const rowOf = (top)=> rows.findIndex(r=> Math.abs(r.top - top) < 30);
+
+  /* 직각 경로 — 모서리는 살짝 둥글게 */
+  const orth = (sx,sy,ex,ey,lane)=>{
+    const d1 = Math.sign(lane - sy) || 1;
+    const d2 = Math.sign(ex - sx)   || 1;
+    const d3 = Math.sign(ey - lane) || 1;
+    const r  = Math.max(0, Math.min(9, Math.abs(ex-sx)/2 - 1,
+                        Math.abs(lane-sy) - 1, Math.abs(ey-lane) - 1));
+    if(r < 2) return `M ${sx} ${sy} L ${sx} ${lane} L ${ex} ${lane} L ${ex} ${ey}`;
+    return `M ${sx} ${sy} L ${sx} ${lane - d1*r}`
+         + ` Q ${sx} ${lane} ${sx + d2*r} ${lane}`
+         + ` L ${ex - d2*r} ${lane}`
+         + ` Q ${ex} ${lane} ${ex} ${lane + d3*r}`
+         + ` L ${ex} ${ey}`;
+  };
+
+  const laneCount = {};                                   // 통로별 사용 개수
+  const targetCount = {};                                 // 같은 목적지 겹침 보정
   const labels = [];
 
-  FEEDBACK.forEach((f,i)=>{
+  FEEDBACK.forEach(f=>{
     const se = document.getElementById('node-'+f.from);
     const te = document.getElementById('node-'+f.to);
     if(!se || !te) return;
-    const r = se.getBoundingClientRect(), t = te.getBoundingClientRect();
+    const s = se.getBoundingClientRect(), t = te.getBoundingClientRect();
+    const si = rowOf(s.top - wr.top), ti = rowOf(t.top - wr.top);
 
-    const sx = r.left + r.width/2 - wr.left;
-    const sy = r.bottom - wr.top + 4;                     // 출발: 노드 하단
-    const ex = t.left + t.width/2 - wr.left;
-    const ey = t.bottom - wr.top + 4;                     // 도착: 목적지 하단
-    const lane = base - (FEEDBACK.length - 1 - i) * 26;   // 멀리 갈수록 깊은 레인
+    const k = (targetCount[f.to] = (targetCount[f.to] || 0) + 1) - 1;
+    const sx = s.left + s.width/2 - wr.left;
+    const ex = t.left + t.width/2 - wr.left + k*16;       // 같은 노드로 두 번 들어오면 살짝 벌린다
+
+    let sy, ey, lane;
+    if(ti < si){                                          // 이전 행 → 행 사이 통로
+      sy = s.top - wr.top - 4;                            // 출발: 노드 상단
+      ey = t.bottom - wr.top + 4;                         // 도착: 목적지 하단
+      const gapTop = rows[ti].bottom, gapBot = rows[ti+1].top;
+      const n = (laneCount[ti] = (laneCount[ti] || 0) + 1) - 1;
+      lane = gapTop + 26 + n * 25;
+      if(lane > gapBot - 14) lane = gapBot - 14;
+    }else{                                                // 같은 행 → 아래 통로
+      sy = s.bottom - wr.top + 4;
+      ey = t.bottom - wr.top + 4;
+      const n = (laneCount['b'] = (laneCount['b'] || 0) + 1) - 1;
+      lane = rows[si].bottom + 30 + n * 25;
+    }
 
     const p = document.createElementNS(SVG_NS,'path');
     p.setAttribute('class','empathy-path');
     p.setAttribute('marker-end','url(#redArrow)');
-    p.setAttribute('d',
-      `M ${sx} ${sy} C ${sx} ${lane}, ${ex} ${lane}, ${ex} ${ey}`);
+    p.setAttribute('d', orth(sx, sy, ex, ey, lane));
     svg.appendChild(p);
 
-    labels.push({ x:(sx + ex)/2, y:lane - 9, t:'→ '+f.label });
+    /* 라벨은 목적지 쪽 세로선 옆에 — 어디로 가는 선인지 바로 보이게 */
+    labels.push({ x:ex + (ex > sx ? -10 : 10), y:lane - 9,
+                  t:f.label, anchor:(ex > sx ? 'end' : 'start') });
   });
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
@@ -3054,6 +3101,7 @@ function drawEmpathyLinks(){
     t.setAttribute('class','empathy-label');
     t.setAttribute('x', pos.x);
     t.setAttribute('y', pos.y);
+    if(pos.anchor) t.setAttribute('text-anchor', pos.anchor);
     t.textContent = pos.t || MISS_LABEL[labelLang];
     svg.appendChild(t);
 
