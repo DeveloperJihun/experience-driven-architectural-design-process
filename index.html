@@ -762,27 +762,49 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
 .dedges line{stroke:var(--human);stroke-width:1.6;stroke-opacity:.5}
 
 .dalt{
-  width:290px;padding:13px 16px;border-radius:9px;
+  width:298px;padding:14px 17px;border-radius:9px;
   border:1px solid var(--line);border-top:3px solid var(--text-3);background:var(--surface);
 }
-.dalt b{display:block;font-size:14px}
-.dalt-f{display:block;font-size:11.5px;color:var(--text-2);margin:2px 0 9px}
+.dalt > b{display:block;font-size:15px}
+.dalt-f{display:block;font-size:12px;color:var(--text-2);margin:2px 0 10px}
+.dalt-plan{
+  margin:0 0 11px;padding:9px 12px 9px 26px;border-radius:7px;background:var(--surface-2);
+}
+.dalt-plan li{font-size:11.5px;line-height:1.65;color:var(--text-2)}
 .dalt-bars{display:flex;flex-direction:column;gap:5px}
-.dab{display:flex;align-items:center;gap:8px}
-.dab-k{flex:0 0 46px;font-size:10.5px;color:var(--text-3);text-align:right}
+.dab{display:flex;align-items:center;gap:7px}
+.dab-k{flex:0 0 42px;font-size:10.5px;color:var(--text-3);text-align:right}
 .dab-t{flex:1;height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden}
 .dab-t i{
   display:block;height:100%;width:0;border-radius:4px;background:var(--quant);
   transition:width .9s var(--ease);
 }
-.dalt-tag{
-  display:block;margin-top:9px;font-size:11px;font-weight:700;min-height:15px;color:var(--text-3);
+.dab-v{flex:0 0 26px;font-size:10px;font-weight:700;color:var(--text-3);text-align:right}
+.dalt-sum{
+  margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);
+  font-size:11.5px;color:var(--text-3);
 }
-.dalt.win{border-top-color:var(--quant);box-shadow:inset 0 0 0 1px var(--quant)}
-.dalt.win .dalt-tag{color:var(--quant)}
-.dalt.lose{opacity:.55}
-.dalt.lose .dalt-tag{color:var(--red)}
-.dalt.lose .dab-t i{background:var(--text-3)}
+.dalt-sum b{font-size:15px;color:var(--text)}
+.dalt-sum em{font-style:normal;font-size:10.5px}
+.dalt-v{margin:8px 0 0;font-size:11.5px;line-height:1.6;color:var(--text-2)}
+.dalt-tag{
+  display:block;margin-top:9px;font-size:11.5px;font-weight:700;min-height:16px;color:var(--text-3);
+}
+/* ⑥ Ideate에서는 "대안이 셋 나왔다"만 — 점수는 ⑦에서 붙는다 */
+.dalt.compact .dalt-plan,
+.dalt.compact .dalt-bars,
+.dalt.compact .dalt-sum,
+.dalt.compact .dalt-v,
+.dalt.compact .dalt-tag{display:none}
+.dalt.compact .dalt-f{margin-bottom:0}
+
+/* 판정 결과 — .in 이 붙어 있을 때만 적용해야 다시 재생 시 잔상이 안 남는다 */
+.dalt.in.win{border-top-color:var(--quant);box-shadow:inset 0 0 0 1.5px var(--quant)}
+.dalt.in.win .dalt-sum b{color:var(--quant)}
+.dalt.in.win .dalt-tag{color:var(--quant)}
+.dalt.in.lose{opacity:.5}
+.dalt.in.lose .dalt-tag{color:var(--red)}
+.dalt.in.lose .dab-t i{background:var(--text-3)}
 
 .dcycle{
   display:flex;align-items:center;gap:12px;padding:13px 22px;border-radius:999px;
@@ -2699,15 +2721,24 @@ const ROOMS = [
 ];
 const EDGES = [[0,1],[1,2],[2,3],[3,1],[1,5],[1,4]];
 const ALTS = [
-  { n:'대안 A', f:'개방감 · 회복 경험 중심',      s:[.85,.55,.70,.60] },
-  { n:'대안 B', f:'프라이버시 · 은신감 중심',     s:[.55,.90,.65,.55] },
-  { n:'대안 C', f:'동선 효율 · 기능 수행성 중심', s:[.50,.60,.75,.90] }
+  { n:'대안 A', f:'개방감 · 회복 경험 중심',
+    plan:['LDK를 하나의 공용영역으로 통합','거실을 전면부에 배치','발코니 · 창호 직접 연결'],
+    s:[.85,.50,.70,.55],
+    v:'개방감은 가장 높지만, 사적 영역이 노출돼 스트레스 지표가 낮다.' },
+  { n:'대안 B', f:'프라이버시 · 은신감 중심',
+    plan:['침실군을 후면으로 분리','현관에 완충 공간 · 시선 차단','공용/사적 영역 명확히 구분'],
+    s:[.50,.90,.65,.50],
+    v:'은신감은 확보되나, 공용공간 연결이 약해 수행 지표가 낮다.' },
+  { n:'대안 C', f:'동선 효율 · 기능 수행성 중심',
+    plan:['복도 길이 최소화 · 순환 동선','주방-식당-거실 인접 배치','수납 접근성 우선'],
+    s:[.65,.70,.75,.90],
+    v:'네 지표가 고르게 높고 동선 효율이 가장 우수하다.' }
 ];
 
 function buildDemo(host){
   const mode = host.dataset.demo;                       // 'kj' | 'verdict' | 'full'
   const W = mode === 'full' ? 1180 : 1000;
-  const H = mode === 'full' ? 740  : 720;
+  const H = mode === 'full' ? 800  : 720;   /* ⑤~⑧에서 카드가 커져 세로를 넉넉히 */
   const phases = mode === 'kj' ? [0,1,2]
                : mode === 'verdict' ? [2,3]
                : [0,1,2,3,4,5,6,7];
@@ -2859,9 +2890,13 @@ function buildDemo(host){
   const roomEls = ROOMS.map(r=> mk('droom', r.t));
   const altEls = ALTS.map(a=> mk('dalt',
     `<b>${a.n}</b><span class="dalt-f">${a.f}</span>
-     <div class="dalt-bars">${HX4.map(h=>
+     <ul class="dalt-plan">${a.plan.map(p=>`<li>${p}</li>`).join('')}</ul>
+     <div class="dalt-bars">${HX4.map((h,j)=>
        `<div class="dab"><span class="dab-k">${h.ko}</span>
-          <div class="dab-t"><i></i></div></div>`).join('')}</div>
+          <div class="dab-t"><i></i></div>
+          <span class="dab-v" data-j="${j}"></span></div>`).join('')}</div>
+     <div class="dalt-sum">합계 <b class="dalt-sumv">—</b> <em>/ 4.00</em></div>
+     <p class="dalt-v">${a.v}</p>
      <span class="dalt-tag"></span>`));
   const cycleEl = mk('dcycle',
     `<span>Final Design</span><i>→</i><span>POE Data</span><i>→</i><span class="hi">Empathize</span>`);
@@ -2875,9 +2910,20 @@ function buildDemo(host){
   const stageNote = mk('dnote','');
 
   const POOL = [...goalEls, ...hxEls, ...roomEls, ...altEls, cycleEl, stageNote];
+
+  /* 대안 카드를 처음 상태로 — 다시 재생할 때 이전 판정이 남지 않게 */
+  const resetAlt = (a)=>{
+    a.classList.remove('win','lose');
+    a.querySelectorAll('.dab-t i').forEach(b=> b.style.width = '0%');
+    a.querySelectorAll('.dab-v').forEach(v=> v.textContent = '');
+    a.querySelector('.dalt-sumv').textContent = '—';
+    a.querySelector('.dalt-tag').textContent = '';
+  };
+
   const showPool = (list)=>{
     POOL.forEach(el=> el.classList.toggle('in', list.includes(el)));
     edgeSvg.classList.remove('in');
+    if(!list.length) altEls.forEach(resetAlt);      // 완전히 감출 때는 값도 되돌린다
   };
 
   /* 판정 대상 = 2차 편성의 결과 단위 4개 */
@@ -3111,7 +3157,8 @@ function buildDemo(host){
 
     hxEls.forEach((h,i)=>{ h.classList.add('sm'); place(h, (.17 + i*.22)*W, .165*H); });
     roomEls.forEach((r,i)=> place(r, ROOMS[i].p[0]*W, ROOMS[i].p[1]*H));
-    altEls.forEach((a,i)=>{ a.classList.remove('win','lose'); place(a, (.20 + i*.30)*W, .82*H); });
+    altEls.forEach((a,i)=>{ resetAlt(a); a.classList.add('compact');
+                            place(a, (.20 + i*.30)*W, .80*H); });
 
     /* 인접선 */
     edgeSvg.innerHTML = EDGES.map(([a,b])=>
@@ -3138,16 +3185,21 @@ function buildDemo(host){
     place(stageNote, .5*W, .12*H);
 
     altEls.forEach((a,i)=>{
-      a.classList.remove('win','lose');
-      a.querySelectorAll('.dab-t i').forEach(b=> b.style.width = '0%');
-      a.querySelector('.dalt-tag').textContent = '';
-      place(a, (.20 + i*.30)*W, .48*H);
+      resetAlt(a);
+      a.classList.remove('compact');                 // 여기서 상세가 펼쳐진다
+      place(a, (.20 + i*.30)*W, .46*H);
     });
 
-    const fill = ()=> altEls.forEach((a,i)=>
+    const fill = ()=> altEls.forEach((a,i)=>{
       a.querySelectorAll('.dab-t i').forEach((b,j)=>{
         b.style.width = (ALTS[i].s[j]*100).toFixed(0)+'%';
-      }));
+      });
+      a.querySelectorAll('.dab-v').forEach((v,j)=>{
+        v.textContent = ALTS[i].s[j].toFixed(2);
+      });
+      a.querySelector('.dalt-sumv').textContent =
+        ALTS[i].s.reduce((x,y)=>x+y,0).toFixed(2);
+    });
 
     const judge = ()=>{
       const sum = ALTS.map(a=> a.s.reduce((x,y)=>x+y,0));
@@ -3155,7 +3207,7 @@ function buildDemo(host){
       altEls.forEach((a,i)=>{
         a.classList.add(i === best ? 'win' : 'lose');
         a.querySelector('.dalt-tag').textContent =
-          i === best ? '선정 → Prototype · Deliver' : '↩ 피드백 → Ideate';
+          i === best ? '✓ 선정 → Prototype · Deliver' : '↩ 피드백 → Ideate';
       });
     };
 
@@ -3171,11 +3223,8 @@ function buildDemo(host){
     stageNote.textContent = '설계는 Final Design에서 끝나지 않는다 — 사용 후 경험이 다음 프로젝트로 돌아간다';
     place(stageNote, .5*W, .16*H);
 
-    altEls.forEach((a,i)=>{
-      place(a, (.20 + i*.30)*W, .44*H);
-      if(!a.classList.contains('win') && !a.classList.contains('lose')) a.classList.add('lose');
-    });
-    place(cycleEl, .5*W, .78*H);
+    altEls.forEach((a,i)=> place(a, (.20 + i*.30)*W, .42*H));
+    place(cycleEl, .5*W, .84*H);
     if(anim){ cycleEl.classList.remove('in'); at(600, ()=> cycleEl.classList.add('in')); }
   }
 
