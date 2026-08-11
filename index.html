@@ -137,11 +137,11 @@ figcaption b{color:var(--text);font-weight:600}
 /* =========================================================================
    3. 노드 영역 (플로우)
    ========================================================================= */
-.flow-wrap{position:relative;padding:16px 4px 76px}   /* 하단 여백 = 같은 행 피드백 레인 */
+.flow-wrap{position:relative;padding:16px 4px 62px}
 .flow{
   position:relative;z-index:1;
   display:flex;align-items:flex-start;justify-content:center;
-  flex-wrap:wrap;gap:124px 6px;                       /* 행 간격 = 피드백 통로 */
+  flex-wrap:wrap;gap:86px 6px;                        /* 행 간격 = 피드백 레일 통로 */
 }
 
 /* 건축 프로세스 그룹 */
@@ -243,12 +243,29 @@ figcaption b{color:var(--text);font-weight:600}
 @keyframes march{to{stroke-dashoffset:-24}}
 /* 라벨: 배경판(plate)으로 선을 끊어 겹침 없이 읽히게 한다 */
 .empathy-plate{fill:var(--bg);stroke:var(--red);stroke-width:1;stroke-opacity:.35}
+.empathy-dot{fill:var(--red);fill-opacity:.85}
 .empathy-label{
   fill:var(--red);font-family:var(--font);font-size:12px;font-weight:700;
   text-anchor:middle;dominant-baseline:middle;
 }
 .flow-wrap.links-off .empathy-svg{opacity:0}
 .flow-wrap.links-off .miss-badge{display:none !important}
+
+/* 피드백 범례 — 어느 문제가 어느 단계로 되돌아가는지 */
+.fb-legend{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;
+  margin:-52px 0 0;padding:12px 16px;
+  border:1px dashed var(--red);border-radius:9px;background:rgba(217,45,32,.05);
+  transition:opacity .25s ease;
+}
+.fb-legend-h{font-size:12px;font-weight:700;color:var(--red);letter-spacing:.02em;margin-right:2px}
+.fb-item{
+  font-size:12px;color:var(--text-2);
+  border:1px solid var(--line);border-radius:999px;padding:4px 11px;background:var(--surface);
+}
+.fb-item b{color:var(--text);font-weight:700}
+.fb-item i{font-style:normal;color:var(--red);font-weight:700;margin:0 3px}
+.fb-legend.is-off{opacity:.35}
 
 /* =========================================================================
    5. 상세 패널 — 슬라이드 다운 + 내용 순차 등장
@@ -1134,6 +1151,16 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <div class="flow" id="flow"></div>
   </div>
 
+  <!-- 레일 위 분기가 어떤 문제에 해당하는지 -->
+  <div class="fb-legend" id="fbLegend">
+    <span class="fb-legend-h">↩ 피드백 루프</span>
+    <span class="fb-item"><b>Evaluate</b> 치수·재료에서 목표 훼손 <i>→</i> Prototype</span>
+    <span class="fb-item"><b>Evaluate</b> 공간 관계가 부적절 <i>→</i> Ideate</span>
+    <span class="fb-item"><b>Evaluate</b> HX 목표가 부정확 <i>→</i> Define</span>
+    <span class="fb-item"><b>Evaluate</b> 조사 자체가 부족 <i>→</i> Empathize</span>
+    <span class="fb-item"><b>POE Data</b> 사용 후 경험 환류 <i>→</i> Empathize</span>
+  </div>
+
   <!-- ===================================================================
        [ 상세 패널 ] — 한 번에 하나만 열림 (max-height transition)
        =================================================================== -->
@@ -1949,8 +1976,8 @@ const STAGES = [
 
 /* 빨간 점선 라벨 — 영문 / 한국어 토글 */
 const MISS_LABEL = {
-  en:'Feedback to Empathize',
-  ko:'Empathize로 피드백'
+  en:'Feedback loop',
+  ko:'피드백 루프'
 };
 let labelLang = 'en';
 
@@ -3012,7 +3039,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 function drawEmpathyLinks(){
   const wrap = document.getElementById('flowWrap');
   const svg  = document.getElementById('empathySvg');
-  [...svg.querySelectorAll('.empathy-path,.empathy-label,.empathy-plate')].forEach(n=>n.remove());
+  [...svg.querySelectorAll('.empathy-path,.empathy-label,.empathy-plate,.empathy-dot')]
+    .forEach(n=>n.remove());
 
   if(window.innerWidth <= 900) return;          // 좁은 화면은 배지로 대체
 
@@ -3039,61 +3067,47 @@ function drawEmpathyLinks(){
   rows.sort((a,b)=> a.top - b.top);
   const rowOf = (top)=> rows.findIndex(r=> Math.abs(r.top - top) < 30);
 
-  /* 직각 경로 — 모서리는 살짝 둥글게 */
-  const orth = (sx,sy,ex,ey,lane)=>{
-    const d1 = Math.sign(lane - sy) || 1;
-    const d2 = Math.sign(ex - sx)   || 1;
-    const d3 = Math.sign(ey - lane) || 1;
-    const r  = Math.max(0, Math.min(9, Math.abs(ex-sx)/2 - 1,
-                        Math.abs(lane-sy) - 1, Math.abs(ey-lane) - 1));
-    if(r < 2) return `M ${sx} ${sy} L ${sx} ${lane} L ${ex} ${lane} L ${ex} ${ey}`;
-    return `M ${sx} ${sy} L ${sx} ${lane - d1*r}`
-         + ` Q ${sx} ${lane} ${sx + d2*r} ${lane}`
-         + ` L ${ex - d2*r} ${lane}`
-         + ` Q ${ex} ${lane} ${ex} ${lane + d3*r}`
-         + ` L ${ex} ${ey}`;
+  /* 선을 여러 개 겹쳐 그리는 대신 레일 하나에 짧은 분기를 붙인다.
+     긴 선 5개 → 가로선 1개 + 짧은 세로선 6개. */
+  if(rows.length < 2) return;
+
+  const geom = (id)=>{
+    const el = document.getElementById('node-'+id);
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    return { cx:r.left + r.width/2 - wr.left, top:r.top - wr.top, bottom:r.bottom - wr.top };
   };
+  const sources = [...new Set(FEEDBACK.map(f=> f.from))].map(geom).filter(Boolean);
+  const targets = [...new Set(FEEDBACK.map(f=> f.to))].map(geom).filter(Boolean);
+  if(!sources.length || !targets.length) return;
 
-  const laneCount = {};                                   // 통로별 사용 개수
-  const targetCount = {};                                 // 같은 목적지 겹침 보정
-  const labels = [];
+  const railY = (rows[0].bottom + rows[1].top) / 2;        // 행 사이 한가운데
+  const xs = [...sources, ...targets].map(g=> g.cx);
+  const railL = Math.min(...xs), railR = Math.max(...xs);
 
-  FEEDBACK.forEach(f=>{
-    const se = document.getElementById('node-'+f.from);
-    const te = document.getElementById('node-'+f.to);
-    if(!se || !te) return;
-    const s = se.getBoundingClientRect(), t = te.getBoundingClientRect();
-    const si = rowOf(s.top - wr.top), ti = rowOf(t.top - wr.top);
-
-    const k = (targetCount[f.to] = (targetCount[f.to] || 0) + 1) - 1;
-    const sx = s.left + s.width/2 - wr.left;
-    const ex = t.left + t.width/2 - wr.left + k*16;       // 같은 노드로 두 번 들어오면 살짝 벌린다
-
-    let sy, ey, lane;
-    if(ti < si){                                          // 이전 행 → 행 사이 통로
-      sy = s.top - wr.top - 4;                            // 출발: 노드 상단
-      ey = t.bottom - wr.top + 4;                         // 도착: 목적지 하단
-      const gapTop = rows[ti].bottom, gapBot = rows[ti+1].top;
-      const n = (laneCount[ti] = (laneCount[ti] || 0) + 1) - 1;
-      lane = gapTop + 26 + n * 25;
-      if(lane > gapBot - 14) lane = gapBot - 14;
-    }else{                                                // 같은 행 → 아래 통로
-      sy = s.bottom - wr.top + 4;
-      ey = t.bottom - wr.top + 4;
-      const n = (laneCount['b'] = (laneCount['b'] || 0) + 1) - 1;
-      lane = rows[si].bottom + 30 + n * 25;
-    }
-
+  const line = (d, arrow)=>{
     const p = document.createElementNS(SVG_NS,'path');
     p.setAttribute('class','empathy-path');
-    p.setAttribute('marker-end','url(#redArrow)');
-    p.setAttribute('d', orth(sx, sy, ex, ey, lane));
+    if(arrow) p.setAttribute('marker-end','url(#redArrow)');
+    p.setAttribute('d', d);
     svg.appendChild(p);
+  };
 
-    /* 라벨은 목적지 쪽 세로선 옆에 — 어디로 가는 선인지 바로 보이게 */
-    labels.push({ x:ex + (ex > sx ? -10 : 10), y:lane - 9,
-                  t:f.label, anchor:(ex > sx ? 'end' : 'start') });
+  line(`M ${railL} ${railY} H ${railR}`);                  // 레일
+  sources.forEach(g=> line(`M ${g.cx} ${g.top - 4} V ${railY}`));          // 올라오는 쪽
+  targets.forEach(g=> g.bottom < railY
+    ? line(`M ${g.cx} ${railY} V ${g.bottom + 5}`, true)                   // 윗행으로
+    : line(`M ${g.cx} ${railY} V ${g.top - 5}`, true));                    // 아랫행으로
+
+  /* 레일 접점 표시 — 어디서 들어오고 어디로 나가는지 */
+  [...sources, ...targets].forEach(g=>{
+    const c = document.createElementNS(SVG_NS,'circle');
+    c.setAttribute('class','empathy-dot');
+    c.setAttribute('cx', g.cx); c.setAttribute('cy', railY); c.setAttribute('r', 3);
+    svg.appendChild(c);
   });
+
+  const labels = [{ x:railL, y:railY - 11, anchor:'start' }];
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
   labels.forEach(pos=>{
@@ -3214,6 +3228,8 @@ function initToggle(){
     const on = btn.getAttribute('aria-pressed') === 'true';
     btn.setAttribute('aria-pressed', on ? 'false' : 'true');   // 기본은 켜짐
     wrap.classList.toggle('links-off', on);
+    const lg = document.getElementById('fbLegend');
+    if(lg) lg.classList.toggle('is-off', on);
   });
 }
 
