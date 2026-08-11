@@ -1,0 +1,12 @@
+# 논문 PDF — 구독 저널 원문이라 재배포하지 않음 (서지정보는 00_INDEX.md 참조)
+*.pdf
+
+# 내부 문서
+00_INDEX.md
+근거논문_조사요청서.md
+
+# OS / 편집기
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp

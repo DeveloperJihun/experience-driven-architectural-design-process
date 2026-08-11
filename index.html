@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experience Driven Architectural Design Process</title>
+<style>
+/* =========================================================================
+   0. 토큰 / 기본
+   ========================================================================= */
+:root{
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f6f7f9;
+  --surface-3:#eef1f4;
+  --line:#dfe3e8;
+  --line-2:#eceff2;
+  --text:#14181d;
+  --text-2:#5b6570;
+  --text-3:#98a1ac;
+
+  /* 역할 색 규칙 — 사람=파랑 / AI·정량=청록 / 정성=주황 (상태색 없음) */
+  --human:#2563eb;  --human-soft:#e8f0ff;
+  --quant:#0d9488;  --quant-soft:#dcf3ef;
+  --qual:#ea580c;   --qual-soft:#ffece0;
+  --muted:#64748b;  --muted-soft:#eef1f5;
+
+  --red:#d92d20;
+  --radius:10px;
+  --font:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
+         'Segoe UI','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','맑은 고딕',
+         system-ui,sans-serif;
+  --ease:cubic-bezier(.16,.84,.44,1);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0f1216; --surface:#161a20; --surface-2:#1b2027; --surface-3:#222831;
+    --line:#2b323b; --line-2:#232932; --text:#e8ecf1; --text-2:#a3adb9; --text-3:#6e7883;
+    --human:#5b8def; --human-soft:#1b2740;
+    --quant:#2dd4bf; --quant-soft:#10312e;
+    --qual:#fb923c;  --qual-soft:#3a2114;
+    --muted:#94a3b8; --muted-soft:#232a33;
+    --red:#f0736a;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--font);
+  font-size:15px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 20px 100px}
+
+h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px}
+.h1-ko{font-size:15px;font-weight:600;color:var(--text-2);margin:0 0 10px}
+.sub{color:var(--text-2);font-size:14px;margin:0 0 34px;max-width:820px}
+
+.section-title{
+  font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-3);margin:0 0 12px;
+}
+hr.rule{border:0;border-top:1px solid var(--line);margin:48px 0}
+
+/* =========================================================================
+   1. 참고 이미지 (원본 Fig.4)
+   ========================================================================= */
+.ref{margin:0 0 8px}
+.ref-frame{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--surface-2);padding:14px;
+}
+.ref-frame img{display:block;width:100%;height:auto;border-radius:4px}
+.ref-placeholder{
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;
+  min-height:200px;border:1px dashed var(--line);border-radius:6px;
+  color:var(--text-3);font-size:13px;text-align:center;padding:20px;
+}
+.ref-placeholder code{
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:12px;background:var(--surface);padding:2px 6px;border-radius:4px;
+  border:1px solid var(--line);color:var(--text-2);
+}
+figcaption{color:var(--text-2);font-size:13px;margin-top:10px}
+figcaption b{color:var(--text);font-weight:600}
+
+/* =========================================================================
+   2. 툴바 (빨간 점선 토글)
+   ========================================================================= */
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 8px}
+.toggle{
+  display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  border-radius:999px;padding:7px 14px 7px 11px;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.toggle:hover{border-color:var(--text-3)}
+.toggle .dot{width:22px;height:2px;border-top:2px dashed var(--text-3);transition:border-color .15s}
+.toggle[aria-pressed="true"]{border-color:var(--red);color:var(--red)}
+.toggle[aria-pressed="true"] .dot{border-top-color:var(--red)}
+/* 라벨 언어 토글 */
+.toggle--lang .glyph{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:19px;height:19px;border-radius:5px;font-size:11px;font-weight:700;
+  background:var(--muted-soft);color:var(--muted);transition:background .15s,color .15s;
+}
+.toggle--lang[aria-pressed="true"]{border-color:var(--human);color:var(--human)}
+.toggle--lang[aria-pressed="true"] .glyph{background:var(--human);color:#fff}
+.toolbar-note{
+  font-size:12.5px;color:var(--text-2);margin:0 0 4px;line-height:1.6;
+  border-left:2px solid var(--red);padding-left:10px;max-width:860px;
+}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-3);margin-left:auto}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.lg-human{background:var(--human)}
+.lg-quant{background:var(--quant)}
+.lg-qual{background:var(--qual)}
+
+/* =========================================================================
+   3. 노드 영역 (플로우)
+   ========================================================================= */
+.flow-wrap{position:relative;padding:158px 4px 44px}  /* 상단 여백 = 빨간 점선 아치 공간 */
+.flow{position:relative;z-index:1;display:flex;align-items:stretch;gap:8px}
+
+/* Design Studio 점선 박스 (Define ~ Testing) */
+.studio{
+  flex:1;display:flex;align-items:stretch;gap:8px;
+  border:1.5px dashed var(--line);border-radius:var(--radius);
+  padding:14px 14px 30px;position:relative;min-width:0;
+}
+.studio::after{
+  content:'With in Design Studio context';
+  position:absolute;left:0;right:0;bottom:8px;text-align:center;
+  font-size:11.5px;color:var(--text-3);
+}
+
+/* 단계 노드 */
+.node-slot{display:flex;flex-direction:column;align-items:center;min-width:0;flex:1}
+.node-slot.is-first{flex:0 0 210px}
+
+.node{
+  width:100%;min-height:104px;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border-radius:var(--radius);padding:16px 12px 20px;
+  font-family:inherit;text-align:center;cursor:pointer;
+  background:var(--surface);color:var(--text);
+  border:1.5px solid var(--line);
+  transition:background .18s,border-color .18s,color .18s,transform .18s var(--ease);
+}
+.node:hover{transform:translateY(-2px)}
+.node:active{transform:translateY(0) scale(.985)}
+.node:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* 본 프로세스가 상세화한 구간 */
+.node[data-scope="detailed"]{background:var(--accent-soft);border-color:var(--accent)}
+/* 원본 Design Thinking 단계 (성격 구분일 뿐, 진행 상태가 아님) */
+.node[data-scope="original"]{background:var(--surface);border-color:var(--line);color:var(--text-2)}
+.node[data-scope="original"] .node-title{color:var(--text)}
+
+.node[aria-expanded="true"]{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.node .caretmark{
+  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  font-size:9px;opacity:.5;transition:transform .3s var(--ease),opacity .2s;
+}
+.node[aria-expanded="true"] .caretmark{transform:translateX(-50%) rotate(180deg);opacity:1}
+
+.node-idx{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+  background:var(--accent);color:#fff;margin-bottom:2px;
+}
+.node[data-scope="original"] .node-idx{background:var(--muted-soft);color:var(--muted)}
+.node-title{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.node-title .ko{font-weight:600;opacity:.85;font-size:13px}
+.node-sub{font-size:11.5px;color:var(--text-2);line-height:1.4}
+.node-steps{
+  font-size:10.5px;font-weight:700;letter-spacing:.03em;
+  color:var(--accent);margin-top:4px;
+}
+.node-caption{font-size:11px;color:var(--text-3);margin-top:8px;text-align:center;line-height:1.4}
+
+/* Empathizing 내부 점선 리스트 (원본 이미지 재현) */
+.inner-list{
+  margin-top:8px;width:100%;
+  border:1.5px dashed var(--line);border-radius:8px;
+  padding:8px 10px;font-size:11px;color:var(--text-2);
+  text-align:center;line-height:1.55;
+}
+
+/* 단계 사이 굵은 화살표 (+ 전달물 라벨) */
+.sep-wrap{
+  flex:0 0 26px;align-self:center;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.sep{width:26px;height:18px;fill:var(--text-3)}
+.sep-label{
+  position:absolute;top:calc(50% + 12px);left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-size:10.5px;font-weight:700;color:var(--human);
+}
+
+/* 모바일용 "공감 단절" 배지 */
+.miss-badge{
+  display:none;margin-top:8px;
+  font-size:11px;font-weight:600;color:var(--red);
+  border:1px dashed var(--red);border-radius:999px;padding:3px 10px;
+}
+
+/* =========================================================================
+   4. 빨간 점선 — Missing connection to Empathy (SVG 오버레이)
+   ========================================================================= */
+.empathy-svg{position:absolute;inset:0;z-index:2;pointer-events:none;transition:opacity .25s ease}
+.empathy-path{
+  fill:none;stroke:var(--red);stroke-width:1.8;
+  stroke-dasharray:7 5;stroke-linecap:round;
+  animation:march 1.4s linear infinite;
+}
+@keyframes march{to{stroke-dashoffset:-24}}
+/* 라벨: 배경판(plate)으로 선을 끊어 겹침 없이 읽히게 한다 */
+.empathy-plate{fill:var(--bg);stroke:var(--red);stroke-width:1;stroke-opacity:.35}
+.empathy-label{
+  fill:var(--red);font-family:var(--font);font-size:12px;font-weight:700;
+  text-anchor:middle;dominant-baseline:middle;
+}
+.flow-wrap.links-off .empathy-svg{opacity:0}
+.flow-wrap.links-off .miss-badge{display:none !important}
+
+/* =========================================================================
+   5. 상세 패널 — 슬라이드 다운 + 내용 순차 등장
+   ========================================================================= */
+.panels{position:relative}
+.panel{max-height:0;overflow:hidden;transition:max-height .45s var(--ease)}
+.panel-body{padding-top:16px;position:relative}
+.panel-card{
+  border:1px solid var(--line);border-top:3px solid var(--accent);
+  border-radius:var(--radius);background:var(--surface);
+  padding:22px 24px 26px;
+}
+.caret{
+  position:absolute;top:8px;width:14px;height:14px;
+  background:var(--surface);border-left:1px solid var(--accent);border-top:1px solid var(--accent);
+  transform:translateX(-50%) rotate(45deg);
+  transition:left .35s var(--ease);left:50%;
+}
+@media (max-width:900px){.caret{display:none}}
+
+/* --- 내용 순차 등장 --- */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.panel .anim{opacity:0}
+.panel.is-open .anim{animation:rise .5s var(--ease) both;animation-delay:var(--d,0s)}
+
+.panel-head{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+.panel-head h3{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em}
+.panel-head .en{color:var(--text-3);font-weight:500;font-size:13px}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--accent-soft);color:var(--accent)}
+.tag--plain{background:var(--muted-soft);color:var(--muted)}
+.panel-close{
+  margin-left:auto;border:1px solid var(--line);background:none;color:var(--text-3);
+  font-family:inherit;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:999px;
+  transition:color .15s,border-color .15s;
+}
+.panel-close:hover{color:var(--text);border-color:var(--text-3)}
+
+/* 5개 항목 필드 */
+.field{display:grid;grid-template-columns:88px 1fr;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line-2)}
+.field-label{font-size:12px;font-weight:700;color:var(--text-2);letter-spacing:.02em;padding-top:2px}
+.field-body{min-width:0}
+.field-body p{margin:0}
+.field-body ul{margin:0;padding-left:18px}
+.field-body li{margin:2px 0}
+.ph{color:var(--text-3);font-style:italic;font-size:13.5px}
+
+/* 담당(사람/AI) 2열 */
+.owner-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.owner-card{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface-2)}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.owner-card .chip{margin-bottom:6px}
+.chip--human{background:var(--human-soft);color:var(--human)}
+.chip--quant{background:var(--quant-soft);color:var(--quant)}
+.chip--qual{background:var(--qual-soft);color:var(--qual)}
+.chip--both{background:var(--human-soft);color:var(--human);box-shadow:inset -60px 0 0 -50px var(--quant)}
+.owner-card p{font-size:13.5px}
+
+/* 근거(논문 인용) */
+.cite{
+  margin:0;padding:10px 14px;border-left:3px solid var(--line);
+  background:var(--surface-2);border-radius:0 6px 6px 0;font-size:13.5px;
+}
+.cite + .cite{margin-top:8px}
+
+/* --- 세부 프로세스 스텝 카드 --- */
+.steps{margin-top:24px}
+.steps-head{
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px;
+  font-size:12px;font-weight:700;color:var(--text-2);letter-spacing:.02em;
+}
+.steps-head em{font-style:normal;font-weight:500;font-size:11.5px;color:var(--text-3)}
+/* 하나의 연속된 그래프 — 왼쪽 세로 축(spine)이 모든 스텝을 관통한다 */
+.graph{position:relative;margin-top:6px}
+.graph::before{                    /* 끊기지 않는 세로 축 */
+  content:'';position:absolute;left:15px;top:16px;bottom:16px;width:2px;
+  background:var(--accent);opacity:.35;
+}
+.gnode{position:relative;padding:0 0 30px 50px}
+.gnode:last-child{padding-bottom:0}
+.gno{                              /* 축 위에 얹히는 스텝 번호 */
+  position:absolute;left:0;top:0;box-sizing:border-box;
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gc,var(--accent));color:#fff;font-size:13px;font-weight:700;
+  border:4px solid var(--surface);
+}
+.gtitle{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-height:32px;padding-top:4px}
+.gtitle b{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.gtitle .en{font-size:12px;font-weight:500;color:var(--text-3)}
+.step-dl{display:grid;grid-template-columns:64px 1fr;gap:8px 14px;margin:10px 0 0;font-size:13.5px}
+.step-dl dt{font-size:11.5px;font-weight:700;color:var(--text-2);padding-top:2px}
+.step-dl dd{margin:0}
+.step-dl .cite{padding:7px 12px;font-size:12.5px}
+
+/* --- 분기(수치화 가능 여부) --- */
+.branch{position:relative;margin-top:18px;padding-top:16px}
+.branch::before{             /* 위 본문에서 판별 질문으로 내려오는 연결선 */
+  content:'';position:absolute;left:50%;top:0;width:2px;height:16px;
+  background:var(--text-3);opacity:.45;transform:translateX(-50%);
+}
+.branch-q{
+  display:block;max-width:440px;margin:0 auto;text-align:center;
+  border:1.5px solid var(--text-3);border-radius:999px;background:var(--surface);
+  padding:8px 18px;font-size:13.5px;font-weight:700;
+}
+.fork{display:block;width:100%;height:38px}
+.fork path{fill:none;stroke-width:1.6;vector-effect:non-scaling-stroke}
+.fork .stem{stroke:var(--text-3)}
+.fork .l{stroke:var(--quant)}
+.fork .r{stroke:var(--qual)}
+.branch-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.path-card{
+  border:1px solid var(--line);border-top:3px solid var(--pc);
+  border-radius:8px;background:var(--surface);overflow:hidden;
+}
+/* 접힌 상태 헤더 = 클릭 대상 */
+.path-head{
+  width:100%;display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  background:none;border:0;cursor:pointer;font-family:inherit;text-align:left;
+  padding:13px 16px;color:inherit;transition:background .15s;
+}
+.path-head:hover{background:var(--surface-2)}
+.path-head:focus-visible{outline:2px solid var(--pc);outline-offset:-2px}
+.path-head .yn{
+  font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  color:var(--pc);border:1px solid var(--pc);border-radius:999px;padding:1px 8px;white-space:nowrap;
+}
+.path-head .ttl{font-size:14px;font-weight:700;color:var(--pc)}
+.path-head .pcaret{
+  margin-left:auto;font-size:9px;color:var(--pc);
+  transition:transform .3s var(--ease);
+}
+.path-card.is-open .path-head .pcaret{transform:rotate(180deg)}
+.path-body{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
+.path-pad{padding:0 16px 15px;border-top:1px dashed var(--line)}
+.path-pad > .path-lbl:first-child{margin-top:12px !important}
+.path-card p{margin:0 0 8px;font-size:13.5px}
+.path-card p:last-child{margin-bottom:0}
+.path-lbl{font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 5px !important}
+
+/* 경험 → 감각 → 원인 → 수치 → 인사이트 체인 */
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 10px}
+.chain span{
+  font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 8px;
+  background:var(--quant-soft);color:var(--quant);
+}
+.chain i{font-style:normal;color:var(--text-3);font-size:11px}
+
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags .chip{font-size:11px}
+
+/* wicked problem 강조 */
+.wicked{
+  border:1px dashed var(--qual);border-radius:6px;background:var(--qual-soft);
+  padding:8px 12px;font-size:12.5px;color:var(--text);margin:0 0 8px !important;
+}
+
+/* --- 다음 단계 연결 배너 --- */
+.linknote{
+  display:flex;gap:10px;align-items:flex-start;margin-top:18px;
+  border:1px dashed var(--accent);background:var(--accent-soft);
+  border-radius:8px;padding:11px 14px;font-size:13px;line-height:1.6;
+}
+.linknote b{font-weight:700}
+.linknote .ico{font-weight:700;color:var(--accent);flex:0 0 auto}
+
+/* --- 세부 활동 표 --- */
+.table-block{margin-top:22px}
+.table-cap{
+  display:flex;align-items:baseline;gap:8px;margin-bottom:8px;
+  font-size:12px;font-weight:700;color:var(--text-2);letter-spacing:.02em;
+}
+.table-cap em{font-style:normal;font-weight:500;font-size:11.5px;color:var(--text-3)}
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.detail{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px}
+table.detail th{
+  background:var(--surface-3);color:var(--text-2);
+  font-size:11.5px;font-weight:700;letter-spacing:.03em;text-align:left;
+  padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+table.detail td{padding:10px 12px;border-bottom:1px solid var(--line-2);vertical-align:top}
+table.detail tr:last-child td{border-bottom:0}
+table.detail tbody tr{transition:background .15s}
+table.detail tbody tr:hover{background:var(--surface-2)}
+table.detail td.num{color:var(--text-3);font-size:12px;text-align:center;white-space:nowrap}
+table.detail.mini{min-width:0;font-size:13px}
+table.detail.mini th,table.detail.mini td{padding:7px 10px}
+table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:nowrap}
+
+/* =========================================================================
+   5-B. 경험 군집화 / 수치화 판정 애니메이션 데모
+   ========================================================================= */
+.demo{margin-top:16px}
+.gnode .demo{margin-left:-30px}   /* 그래프 축 안쪽 여백만큼 되찾아 데모를 넓게 */
+.demo-cap{font-size:12px;font-weight:700;color:var(--text-2);margin:0 0 8px}
+.demo-cap em{font-style:normal;font-weight:500;color:var(--text-3)}
+
+.demo-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.demo-phases{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dph{
+  font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-3);
+  border-radius:999px;padding:4px 11px;transition:all .2s;
+}
+.dph:hover{border-color:var(--text-3);color:var(--text-2)}
+.dph.on{background:var(--human);border-color:var(--human);color:#fff}
+.dsep{color:var(--text-3);font-size:11px}
+.dreplay{
+  margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  border-radius:999px;padding:4px 12px;transition:all .2s;
+}
+.dreplay:hover{border-color:var(--human);color:var(--human)}
+
+/* 고정 캔버스를 폭에 맞춰 축소 → 어느 화면에서도 배치가 동일 */
+.demo-fit{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.demo-canvas{position:absolute;left:0;top:0;transform-origin:top left}
+
+/* --- 그룹 테두리 (모은 뒤에 생긴다) --- */
+.dbox{
+  position:absolute;border:1.5px dashed var(--bc,var(--line));border-radius:12px;
+  opacity:0;transition:opacity .45s var(--ease),transform .55s var(--ease);
+}
+.dbox.on{opacity:1}
+.dbox.up{border-style:solid;border-width:2px}     /* 2차 편성 테두리 */
+.dbox-step{
+  position:absolute;top:-9px;right:12px;background:var(--surface-2);
+  padding:0 7px;font-size:10px;font-weight:700;color:var(--bc);letter-spacing:.06em;
+}
+
+/* --- 표찰 (모은 뒤에 '나중에' 써 붙이는 이름) --- */
+.dlabel{
+  position:absolute;left:0;top:0;width:190px;box-sizing:border-box;
+  padding:9px 12px;border-radius:7px;
+  background:var(--lc);color:#fff;font-size:12.5px;font-weight:700;line-height:1.4;
+  opacity:0;transform-origin:center;
+  transition:transform .55s var(--ease),opacity .35s ease;
+}
+.dlabel.in{opacity:1}
+.dlabel::before{
+  content:'표찰';position:absolute;top:-8px;left:10px;
+  background:var(--surface-2);color:var(--lc);
+  font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:0 5px;border-radius:3px;
+}
+.dlabel.up{width:214px;font-size:13.5px;padding:11px 14px}
+.dlabel.up::before{content:'2차 표찰'}
+
+/* --- 외톨이 --- */
+.dlone{
+  position:absolute;left:0;top:0;
+  font-size:10.5px;font-weight:700;color:var(--text-3);
+  border:1px dashed var(--text-3);border-radius:999px;padding:2px 9px;white-space:nowrap;
+  opacity:0;transition:opacity .4s ease,transform .55s var(--ease);
+}
+.dlone.in{opacity:1}
+
+/* --- 판정 존 (정량 / 정성) --- */
+.dzone{
+  position:absolute;border:1.5px solid var(--zc);border-radius:12px;
+  background:var(--zbg);opacity:0;transition:opacity .45s var(--ease);
+}
+.dzone.on{opacity:1}
+.dzone-head{
+  position:absolute;top:14px;left:0;right:0;text-align:center;
+  font-size:16px;font-weight:700;color:var(--zc);
+}
+.dzone-sub{
+  position:absolute;top:40px;left:0;right:0;text-align:center;
+  font-size:12.5px;color:var(--text-2);
+}
+.dzone-count{
+  position:absolute;top:64px;left:0;right:0;text-align:center;
+  font-size:13px;font-weight:700;color:var(--zc);opacity:0;transition:opacity .4s;
+}
+.dzone-count.on{opacity:1}
+
+/* --- 판별 게이트 --- */
+.dgate{
+  position:absolute;transform:translate(-50%,-50%) scale(.85);
+  opacity:0;transition:opacity .35s var(--ease),transform .35s var(--ease);
+  background:var(--surface);border:2px solid var(--text-2);border-radius:999px;
+  padding:10px 26px;font-size:17px;font-weight:700;white-space:nowrap;
+}
+.dgate.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.dgate-arrows{position:absolute;left:0;top:0;opacity:0;transition:opacity .35s}
+.dgate-arrows.on{opacity:1}
+.dgate-arrows path{fill:none;stroke-width:2;stroke-dasharray:6 5}
+.dgate-arrows .ga-l{stroke:var(--quant)}
+.dgate-arrows .ga-r{stroke:var(--qual)}
+.dgate-arrows text{font-family:var(--font);font-size:12px;font-weight:700}
+
+/* --- 경험 카드 --- */
+.dcard{
+  position:absolute;left:0;top:0;width:186px;min-height:50px;box-sizing:border-box;
+  display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+  padding:8px 11px;border-radius:7px;
+  border:1px solid var(--line);border-left:3px solid var(--cc,var(--text-3));
+  background:var(--surface);font-size:12.5px;line-height:1.35;
+  opacity:0;
+  transition:transform .55s var(--ease),opacity .35s ease,
+             border-color .35s ease,background .3s ease;
+}
+.dcard.in{opacity:1}
+.dcard .dc-dot{
+  width:6px;height:6px;border-radius:50%;flex:0 0 6px;
+  background:var(--cc,var(--text-3));transition:background .3s;
+}
+.dcard .dc-text{flex:1;min-width:0}
+.dcard .dc-badge{                    /* 외톨이 카드도 판정을 받으므로 배지를 갖는다 */
+  flex-basis:100%;font-size:10px;font-weight:700;border-radius:4px;padding:1px 6px;
+  opacity:0;max-height:0;overflow:hidden;transition:opacity .3s,max-height .4s var(--ease);
+}
+.dcard.judged .dc-badge{opacity:1;max-height:40px}
+.dcard.judging{z-index:6}
+.dcard.judging::after{
+  content:'?';position:absolute;right:-12px;top:-12px;
+  width:24px;height:24px;border-radius:50%;background:var(--text);color:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+  animation:pulse .7s ease-in-out infinite alternate;
+}
+.dcard.v-quant{border-color:var(--quant);border-left-color:var(--quant)}
+.dcard.v-quant .dc-dot{background:var(--quant)}
+.dcard.v-quant .dc-badge{background:var(--quant-soft);color:var(--quant)}
+.dcard.v-qual{border-color:var(--qual);border-left-color:var(--qual)}
+.dcard.v-qual .dc-dot{background:var(--qual)}
+.dcard.v-qual .dc-badge{background:var(--qual-soft);color:var(--qual)}
+/* 2차 편성에서 표찰 뒤로 접히는 상태 */
+.dcard.tucked{opacity:.4}
+/* 판정은 '표찰' 단위로 이루어진다 (2차 편성 결과가 판정 대상) */
+.dlabel .dl-badge{
+  display:block;margin-top:6px;font-size:10.5px;font-weight:700;
+  border-radius:4px;padding:2px 7px;background:rgba(255,255,255,.2);
+  opacity:0;max-height:0;overflow:hidden;
+  transition:opacity .3s,max-height .4s var(--ease);
+}
+.dlabel.judged .dl-badge{opacity:1;max-height:44px}
+.dlabel.judging{z-index:6;box-shadow:0 0 0 3px var(--surface-3)}
+.dlabel.judging::after{
+  content:'?';position:absolute;right:-12px;top:-12px;
+  width:24px;height:24px;border-radius:50%;background:var(--text);color:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+  animation:pulse .7s ease-in-out infinite alternate;
+}
+@keyframes pulse{from{transform:scale(.86)}to{transform:scale(1.12)}}
+.dlabel.v-quant{background:var(--quant)}
+.dlabel.v-qual{background:var(--qual)}
+
+/* --- 하단 전체 데모 섹션 --- */
+.demo-section{margin-top:56px}
+.demo-section .demo{margin-top:14px}
+.demo-note{font-size:13px;color:var(--text-2);margin:12px 0 0;line-height:1.7}
+.demo-note b{color:var(--text)}
+
+/* =========================================================================
+   5-C. 적용 사례 (Case Study)
+   ========================================================================= */
+.case{margin-top:56px}
+.case-h{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px}
+.case-disc{
+  display:inline-flex;align-items:center;gap:7px;margin:0 0 20px;
+  border:1px dashed var(--text-3);border-radius:999px;padding:5px 14px;
+  font-size:12px;font-weight:700;color:var(--text-2);
+}
+.case-disc .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3)}
+
+/* --- 설계 조건 --- */
+.brief{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--surface-2);padding:18px 20px;margin-bottom:22px;
+}
+.brief-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.brief-cell{border-left:2px solid var(--human);padding-left:11px}
+.brief-cell dt{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:2px}
+.brief-cell dd{margin:0;font-size:13.5px;font-weight:600}
+.brief-req{border-top:1px dashed var(--line);padding-top:14px}
+.brief-req .lbl{font-size:11.5px;font-weight:700;color:var(--text-2);margin:0 0 8px}
+.req-lines{display:flex;flex-wrap:wrap;gap:8px}
+.req-line{
+  border:1px solid var(--line);border-radius:6px;background:var(--surface);
+  padding:7px 12px;font-size:13px;
+}
+.req-line span{color:var(--text-3);font-size:11px;font-weight:700;margin-right:6px}
+
+/* --- 단계 탭 --- */
+.case-tabs{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ctab{
+  flex:1;min-width:150px;font-family:inherit;cursor:pointer;text-align:left;
+  border:1px solid var(--line);border-radius:9px;background:var(--surface);
+  padding:11px 14px;transition:all .2s var(--ease);
+}
+.ctab:hover{border-color:var(--text-3);transform:translateY(-1px)}
+.ctab .cno{
+  display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+  color:var(--text-3);margin-bottom:2px;
+}
+.ctab .cnm{display:block;font-size:14px;font-weight:700;color:var(--text)}
+.ctab.on{background:var(--tc,var(--human));border-color:var(--tc,var(--human))}
+.ctab.on .cno,.ctab.on .cnm{color:#fff}
+.ctab.on .cno{opacity:.8}
+
+.cpane[hidden]{display:none}
+.cpane{
+  border:1px solid var(--line);border-top:3px solid var(--tc,var(--human));
+  border-radius:var(--radius);background:var(--surface);padding:22px 24px 24px;
+}
+/* .canim 은 기본이 '보임' 상태 — 등장 효과는 JS(Web Animations)가 얹는다.
+   스크립트가 막혀도 내용은 항상 읽힌다. */
+.cpane-h{
+  display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;
+  padding-bottom:12px;margin-bottom:16px;border-bottom:1px solid var(--line);
+}
+.cpane-h h4{margin:0;font-size:16px;font-weight:700}
+.cpane-h .sub{font-size:12.5px;color:var(--text-3)}
+
+/* 메모 박스 */
+.memo{
+  border-left:3px solid var(--human);background:var(--human-soft);
+  border-radius:0 8px 8px 0;padding:12px 16px;font-size:13.5px;line-height:1.7;
+  margin-top:18px;
+}
+.memo .tag{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  color:var(--human);margin-right:8px;
+}
+
+/* --- ① 인터뷰 진술 --- */
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quote{
+  border:1px solid var(--line);border-left:3px solid var(--sp);border-radius:8px;
+  background:var(--surface-2);padding:13px 15px;
+}
+.quote .qid{
+  font-size:10.5px;font-weight:700;color:var(--sp);letter-spacing:.06em;margin-bottom:5px;display:block;
+}
+.quote p{margin:0 0 8px;font-size:14px;line-height:1.55}
+.quote .who{
+  font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;
+  background:var(--surface-3);color:var(--sp);
+}
+
+/* --- ② KJ 매핑 --- */
+.kj-map{position:relative;display:grid;grid-template-columns:1fr 78px 1fr 78px 1fr;align-items:start;gap:0}
+/* SVG는 absolute라 그리드 흐름에서 빠지므로 열 위치를 못박아 둔다 */
+.kj-map > .kj-col:nth-of-type(1){grid-column:1}
+.kj-map > .kj-col:nth-of-type(2){grid-column:3}
+.kj-map > .kj-col:nth-of-type(3){grid-column:5}
+.kj-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.kj-head{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.06em;margin-bottom:8px}
+.kj-item{
+  border:1px solid var(--line);border-radius:8px;background:var(--surface-2);
+  padding:11px 13px;font-size:13px;line-height:1.5;
+}
+.kj-item.src{border-left:3px solid var(--sp)}
+/* 표찰 — 모은 뒤에 써 붙인 것이라 채워진 카드로 구분 */
+.kj-item.lab{background:var(--cl);border-color:var(--cl);color:#fff;font-weight:600}
+.kj-item.up{background:var(--cl);border-color:var(--cl);color:#fff;font-weight:700}
+.kj-item.up.solo{background:transparent;color:var(--text);border-style:dashed}
+.kj-item.lone-item{border:1px dashed var(--text-3);background:transparent}
+.kj-item .k{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:.07em;
+  margin-bottom:4px;color:var(--cl,var(--sp));
+  background:rgba(255,255,255,.22);border-radius:3px;padding:1px 6px;
+}
+.kj-item.src .k{background:none;padding:0}
+.kj-item.lab .k,.kj-item.up:not(.solo) .k{color:#fff}
+.kj-item.up.solo .k{background:var(--surface-3);color:var(--text-2)}
+.kj-item.lone-item .k{background:var(--surface-3);color:var(--text-3)}
+.kj-item .from{display:block;margin-top:6px;font-size:11.5px;color:var(--text-3)}
+.kj-item.lab .from,.kj-item.up:not(.solo) .from{color:rgba(255,255,255,.75)}
+.kj-links{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.kj-links path{
+  fill:none;stroke-width:1.6;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset .9s var(--ease);
+}
+.kj-links.drawn path{stroke-dashoffset:0}
+
+/* --- ③ Kano 표 --- */
+table.kano{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+table.kano th{
+  background:var(--surface-3);color:var(--text-2);font-size:11.5px;font-weight:700;
+  letter-spacing:.03em;text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);
+}
+table.kano td{padding:11px 14px;border-bottom:1px solid var(--line-2)}
+table.kano tr:last-child td{border-bottom:0}
+table.kano td:first-child{font-weight:600}
+tr.clash td{background:rgba(217,45,32,.07)}
+tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.clash-tag{
+  display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;
+  color:var(--red);border:1px solid var(--red);border-radius:999px;padding:0 7px;
+}
+.kb{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:2px 9px}
+.kb-must{background:var(--human-soft);color:var(--human)}      /* 당연 */
+.kb-one {background:var(--quant-soft);color:var(--quant)}      /* 일원 */
+.kb-rev {background:rgba(217,45,32,.12);color:var(--red)}      /* 역품질 */
+.kb-ind {background:var(--muted-soft);color:var(--muted)}      /* 무관심 */
+.kb-lo  {background:var(--muted-soft);color:var(--muted)}
+.kb-hi  {background:var(--human);color:#fff}
+.kb-na  {color:var(--text-3)}
+
+/* 뒤집힘 강조 박스 */
+.flip{
+  margin-top:18px;border:1.5px solid var(--red);border-radius:9px;
+  background:rgba(217,45,32,.06);padding:16px 18px;
+}
+.flip .ttl{font-size:13px;font-weight:700;color:var(--red);margin:0 0 7px}
+.flip p{margin:0;font-size:14px;line-height:1.75}
+
+/* --- ④ 판정 기준 / 변환 체인 --- */
+.crit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.crit-card{border:1px solid var(--line);border-top:3px solid var(--pc);border-radius:8px;padding:13px 16px;background:var(--surface-2)}
+.crit-card h5{margin:0 0 5px;font-size:13.5px;font-weight:700;color:var(--pc)}
+.crit-card p{margin:0;font-size:13px;color:var(--text-2)}
+
+.chain-head{
+  display:grid;grid-template-columns:1.1fr 1.2fr 1.1fr 1.3fr;gap:0 10px;
+  font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--text-3);
+  padding:0 4px 6px;
+}
+.chain-row{
+  display:grid;grid-template-columns:1.1fr 1.2fr 1.1fr 1.3fr;gap:0 10px;align-items:stretch;
+  border:1px solid var(--line);border-left:3px solid var(--quant);border-radius:8px;
+  background:var(--surface-2);padding:12px 14px;margin-bottom:10px;position:relative;
+}
+.chain-row .cc{font-size:13px;line-height:1.5;display:flex;align-items:center;position:relative}
+.chain-row .cc:not(:last-child)::after{
+  content:'→';position:absolute;right:-11px;color:var(--text-3);font-size:12px;
+}
+.chain-row .cc.k{font-weight:700}
+.chain-row .cc.val{
+  font-weight:700;color:var(--quant);background:var(--quant-soft);
+  border-radius:6px;padding:7px 11px;justify-content:center;text-align:center;
+}
+.chain-tag{
+  position:absolute;top:-9px;left:12px;background:var(--surface);
+  font-size:10px;font-weight:700;color:var(--quant);padding:0 6px;
+}
+
+/* 수치화 불가 사례 */
+.nonq{
+  margin-top:20px;border:1.5px dashed var(--qual);border-radius:9px;
+  background:var(--qual-soft);padding:16px 18px;
+}
+.nonq .ttl{font-size:12px;font-weight:700;color:var(--qual);margin:0 0 9px;letter-spacing:.03em}
+.nonq .q{margin:0 0 12px;font-size:14.5px;font-weight:600;line-height:1.6}
+.nonq-steps{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.nonq-steps span{
+  font-size:12.5px;border:1px solid var(--qual);border-radius:6px;
+  padding:5px 10px;color:var(--text);background:var(--surface)
+}
+.nonq-steps i{font-style:normal;color:var(--qual);font-weight:700}
+.nonq-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+/* 다음 단계 버튼 */
+.cnext{
+  display:block;margin:20px 0 0 auto;font-family:inherit;font-size:12.5px;font-weight:700;
+  border:1px solid var(--line);background:var(--surface);color:var(--text-2);
+  border-radius:999px;padding:6px 15px;cursor:pointer;transition:all .2s;
+}
+.cnext:hover{border-color:var(--human);color:var(--human)}
+
+@media (prefers-reduced-motion:reduce){
+  .empathy-path{animation:none}
+  .dcard{transition:none}
+  .dcard.judging::after{animation:none}
+  .panel.is-open .anim{animation:none}
+  .panel .anim{opacity:1}
+  .node:hover{transform:none}
+}
+
+/* =========================================================================
+   6. 반응형 — 좁아지면 세로 스택
+   ========================================================================= */
+@media (max-width:900px){
+  .flow-wrap{padding:8px 0}
+  .empathy-svg{display:none}          /* 아치 대신 노드별 배지로 대체 */
+  .flow{flex-direction:column;align-items:stretch}
+  .studio{flex-direction:column;padding:14px 14px 32px}
+  .node-slot.is-first{flex:0 0 auto}
+  .sep-wrap{flex:0 0 26px;height:26px}
+  .sep{transform:rotate(90deg)}
+  .sep-label{display:none}
+  .miss-badge{display:inline-block}
+  .panel-card{padding:18px 16px 22px}
+  .field{grid-template-columns:1fr;gap:6px}
+  .owner-grid{grid-template-columns:1fr}
+  .branch-cols{grid-template-columns:1fr}
+  .fork{height:22px}
+  .fork .l,.fork .r{display:none}
+  .step-dl{grid-template-columns:1fr;gap:4px 0}
+  .gnode{padding-left:42px}
+  .graph::before{left:13px}
+  /* 적용 사례 */
+  .brief-grid{grid-template-columns:1fr 1fr}
+  .quotes{grid-template-columns:1fr}
+  .kj-map{grid-template-columns:1fr;gap:20px}
+  .kj-links{display:none}
+  .crit{grid-template-columns:1fr}
+  .cpane{padding:18px 16px 20px}
+  .chain-head{display:none}
+  .chain-row{grid-template-columns:1fr;gap:8px}
+  .chain-row .cc:not(:last-child)::after{content:'↓';right:auto;left:0;top:auto;bottom:-14px}
+  .chain-row .cc{padding-left:0}
+  .ctab{min-width:0;flex:1 1 45%}
+  .legend{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Experience Driven Architectural Design Process</h1>
+  <p class="h1-ko">경험 주도 건축 설계 프로세스</p>
+  <p class="sub">
+    사용자 경험에서 출발해 건축을 설계하려는 누구나 따를 수 있도록 제안하는 <b>일반 프로세스</b>입니다.
+    원본 Design Thinking 5단계 중 <b>Empathize(①) – Define(②–④)</b>를 네 개의 세부 스텝으로 세분화하여,
+    경험을 감각·원인·수치로 분해하고 그중 <b>수치화 가능 여부</b>에 따라 정량/정성 경로로 나누어 다룹니다.
+    각 단계 노드를 클릭하면 상세 내용이 펼쳐집니다.
+  </p>
+  <p class="sub" style="margin-top:-24px">
+    <b>이 문서는 프로세스 정의 그 자체입니다.</b> 특정 프로젝트의 진행 현황이 아니므로
+    어떤 단계가 완료되었는지 · 남아 있는지를 나타내는 표시는 두지 않습니다.
+  </p>
+
+  <!-- ===================================================================
+       [ 참고 이미지 ] 원본 Fig.4
+       ▼ src="" 안에 이미지 파일명을 넣으세요. (예: fig4-design-process.png)
+       =================================================================== -->
+  <p class="section-title">원본 참고 자료</p>
+  <figure class="ref">
+    <div class="ref-frame">
+      <img id="refImg" src="" alt="Fig. 4 Design process model followed in conventional design studio">
+      <div class="ref-placeholder" id="refPlaceholder">
+        <span>참고 이미지 자리</span>
+        <code>&lt;img id="refImg" src="여기에_파일명.png"&gt;</code>
+      </div>
+    </div>
+    <figcaption>
+      <b>Fig. 4</b> Design process model followed in conventional design studio (developed by authors).
+      위 다이어그램이 <b>원본 참고 자료</b>이며, 아래 인터랙티브 버전은 이를 발전시켜
+      Empathize–Define 구간을 세부 스텝으로 상세화한 <b>Experience Driven Architectural Design Process</b>입니다.
+    </figcaption>
+  </figure>
+
+  <hr class="rule">
+
+  <!-- ===================================================================
+       [ 툴바 ] 빨간 점선 토글
+       =================================================================== -->
+  <p class="section-title">프로세스 모델</p>
+  <div class="toolbar">
+    <button class="toggle" id="linkToggle" type="button" aria-pressed="true">
+      <span class="dot" aria-hidden="true"></span>
+      Missing connection to Empathy 표시
+    </button>
+    <button class="toggle toggle--lang" id="langToggle" type="button" aria-pressed="false">
+      <span class="glyph" aria-hidden="true">가</span>
+      라벨 한국어
+    </button>
+    <div class="legend" aria-hidden="true">
+      <span><i class="lg-human"></i>사람</span>
+      <span><i class="lg-quant"></i>AI · 정량</span>
+      <span><i class="lg-qual"></i>정성</span>
+    </div>
+  </div>
+  <p class="toolbar-note">
+    빨간 점선은 <b>원본 모델의 한계</b>입니다 — 설계 후반(Ideate·Prototype·Test)이 초기 공감과 끊겨,
+    수집한 사용자 경험이 설계 결정까지 이어지지 못하는 지점을 뜻합니다.
+    <b>본 프로세스가 메우려는 지점</b>이 바로 여기입니다.
+  </p>
+
+  <!-- ===================================================================
+       [ 노드 영역 ] — JS가 STAGES 데이터로 렌더링
+       =================================================================== -->
+  <div class="flow-wrap" id="flowWrap">
+    <svg class="empathy-svg" id="empathySvg" aria-hidden="true">
+      <defs>
+        <marker id="redArrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+                markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--red)"></path>
+        </marker>
+      </defs>
+    </svg>
+    <div class="flow" id="flow"></div>
+  </div>
+
+  <!-- ===================================================================
+       [ 상세 패널 ] — 한 번에 하나만 열림 (max-height transition)
+       =================================================================== -->
+  <div class="panels" id="panels"></div>
+
+  <!-- ===================================================================
+       [ 전체 데모 ] 경험 수집 → 군집화 → 수치화 판정 (발표용)
+       =================================================================== -->
+  <section class="demo-section">
+    <hr class="rule">
+    <p class="section-title">한눈에 보기 — 경험이 설계 조건이 되기까지</p>
+    <h2 style="font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">
+      흩어진 경험 → 군집화 → 수치화 가능 여부 판정
+    </h2>
+    <p class="demo-note" style="margin:0 0 4px">
+      경험 문장 <b>18장</b>이 <b>펼치기 → 1차 편성 → 2차 편성 → 수치화 판정</b>을 거칩니다.
+      군집은 <b>미리 만들어 두지 않습니다.</b> 끌리는 카드끼리 모은 <b>뒤에</b> 그 뭉치를 한 문장으로 요약한
+      <b>표찰</b>을 써 붙이고, 표찰끼리 같은 방식으로 다시 모아 올라갑니다(KJ법).
+      어디에도 붙지 않는 카드는 <b>외톨이로 남겨 둡니다.</b> 마지막에 올라온 단위들이 게이트를 지나며
+      <b style="color:var(--quant)">정량(수치화 가능)</b>과 <b style="color:var(--qual)">정성(수치화 불가)</b>으로 갈라집니다.
+    </p>
+    <div class="demo"><div data-demo="full"></div></div>
+    <p class="demo-note">
+      <b>이 그림의 요점</b> — 모든 경험을 수치로 바꿀 수 있는 것이 아닙니다.
+      수치로 환산되는 경험은 AI·분석 툴이 정답에 가까운 답을 낼 수 있지만,
+      문화·관습에서 온 경험은 정답이 없는 <b>Wicked Problem</b>이라 사람(전문가)이 끝까지 책임집니다.
+      이 갈림길을 명시적으로 두는 것이 본 프로세스의 핵심입니다.
+    </p>
+  </section>
+
+  <!-- ===================================================================
+       [ 적용 사례 ] 경험 진술 → 설계 수치 추적
+       =================================================================== -->
+  <section class="case">
+    <hr class="rule">
+    <p class="section-title">적용 사례</p>
+    <h2 class="case-h">경험 진술이 설계 수치가 되기까지 — 단독주택 사례</h2>
+    <p class="case-disc"><span class="dot" aria-hidden="true"></span>프로세스 검증용 예시 사례 · 실제 프로젝트 아님</p>
+
+    <!-- 설계 조건 -->
+    <div class="brief">
+      <dl class="brief-grid">
+        <div class="brief-cell"><dt>가족</dt><dd>40대 부부 + 초등학생 자녀 1명</dd></div>
+        <div class="brief-cell"><dt>근무</dt><dd>남편 주 3일 재택 · 아내 출퇴근</dd></div>
+        <div class="brief-cell"><dt>대지</dt><dd>200 ㎡</dd></div>
+        <div class="brief-cell"><dt>연면적</dt><dd>140 ㎡ · 2층 단독주택</dd></div>
+      </dl>
+      <div class="brief-req">
+        <p class="lbl">건축주 요구서 — 전부 이 세 줄이 전부입니다</p>
+        <div class="req-lines">
+          <div class="req-line"><span>01</span>가족이 함께하는 개방적인 거실</div>
+          <div class="req-line"><span>02</span>남편 서재 필요</div>
+          <div class="req-line"><span>03</span>손님 초대가 잦음</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 단계 탭 -->
+    <div class="case-tabs" role="tablist">
+      <button class="ctab" type="button" role="tab" data-c="0" style="--tc:var(--human)">
+        <span class="cno">STEP ①</span><span class="cnm">수집</span></button>
+      <button class="ctab" type="button" role="tab" data-c="1" style="--tc:var(--human)">
+        <span class="cno">STEP ②</span><span class="cnm">군집화 (KJ법)</span></button>
+      <button class="ctab" type="button" role="tab" data-c="2" style="--tc:var(--human)">
+        <span class="cno">STEP ③</span><span class="cnm">우선순위 (Kano)</span></button>
+      <button class="ctab" type="button" role="tab" data-c="3" style="--tc:var(--quant)">
+        <span class="cno">STEP ④</span><span class="cnm">수치화 판정</span></button>
+    </div>
+
+    <!-- ============ ① 수집 ============ -->
+    <div class="cpane" id="cpane-0" style="--tc:var(--human)" role="tabpanel">
+      <div class="cpane-h canim">
+        <h4>① 수집 — 인터뷰 진술</h4>
+        <span class="sub">요구서 세 줄 뒤에 있던 실제 장면들</span>
+      </div>
+      <div class="quotes canim">
+        <div class="quote" style="--sp:#2563eb">
+          <span class="qid">S1</span>
+          <p>"화상회의 중에 애가 문 열고 들어와서 클라이언트한테 사과했다"</p>
+          <span class="who">남편</span>
+        </div>
+        <div class="quote" style="--sp:#2563eb">
+          <span class="qid">S2</span>
+          <p>"회의 없는 날은 하루종일 아무하고도 말을 안 해서 답답하다"</p>
+          <span class="who">남편</span>
+        </div>
+        <div class="quote" style="--sp:#60a5fa">
+          <span class="qid">S3</span>
+          <p>"퇴근하고 왔는데 거실에 업무 자료가 널려 있어서 쉬는 느낌이 안 났다"</p>
+          <span class="who">아내</span>
+        </div>
+        <div class="quote" style="--sp:#60a5fa">
+          <span class="qid">S4</span>
+          <p>"손님 오면 부엌이 다 보여서 미리 두 시간씩 치운다"</p>
+          <span class="who">아내</span>
+        </div>
+        <div class="quote" style="--sp:#818cf8">
+          <span class="qid">S5</span>
+          <p>"숙제할 때 엄마가 계속 지나다녀서 신경쓰인다"</p>
+          <span class="who">자녀</span>
+        </div>
+      </div>
+      <div class="memo canim">
+        <span class="tag">메모</span>
+        요구서 세 줄로는 설계가 안 됩니다. <b>구체적 에피소드</b>가 있어야 다음 단계에서 감각으로 쪼개집니다.
+      </div>
+      <button class="cnext canim" type="button" data-next="1">다음 — 군집화 →</button>
+    </div>
+
+    <!-- ============ ② 군집화 ============ -->
+    <div class="cpane" id="cpane-1" style="--tc:var(--human)" role="tabpanel" hidden>
+      <div class="cpane-h canim">
+        <h4>② 군집화 — KJ법</h4>
+        <span class="sub">분류 항목을 미리 두지 않습니다. 모은 <b>뒤에</b> 표찰을 붙이고, 표찰끼리 다시 모읍니다</span>
+      </div>
+      <div class="kj-map canim">
+        <div class="kj-col">
+          <div class="kj-head">① 펼친 진술</div>
+          <div class="kj-item src" id="kj-s1" style="--sp:#2563eb">"화상회의 중에 애가 문 열고 들어옴"</div>
+          <div class="kj-item src" id="kj-s2" style="--sp:#94a3b8">"회의 없는 날은 아무하고도 말을 안 함"</div>
+          <div class="kj-item src" id="kj-s3" style="--sp:#60a5fa">"거실에 업무 자료가 널려 있음"</div>
+          <div class="kj-item src" id="kj-s4" style="--sp:#60a5fa">"부엌이 다 보여 미리 두 시간씩 치움"</div>
+          <div class="kj-item src" id="kj-s5" style="--sp:#2563eb">"엄마가 지나다녀 신경쓰임"</div>
+        </div>
+
+        <svg class="kj-links" id="kjLinks" aria-hidden="true"></svg>
+
+        <div class="kj-col">
+          <div class="kj-head">② 1차 편성 — 모은 뒤 붙인 표찰</div>
+          <div class="kj-item lab" id="kj-p1" style="--cl:#2563eb">
+            <span class="k">표찰</span>집중해야 할 때 방해받고 싶지 않다
+            <span class="from">S1 · S5를 모아 보니 같은 말이었다</span></div>
+          <div class="kj-item lab" id="kj-p2" style="--cl:#60a5fa">
+            <span class="k">표찰</span>준비 안 된 상태가 남에게 보이는 게 부담이다
+            <span class="from">S3 · S4를 모아 보니 같은 말이었다</span></div>
+          <div class="kj-item lone-item" id="kj-lone">
+            <span class="k">외톨이</span>혼자 있을 자리는 필요하나 단절되긴 싫다
+            <span class="from">S2 — 어디에도 안 붙어 억지로 묶지 않았다</span></div>
+        </div>
+
+        <div class="kj-col">
+          <div class="kj-head">③ 2차 편성 — 표찰끼리 다시</div>
+          <div class="kj-item up" id="kj-u1" style="--cl:#1d4ed8">
+            <span class="k">2차 표찰</span>가족과의 연결을 상황에 따라 켜고 끄고 싶다
+            <span class="from">= 선택적 격리 · 외톨이였던 S2가 여기서 의미를 얻는다</span></div>
+          <div class="kj-item up solo" id="kj-u2" style="--cl:#60a5fa">
+            <span class="k">단독 유지</span>준비 안 된 상태가 남에게 보이는 게 부담이다
+            <span class="from">더 묶일 짝이 없어 그대로 올라간다</span></div>
+        </div>
+      </div>
+      <div class="memo canim">
+        <span class="tag">발견</span>
+        남편이 원한 건 <b>격리된 방이 아니라 선택적 격리</b>입니다.
+        1차에서는 외톨이였던 S2("혼자 있고 싶지만 단절은 싫다")가 <b>2차 편성에서</b>
+        "집중할 때 방해받고 싶지 않다"와 만나면서 드러납니다.
+        S2를 억지로 어딘가에 넣었다면 이 발견은 나오지 않았습니다.
+      </div>
+      <button class="cnext canim" type="button" data-next="2">다음 — 우선순위 →</button>
+    </div>
+
+    <!-- ============ ③ 우선순위 ============ -->
+    <div class="cpane" id="cpane-2" style="--tc:var(--human)" role="tabpanel" hidden>
+      <div class="cpane-h canim">
+        <h4>③ 우선순위 — Kano 모델</h4>
+        <span class="sub">같은 항목에 부부가 다르게 답합니다</span>
+      </div>
+      <div class="table-scroll canim">
+        <table class="kano">
+          <colgroup><col style="width:34%"><col><col></colgroup>
+          <thead><tr><th>항목</th><th>남편</th><th>아내</th></tr></thead>
+          <tbody>
+            <tr><td>서재 방음</td>
+                <td><span class="kb kb-must">당연</span></td>
+                <td><span class="kb kb-must">당연</span></td></tr>
+            <tr class="clash"><td>거실 개방감<span class="clash-tag">충돌</span></td>
+                <td><span class="kb kb-one">일원</span></td>
+                <td><span class="kb kb-rev">역품질</span></td></tr>
+            <tr><td>부엌 노출</td>
+                <td><span class="kb kb-ind">무관심</span></td>
+                <td><span class="kb kb-must">당연</span></td></tr>
+            <tr><td>서재 완전 독립</td>
+                <td><span class="kb kb-lo">반응 낮음</span></td>
+                <td><span class="kb-na">—</span></td></tr>
+            <tr><td>서재 닫을 수 있음</td>
+                <td><span class="kb kb-hi">반응 높음</span></td>
+                <td><span class="kb-na">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="flip canim">
+        <p class="ttl">요구서 첫 줄이 뒤집혔습니다</p>
+        <p>
+          "개방적인 거실"은 <b>남편의 언어</b>였고, 아내는 같은 항목에 <b>역품질</b>로 답했습니다.
+          이유는 <b>"트여 있으면 항상 정리된 상태를 유지해야 해서 부담"</b>.
+          실제 설계 제약은 여기에 있습니다 — 개방감의 총량이 아니라 <b>개방을 끌 수 있는가</b>입니다.
+        </p>
+      </div>
+      <div class="memo canim">
+        <span class="tag">메모</span>
+        같은 표에서 "서재 완전 독립"은 반응이 낮고 "서재 닫을 수 있음"은 반응이 높습니다.
+        ②에서 찾은 <b>선택적 격리</b>가 여기서 수치로 갈 근거를 얻습니다.
+      </div>
+      <button class="cnext canim" type="button" data-next="3">다음 — 수치화 판정 →</button>
+    </div>
+
+    <!-- ============ ④ 수치화 판정 ============ -->
+    <div class="cpane" id="cpane-3" style="--tc:var(--quant)" role="tabpanel" hidden>
+      <div class="cpane-h canim">
+        <h4>④ 수치화 판정</h4>
+        <span class="sub">감각의 원인이 잡히면 수치로, 아니면 태그로</span>
+      </div>
+
+      <div class="crit canim">
+        <div class="crit-card" style="--pc:var(--quant)">
+          <h5>수치화 가능</h5>
+          <p><b>시선 · 동선 · 치수</b> 중 하나로 환원되는 경우</p>
+        </div>
+        <div class="crit-card" style="--pc:var(--qual)">
+          <h5>수치화 불가</h5>
+          <p><b>의미 · 관습 · 정체성</b>에 뿌리를 둔 경우</p>
+        </div>
+      </div>
+
+      <div class="chain-head canim">
+        <div>경험</div><div>감각</div><div>원인</div><div>수치</div>
+      </div>
+
+      <div class="chain-row canim">
+        <span class="chain-tag">연결 조절</span>
+        <div class="cc k">업무 상태 알림</div>
+        <div class="cc">열림 · 닫힘이 보임</div>
+        <div class="cc">가변 개구부</div>
+        <div class="cc val">거실→서재 isovist<br>60 % ↔ 0 %</div>
+      </div>
+      <div class="chain-row canim">
+        <span class="chain-tag">준비된 모습</span>
+        <div class="cc k">손님 응대</div>
+        <div class="cc">설거지가 안 보임</div>
+        <div class="cc">조리대 은폐</div>
+        <div class="cc val">후면 상판<br>GL + 1150</div>
+      </div>
+      <div class="chain-row canim">
+        <span class="chain-tag">연결 조절</span>
+        <div class="cc k">감지하되 비감시</div>
+        <div class="cc">소리는 들리고 모습은 안 보임</div>
+        <div class="cc">상부 개방 · 시선 차단</div>
+        <div class="cc val">직접 시선 0<br>슬릿 200 mm</div>
+      </div>
+
+      <div class="nonq canim">
+        <p class="ttl">수치화 불가 사례</p>
+        <p class="q">"명절엔 시부모님이 오시면 거실에 다 같이 앉는다"</p>
+        <div class="nonq-steps">
+          <span>감각으로 안 쪼개짐</span><i>→</i>
+          <span>어른 자리의 위계는 수치 밖</span><i>→</i>
+          <span>태그로 보존</span>
+        </div>
+        <div class="nonq-tags">
+          <span class="chip chip--qual">전문가 판단 영역</span>
+          <span class="chip chip--qual">Wicked problem</span>
+        </div>
+      </div>
+
+      <div class="memo canim">
+        <span class="tag">메모</span>
+        B(일과 생활의 경계)와 D(단절되긴 싫다)는 A·C·E와 함께 <b>하나의 가변 개구부 설계</b>로 수렴합니다.
+        요구서 세 줄이 <b>세 개의 수치와 한 개의 태그</b>로 바뀐 것이 이 사례의 결과입니다.
+      </div>
+      <button class="cnext canim" type="button" data-next="0">처음으로 ↺</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* =========================================================================
+   데이터 정의
+   - accent : 'human'(파랑) | 'quant'(청록) | 'qual'(주황) | 'muted'(회색)
+   - scope  : 'detailed'(본 프로세스가 상세화한 구간) | 'original'(원본 Design Thinking 단계)
+              ※ 진행 상태가 아니라 성격 구분입니다.
+   - table  : [{ no, act, method, owner:'human'|'ai'|'both'|'expert', output }]
+   - evidence : 논문 인용 자리 — 전부 비워둠. 여기에 채우세요.
+   ========================================================================= */
+const STAGES = [
+  /* ---------------------------------------------------------------- 1 */
+  {
+    id:'empathizing', no:1,
+    en:'Empathizing', ko:'공감', sub:'Inception',
+    scope:'detailed', accent:'human',
+    stepsLabel:'STEP ①',
+    caption:'With in and outside the<br>Design Studio context',
+    innerList:'User Analysis · User Observations<br>Real user Interactions · Inputs from user<br>Contextual Analysis · Contextual Inputs',
+    missingLink:false,
+
+    purpose:'사용자와 클라이언트의 경험을 <b>복합적으로 수집</b>한다.',
+    method:'페르소나, 고객여정지도, 인터뷰, 데이터 조사 등 <b>여러 UX 방법론을 종합</b>해 한 가지 기법에 의존하지 않는다.',
+    owner:{
+      human:'경험 수집의 전 과정을 사람이 수행한다.',
+      ai:'이 단계에는 AI 역할을 두지 않는다.'
+    },
+    evidence:[],
+    outputs:['수집된 경험 원자료 (사용자·클라이언트 경험 기록)'],
+    table:[
+      { no:'①', act:'경험 수집 (Collect)', method:'페르소나 · 고객여정지도 · 인터뷰 · 데이터 조사', owner:'human', output:'경험 원자료' }
+    ],
+
+    /* 세부 스텝 카드 */
+    steps:[
+      {
+        n:'①', title:'경험 수집', en:'Collect', color:'human',
+        purpose:'사용자·클라이언트의 경험을 복합적으로 수집한다.',
+        method:'페르소나, 고객여정지도, 인터뷰, 데이터 조사 등 <b>여러 UX 방법론을 종합</b>해 한 가지 기법에 의존하지 않는다.',
+        owner:'human'
+      }
+    ],
+    linkNote:'<b>①의 산출물(경험 원자료)</b>은 다음 단계인 <b>Define</b>의 ② 경험 군집화로 이어집니다.'
+  },
+
+  /* ---------------------------------------------------------------- 2 */
+  {
+    id:'define', no:2,
+    en:'Define', ko:'정의', sub:'',
+    scope:'detailed', accent:'human',
+    stepsLabel:'STEP ② – ④',
+    caption:'', innerList:'', missingLink:false,
+
+    purpose:'수집된 경험을 정리·분해하여 설계에 쓸 수 있는 <b>인사이트</b>로 만들고, 그 인사이트로 <b>예시 스케치를 여러 개</b> 생성한다.',
+    method:'세 개의 세부 스텝으로 진행한다 — ② 경험 군집화 → ③ 수치화 가능 여부 분기(정량 / 정성) → ④ Ideation.',
+    owner:{
+      human:'군집화, 수치화 가능 여부 판별, 정성 경로 판단, 스케치 방향 결정을 담당한다.',
+      ai:'정량 경로의 공간 분석 지표를 계산하고, 수치 조건을 만족하는 스케치 대안을 다수 생성한다.'
+    },
+    evidence:[],
+    outputs:[
+      '경험 군집 (경험1, 경험2 …)',
+      '정량 경로: 감각의 원인에 대응하는 공간 지표 값',
+      '정성 경로: 전문가 판단이 필요한 경험 항목 (Kano·QFD로 선별)',
+      '두 경로를 합친 인사이트',
+      '예시 스케치 여러 안 → Schematic Design 단계로 전송'
+    ],
+    table:[
+      { no:'②', act:'경험 군집화', method:'KJ법 등 군집화 기법', owner:'human', output:'경험 군집' },
+      { no:'③', act:'수치화 가능 여부 판별', method:'군집별로 "이 경험은 수치화 가능한가?" 판별', owner:'human', output:'정량 / 정성 분류' },
+      { no:'③-1', act:'정량 경로 분석', method:'isovist · VGA · LDK · Space Syntax', owner:'ai', output:'감각 원인의 수치값' },
+      { no:'③-2', act:'정성 경로 선별', method:'Kano · QFD로 경험 걸러내기', owner:'expert', output:'전문가 판단 항목' },
+      { no:'④', act:'인사이트 → 아이디에이션', method:'인사이트 기반 대안 발상, 스케치 다수 생성', owner:'both', output:'예시 스케치 여러 안' }
+    ],
+
+    steps:[
+      {
+        n:'②', title:'경험 군집화', en:'Clustering', color:'human',
+        purpose:'수집한 경험을 비슷한 것끼리 묶어 정리한다.',
+        method:'<b>KJ법</b>으로 진행한다 — 분류 항목을 미리 정해 두고 카드를 넣는 것이 아니라, ① 라벨을 전부 펼치고 ② <b>끌리는 것끼리 2~3장씩 모은 뒤</b> ③ <b>그제서야</b> 그 뭉치를 한 문장으로 요약한 <b>표찰</b>을 써 붙이고 ④ 표찰끼리 같은 방식으로 다시 모아 올라간다. 어디에도 붙지 않는 카드는 <b>외톨이로 그대로 둔다</b>.',
+        owner:'human',
+        demo:{ mode:'kj', cap:'경험 카드 18장이 KJ법으로 묶여 올라가는 과정',
+               sub:'펼치기 → 끌리는 것끼리 모으기 → <b>모은 뒤에</b> 표찰 붙이기 → 표찰끼리 다시 모으기' }
+      },
+      {
+        n:'③', title:'수치화 가능 여부 분기', en:'Quantifiability Branch', color:'human',
+        purpose:'각 경험 군집이 공간 지표로 환산 가능한지 판별하여 이후 처리 경로를 나눈다.',
+        method:'판별 질문 — <b>"이 경험은 수치화 가능한가?"</b>',
+        owner:'human',
+        demo:{ mode:'verdict', cap:'2차 편성 결과가 게이트를 지나며 정량 / 정성으로 갈라지는 과정',
+               sub:'판정 대상은 개별 카드가 아니라 <b>KJ로 올라온 표찰 단위</b>입니다' },
+        branch:true      /* ← 이 스텝에만 분기 시각화가 붙는다 */
+      },
+      {
+        n:'④', title:'인사이트 → 스케치', en:'Ideation', color:'human',
+        purpose:'①–③으로 도출된 인사이트를 바탕으로 예시 스케치를 여러 개 생성한다.',
+        method:'정량 지표를 만족하는 공간 구성안과, 정성 요구를 반영한 구성안을 각각 스케치로 옮겨 비교한다.',
+        owner:'both',
+        output:'예시 스케치 여러 안 → Schematic Design(원본 Ideate) 단계로 전송'
+      }
+    ],
+    linkNote:'<b>④의 산출물(예시 스케치)</b>이 다음 단계인 <b>Ideate — Schematic Design Stage</b>의 입력이 됩니다.'
+  },
+
+  /* ---------------------------------------------------------------- 3 */
+  {
+    id:'ideation', no:3,
+    en:'Ideation', ko:'아이디어', sub:'Schematic Design Stage',
+    scope:'original', accent:'muted',
+    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+
+    purpose:'확산적 사고로 다수의 설계 대안을 탐색하고, 기본 계획(Schematic Design) 수준의 방향을 잡는다. — 원본 Design Thinking 단계',
+    method:'브레인스토밍, 대안 스터디, 매스·조닝 검토 등 설계 스튜디오의 통상적 발상 과정.',
+    owner:{
+      human:'설계자가 대안을 발상하고 선별한다.',
+      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+    },
+    evidence:[],
+    outputs:['기본 계획안 (Schematic Design)'],
+    table:[],
+    linkNote:'<b>입력</b> — 본 프로세스 <b>④단계의 예시 스케치</b>(Define 단계 산출물)가 이 단계로 전달됩니다.'
+  },
+
+  /* ---------------------------------------------------------------- 4 */
+  {
+    id:'prototype', no:4,
+    en:'Prototype', ko:'프로토타입', sub:'Design Development Stage',
+    scope:'original', accent:'muted',
+    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+
+    purpose:'선택한 대안을 도면·모델·목업으로 구체화한다. — 원본 Design Thinking 단계',
+    method:'실시설계 전 단계의 도면화, 3D 모델링, 부분 목업 제작.',
+    owner:{
+      human:'설계자가 구체화를 주도한다.',
+      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+    },
+    evidence:[],
+    outputs:['구체화된 설계안 (Design Development)'],
+    table:[]
+  },
+
+  /* ---------------------------------------------------------------- 5 */
+  {
+    id:'testing', no:5,
+    en:'Testing', ko:'테스트', sub:'Testing Design Solutions',
+    scope:'original', accent:'muted',
+    stepsLabel:'', caption:'', innerList:'', missingLink:true,
+
+    purpose:'설계 해법을 검증하고 피드백을 반영한다. — 원본 Design Thinking 단계',
+    method:'사용자·클라이언트 리뷰, 성능 검토, 수정 반영.',
+    owner:{
+      human:'설계자와 사용자·클라이언트가 함께 검증한다.',
+      ai:'원본 모델에는 AI 역할이 정의되어 있지 않다.'
+    },
+    evidence:[],
+    outputs:['검증된 설계 해법'],
+    table:[]
+  }
+];
+
+/* 빨간 점선 라벨 — 영문 / 한국어 토글 */
+const MISS_LABEL = {
+  en:'Missing connection to Empathy',
+  ko:'초기 공감과의 단절'
+};
+let labelLang = 'en';
+
+/* 단계 사이 화살표에 붙는 전달물 라벨 (i번째 → i+1번째) */
+const SEP_LABELS = { 'define→ideation':'④ 스케치 전달' };
+
+/* ------------------------------------------------------------------ */
+/* 렌더링                                                              */
+/* ------------------------------------------------------------------ */
+const ph = (v,t)=> (v && String(v).trim()) ? `<p>${v}</p>` : `<p class="ph">${t}</p>`;
+const phList = (a,t)=> (a && a.length) ? `<ul>${a.map(x=>`<li>${x}</li>`).join('')}</ul>` : `<p class="ph">${t}</p>`;
+const phCite = (a)=> (a && a.length)
+  ? a.map(x=>`<blockquote class="cite">${x}</blockquote>`).join('')
+  : `<blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote>`;
+
+const OWNER_CHIP = {
+  human:  '<span class="chip chip--human">사람</span>',
+  ai:     '<span class="chip chip--quant">AI · 정량</span>',
+  expert: '<span class="chip chip--qual">사람 (전문가)</span>',
+  both:   '<span class="chip chip--human">사람</span> <span class="chip chip--quant">AI</span>'
+};
+
+function accentVars(a){
+  const map = {
+    human:'--accent:var(--human);--accent-soft:var(--human-soft);',
+    quant:'--accent:var(--quant);--accent-soft:var(--quant-soft);',
+    qual: '--accent:var(--qual);--accent-soft:var(--qual-soft);',
+    muted:'--accent:var(--muted);--accent-soft:var(--muted-soft);'
+  };
+  return map[a] || map.human;
+}
+
+/* ---------- 3단계 분기 시각화 (정량 / 정성) ---------- */
+function renderBranch(){
+  return `
+  <div class="branch">
+    <div class="branch-q">이 경험은 수치화 가능한가?</div>
+
+    <!-- 갈림길: 왼쪽=정량(청록) / 오른쪽=정성(주황) -->
+    <svg class="fork" viewBox="0 0 200 38" preserveAspectRatio="none" aria-hidden="true">
+      <path class="stem" d="M100 0 V12"/>
+      <path class="l" d="M100 12 H25 V38"/>
+      <path class="r" d="M100 12 H175 V38"/>
+    </svg>
+
+    <!-- 좌우 갈림길: 각각 접힌 상태 → 헤더 클릭 시 펼쳐짐 (서로 독립) -->
+    <div class="branch-cols">
+
+      <!-- ③-1 정량 경로 -->
+      <div class="path-card" style="--pc:var(--quant)">
+        <button class="path-head" type="button" aria-expanded="false">
+          <span class="yn">YES · 수치화 가능</span>
+          <span class="ttl">③-1 정량 평가</span>
+          <span class="pcaret" aria-hidden="true">▼</span>
+        </button>
+        <div class="path-body"><div class="path-pad">
+
+          <p class="path-lbl">분해 흐름</p>
+          <div class="chain">
+            <span>경험</span><i>→</i><span>감각</span><i>→</i><span>감각의 원인</span>
+            <i>→</i><span>실제 수치</span><i>→</i><span>인사이트</span>
+          </div>
+
+          <p class="path-lbl">예시</p>
+          <div class="table-scroll">
+            <table class="detail mini">
+              <tbody>
+                <tr><td>경험</td><td>"아늑한 게 좋아요"</td></tr>
+                <tr><td>감각</td><td>둘러싸인 감각 · 안전하다는 감각</td></tr>
+                <tr><td>감각의 원인</td><td>낮은 천장 · 둘러싼 벽</td></tr>
+                <tr><td>실제 수치</td><td>천장고 O m · 면적 O ㎡</td></tr>
+                <tr><td>인사이트</td><td>설계에 적용할 정량 조건</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="path-lbl">지표</p>
+          <div class="tags">
+            <span class="chip chip--quant">isovist</span>
+            <span class="chip chip--quant">VGA</span>
+            <span class="chip chip--quant">LDK</span>
+            <span class="chip chip--quant">Space Syntax</span>
+          </div>
+
+          <p class="path-lbl">담당</p>
+          <p>${OWNER_CHIP.ai} &nbsp;AI·분석 툴로 <b>정답에 가까운 결론</b>을 도출할 수 있는 영역.</p>
+
+          <p class="path-lbl">근거</p>
+          <blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote>
+
+        </div></div>
+      </div>
+
+      <!-- ③-2 정성 경로 -->
+      <div class="path-card" style="--pc:var(--qual)">
+        <button class="path-head" type="button" aria-expanded="false">
+          <span class="yn">NO · 수치화 불가</span>
+          <span class="ttl">③-2 정성 평가</span>
+          <span class="pcaret" aria-hidden="true">▼</span>
+        </button>
+        <div class="path-body"><div class="path-pad">
+
+          <p class="path-lbl">성격</p>
+          <p>문화 · 관습에서 비롯된 경험. 예) <b>"주방에서 예배를 드림"</b></p>
+          <p class="wicked">정답이 존재하지 않는 <b>Wicked Problem (고약한 문제)</b> — 수치로 환산해 최적해를 구하는 방식이 성립하지 않는다.</p>
+
+          <p class="path-lbl">담당</p>
+          <p>${OWNER_CHIP.expert} &nbsp;사람(전문가)이 직접 판단하고 시공까지 책임진다. <b>AI가 건드릴 수 없는 영역.</b></p>
+
+          <p class="path-lbl">도구</p>
+          <div class="tags">
+            <span class="chip chip--qual">Kano</span>
+            <span class="chip chip--qual">QFD</span>
+          </div>
+          <p style="margin-top:8px">두 기법으로 다뤄야 할 경험을 <b>걸러낸다</b>.</p>
+
+          <p class="path-lbl">근거</p>
+          <blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote>
+
+        </div></div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+/* ---------- 세부 스텝 카드 ---------- */
+function renderSteps(s){
+  if(!s.steps || !s.steps.length) return '';
+
+  const nodes = s.steps.map(st => `
+    <div class="gnode anim" style="--gc:var(--${st.color||'human'})">
+      <span class="gno">${st.n}</span>
+      <div class="gtitle">
+        <b>${st.title}</b>${st.en ? `<span class="en">${st.en}</span>` : ''}
+      </div>
+      <dl class="step-dl">
+        <dt>목적</dt><dd>${st.purpose||''}</dd>
+        <dt>방법</dt><dd>${st.method||''}</dd>
+        <dt>담당</dt><dd>${OWNER_CHIP[st.owner]||''}</dd>
+        ${st.output ? `<dt>산출물</dt><dd>${st.output}</dd>` : ''}
+        <dt>근거</dt><dd><blockquote class="cite ph">논문 인용 자리 — 여기에 채웁니다.</blockquote></dd>
+      </dl>
+      ${st.demo ? `<div class="demo"><p class="demo-cap">${st.demo.cap} <em>— ${st.demo.sub}</em></p><div data-demo="${st.demo.mode}"></div></div>` : ''}
+      ${st.branch ? renderBranch() : ''}
+    </div>`).join('');
+
+  return `
+    <div class="steps">
+      <div class="steps-head anim">
+        세부 프로세스 ${s.stepsLabel}
+        <em>번호 ①–④는 본 프로세스의 세부 스텝 번호입니다 (Empathize의 ① → Define의 ②–④로 이어집니다)</em>
+      </div>
+      <div class="graph">${nodes}</div>
+    </div>`;
+}
+
+/* ---------- 세부 활동 표 ---------- */
+function renderTable(rows){
+  if(!rows || !rows.length) return '';
+  const body = rows.map((r,i)=>`
+    <tr>
+      <td class="num">${r.no != null ? r.no : i+1}</td>
+      <td>${r.act||''}</td>
+      <td>${r.method||''}</td>
+      <td>${OWNER_CHIP[r.owner] || '<span class="ph">—</span>'}</td>
+      <td>${r.output||''}</td>
+    </tr>`).join('');
+
+  return `
+    <div class="table-block anim">
+      <div class="table-cap">세부 활동</div>
+      <div class="table-scroll">
+        <table class="detail">
+          <colgroup><col style="width:52px"><col style="width:23%"><col><col style="width:120px"><col style="width:24%"></colgroup>
+          <thead><tr><th>#</th><th>세부 활동</th><th>방법 · 도구</th><th>담당</th><th>산출물</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ---------- 노드 ---------- */
+const ARROW_SVG = '<svg class="sep" viewBox="0 0 26 18" aria-hidden="true"><path d="M0 6h15V0l11 9-11 9v-6H0z"/></svg>';
+
+function sepHTML(fromId, toId){
+  const label = SEP_LABELS[fromId+'→'+toId];
+  return `<div class="sep-wrap">${ARROW_SVG}${label ? `<span class="sep-label">${label}</span>` : ''}</div>`;
+}
+
+function renderFlow(){
+  const flow  = document.getElementById('flow');
+  const first = STAGES[0];
+  const rest  = STAGES.slice(1);
+
+  const nodeHTML = (s) => `
+    <div class="node-slot${s.no===1?' is-first':''}">
+      <button class="node" type="button"
+              id="node-${s.id}" data-id="${s.id}" data-scope="${s.scope}"
+              style="${accentVars(s.accent)}"
+              aria-expanded="false" aria-controls="panel-${s.id}">
+        <span class="node-idx">${s.no}</span>
+        <span class="node-title">${s.en} <span class="ko">${s.ko}</span></span>
+        ${s.sub ? `<span class="node-sub">${s.sub}</span>` : ''}
+        ${s.stepsLabel ? `<span class="node-steps">${s.stepsLabel}</span>` : ''}
+        <span class="caretmark" aria-hidden="true">▼</span>
+      </button>
+      ${s.innerList ? `<div class="inner-list">${s.innerList}</div>` : ''}
+      ${s.missingLink ? `<span class="miss-badge">↩ <span class="miss-text">${MISS_LABEL[labelLang]}</span></span>` : ''}
+      ${s.caption ? `<div class="node-caption">${s.caption}</div>` : ''}
+    </div>`;
+
+  const studioInner = rest.map((s,i)=>
+    (i === 0 ? '' : sepHTML(rest[i-1].id, s.id)) + nodeHTML(s)
+  ).join('');
+
+  flow.innerHTML =
+    nodeHTML(first) + sepHTML(first.id, rest[0].id) +
+    `<div class="studio">${studioInner}</div>`;
+}
+
+/* ---------- 상세 패널 ---------- */
+function renderPanels(){
+  document.getElementById('panels').innerHTML = STAGES.map(s => `
+    <section class="panel" id="panel-${s.id}" style="${accentVars(s.accent)}"
+             role="region" aria-labelledby="node-${s.id}">
+      <div class="panel-body">
+        <div class="caret" data-caret="${s.id}"></div>
+        <div class="panel-card">
+
+          <div class="panel-head anim">
+            <h3>${s.no}. ${s.ko} <span class="en">${s.en}${s.sub ? ' · '+s.sub : ''}</span></h3>
+            <span class="tag ${s.scope==='original'?'tag--plain':''}">
+              ${s.scope==='detailed' ? s.stepsLabel : '원본 Design Thinking'}
+            </span>
+            <button class="panel-close" type="button" data-close="${s.id}">닫기 ✕</button>
+          </div>
+
+          <div class="field anim">
+            <div class="field-label">목적</div>
+            <div class="field-body">${ph(s.purpose,'')}</div>
+          </div>
+
+          <div class="field anim">
+            <div class="field-label">방법</div>
+            <div class="field-body">${ph(s.method,'')}</div>
+          </div>
+
+          <div class="field anim">
+            <div class="field-label">담당</div>
+            <div class="field-body">
+              <div class="owner-grid">
+                <div class="owner-card">
+                  <span class="chip chip--human">사람</span>
+                  ${ph(s.owner.human,'')}
+                </div>
+                <div class="owner-card">
+                  <span class="chip chip--quant">AI</span>
+                  ${ph(s.owner.ai,'')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field anim">
+            <div class="field-label">근거</div>
+            <div class="field-body">${phCite(s.evidence)}</div>
+          </div>
+
+          <div class="field anim">
+            <div class="field-label">산출물</div>
+            <div class="field-body">${phList(s.outputs,'')}</div>
+          </div>
+
+          ${renderSteps(s)}
+          ${s.linkNote ? `<div class="linknote anim"><span class="ico">→</span><span>${s.linkNote}</span></div>` : ''}
+          ${renderTable(s.table)}
+
+        </div>
+      </div>
+    </section>`).join('');
+
+  /* 등장 순서 딜레이 부여 (문서 순서대로) */
+  document.querySelectorAll('.panel').forEach(p=>{
+    p.querySelectorAll('.anim').forEach((el,i)=>{
+      el.style.setProperty('--d', Math.min(i*0.05, 0.6).toFixed(3)+'s');
+    });
+  });
+}
+
+/* ---------- 접기/펼치기 (한 번에 하나만) ---------- */
+let openId = null;
+
+function panelHeight(panel){
+  return panel.querySelector('.panel-body').getBoundingClientRect().height + 4;
+}
+
+function setPanel(id, open){
+  const panel = document.getElementById('panel-'+id);
+  const node  = document.getElementById('node-'+id);
+  if(!panel) return;
+
+  if(open){
+    panel.classList.add('is-open');
+    playDemosIn(panel);                       // 데모 크기부터 맞춘 뒤 높이 계산 → 자동 재생
+    panel.style.maxHeight = panelHeight(panel) + 'px';
+  }else{
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+    panel.offsetHeight;                       // reflow
+    panel.classList.remove('is-open');
+    panel.style.maxHeight = '0px';
+  }
+  if(node) node.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+/* 클릭한 노드 위치로 꼬리표 이동 */
+function placeCaret(id){
+  const caret = document.querySelector(`[data-caret="${id}"]`);
+  const node  = document.getElementById('node-'+id);
+  const panels= document.getElementById('panels');
+  if(!caret || !node) return;
+  const nr = node.getBoundingClientRect();
+  const pr = panels.getBoundingClientRect();
+  caret.style.left = (nr.left + nr.width/2 - pr.left) + 'px';
+}
+
+function toggleStage(id){
+  if(openId === id){ setPanel(id,false); openId = null; return; }
+  if(openId) setPanel(openId,false);
+  openId = id;
+  placeCaret(id);
+  setPanel(id,true);
+  requestAnimationFrame(()=>{
+    document.getElementById('panel-'+id).scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+}
+
+/* =========================================================================
+   경험 군집화 → 수치화 판정 애니메이션 데모
+   ① 흩어진 경험 카드  →  ② 군집화(KJ)  →  ③ 게이트에서 좌우로 갈라짐
+   ========================================================================= */
+/* 경험 카드 18장.
+   비슷한 속내를 서로 다른 말로 반복하는 카드가 여러 장 섞여 있어야
+   "모아 보니 같은 말이었다"는 KJ의 발견이 성립한다.
+   g = 1차 편성에서 실제로 묶이는 그룹 (null = 외톨이, 억지로 묶지 않음) */
+const KJ_CARDS = [
+  { t:'"현관 열면 거실이 다 보여요"',      g:0 },
+  { t:'"소파에 앉으면 밖에서 보여요"',      g:0 },
+  { t:'"창밖에서 안이 들여다보여요"',       g:0 },
+
+  { t:'"손님 오면 부엌이 다 보여요"',       g:1 },
+  { t:'"손님이 와도 어색하지 않았으면"',    g:1 },
+  { t:'"명절엔 어른들이 거실에 다 앉아요"', g:1 },
+
+  { t:'"회의 중에 애가 문을 열고 들어와요"', g:2 },
+  { t:'"회의 없는 날은 말을 안 하게 돼요"',  g:2 },
+  { t:'"거실에 업무 자료가 널려 있어요"',    g:2 },
+  { t:'"일하다가도 애 소리는 들렸으면"',     g:2 },
+
+  { t:'"저녁엔 다 같이 모여요"',           g:3 },
+  { t:'"주말마다 가족 예배를 드려요"',      g:3 },
+  { t:'"주방에서 예배를 드릴 때가 있어요"',  g:3 },
+
+  { t:'"아늑한 게 좋아요"',               g:4 },
+  { t:'"햇빛이 잘 들었으면 좋겠어요"',      g:4 },
+  { t:'"층간 소음이 신경 쓰여요"',          g:4 },
+  { t:'"수납이 늘 부족해요"',              g:4 },
+
+  { t:'"차를 두 대 세우고 싶어요"',         g:null }   /* ← 외톨이 */
+];
+
+/* 1차 편성 — 모은 '뒤에' 붙이는 표찰. 미리 정해 둔 분류 항목이 아니다. */
+const KJ_LV1 = [
+  { label:'안이 훤히 들여다보이는 게 부담이다',      color:'#2563eb' },
+  { label:'손님 앞에서는 준비된 모습만 보이고 싶다', color:'#60a5fa' },
+  { label:'일하는 나와 가족을 갈라놓되 끊기진 않게', color:'#3b82f6' },
+  { label:'모이는 시간에는 지켜야 할 것이 있다',     color:'#818cf8' },
+  { label:'집이 기본적으로 쾌적했으면',             color:'#7c9cf5' }
+];
+
+/* 2차 편성 — 1차 표찰들을 같은 방식으로 다시 모은다.
+   from: 묶이는 1차 그룹 index / lone: 외톨이 카드 index */
+const KJ_LV2 = [
+  { label:'보이고 들리는 것을 상황에 따라 조절하고 싶다', from:[0,2], color:'#1d4ed8',
+    v:'quant', b:'거실↔서재 isovist 60 % ↔ 0 % · 슬릿 200 mm' },
+  { label:'남에게 보여지는 자리에는 격식이 있다',        from:[1,3], color:'#6366f1',
+    v:'qual',  b:'관습 · 위계 → Kano · QFD로 선별' },
+  { label:'집이 기본적으로 쾌적했으면',                 from:[4],   color:'#7c9cf5',
+    v:'quant', b:'일조시간 · 차음 dB · 수납 면적 ㎡' },
+  { label:'"차를 두 대 세우고 싶어요"',                 from:[],    color:'#94a3b8',
+    lone:true, v:'quant', b:'주차 2대 · 5.0 × 2.3 m' }
+];
+
+/* 캔버스 안 배치 비율 */
+const L = {
+  /* ① 펼치기 — 6열 3행으로 흩뿌림 */
+  spreadX:(c)=> .105 + c*.158,
+  spreadY:(r)=> .17 + r*.27,
+  /* ② 1차 편성 — 3열 2행의 더미 */
+  pileCx:[.19,.50,.81], pileCy:[.30,.735],
+  pileSlot:(k)=> k*.088,          /* 더미 안 카드 간격 */
+  /* ③ 2차 편성 — 4개 단위를 가로로 */
+  unitCx:[.155,.385,.625,.855],
+  /* ④ 판정 */
+  zoneTop:.30, zoneH:.66, zoneW:.44, zoneL:[.035,.525], zoneCx:[.255,.745],
+  zoneSlotY:(i)=> .49 + i*.145,
+  gateX:.5, gateY:.13
+};
+
+const PHASE_NAMES = ['① 펼치기','② 1차 편성','③ 2차 편성','④ 수치화 판정'];
+
+function buildDemo(host){
+  const mode = host.dataset.demo;                       // 'kj' | 'verdict' | 'full'
+  const W = mode === 'full' ? 1180 : 1000;
+  const H = mode === 'full' ? 740  : 720;
+  const phases = mode === 'kj' ? [0,1,2] : mode === 'verdict' ? [2,3] : [0,1,2,3];
+
+  /* ---- 뼈대 ---- */
+  host.innerHTML = `
+    <div class="demo-bar">
+      <div class="demo-phases">
+        ${phases.map((p,i)=>
+          `${i?'<span class="dsep">→</span>':''}<button class="dph" type="button" data-p="${p}">${PHASE_NAMES[p]}</button>`
+        ).join('')}
+      </div>
+      <button class="dreplay" type="button">↻ 다시 재생</button>
+    </div>
+    <div class="demo-fit">
+      <div class="demo-canvas" style="width:${W}px;height:${H}px"></div>
+    </div>`;
+
+  const fit = host.querySelector('.demo-fit');
+  const cv  = host.querySelector('.demo-canvas');
+
+  /* ---- 배치 도우미 ---- */
+  const CARD_W = 186, CARD_H = 50, SLOT = () => L.pileSlot(1) * H;
+  const place = (el,x,y,extra)=>{
+    el.style.transform = `translate(calc(${x}px - 50%), calc(${y}px - 50%))${extra||''}`;
+  };
+  const frame = (el,cx,cy,w,h)=>{
+    el.style.left = (cx - w/2)+'px'; el.style.top = (cy - h/2)+'px';
+    el.style.width = w+'px';         el.style.height = h+'px';
+  };
+
+  /* ---- 그룹 구성 ---- */
+  const members = KJ_LV1.map((_,gi)=>
+    KJ_CARDS.reduce((a,c,i)=> (c.g === gi ? a.concat(i) : a), []));
+  const loneIdx = KJ_CARDS.findIndex(c=> c.g === null);
+  const pilePos = (s)=> ({ cx: L.pileCx[s%3]*W, cy: L.pileCy[Math.floor(s/3)]*H });
+
+  /* 1차 더미의 기하 — 카드 목록 / 테두리 / 표찰 위치를 한 번에 계산 */
+  function pileGeom(gi){
+    const n = members[gi].length, p = pilePos(gi), slot = SLOT();
+    const topY = p.cy - ((n-1)/2)*slot - CARD_H/2;
+    const botY = p.cy + ((n-1)/2)*slot + CARD_H/2;
+    return { ...p, n, slot, topY, botY,
+             boxCy:(topY - 46 + botY + 14)/2, boxH:(botY - topY) + 60,
+             labY: topY - 24 };
+  }
+
+  /* ---- 요소 만들기 ---- */
+  const mkBox = (cls,color,step)=>{
+    const el = document.createElement('div');
+    el.className = 'dbox' + (cls ? ' '+cls : '');
+    el.style.setProperty('--bc', color);
+    el.innerHTML = `<span class="dbox-step">${step}</span>`;
+    cv.appendChild(el); return el;
+  };
+  const box1 = KJ_LV1.map(g=> mkBox('', g.color, '1차 편성'));
+  const box2 = [0,1].map(i=> mkBox('up', KJ_LV2[i].color, '2차 편성'));
+
+  const ZONES = [
+    { c:'var(--quant)', bg:'var(--quant-soft)', head:'수치화 가능 · 정량',
+      sub:'시선 · 동선 · 치수로 환원됨 → AI 분석' },
+    { c:'var(--qual)',  bg:'var(--qual-soft)',  head:'수치화 불가 · 정성',
+      sub:'의미 · 관습 · 정체성에 뿌리 → 사람(전문가) 판단' }
+  ];
+  const zones = ZONES.map((z,i)=>{
+    const el = document.createElement('div');
+    el.className = 'dzone';
+    el.style.cssText =
+      `--zc:${z.c};--zbg:${z.bg};left:${L.zoneL[i]*W}px;top:${L.zoneTop*H}px;`+
+      `width:${L.zoneW*W}px;height:${L.zoneH*H}px`;
+    el.innerHTML =
+      `<div class="dzone-head">${z.head}</div>`+
+      `<div class="dzone-sub">${z.sub}</div>`+
+      `<div class="dzone-count"></div>`;
+    cv.appendChild(el); return el;
+  });
+  const counts = zones.map(z=> z.querySelector('.dzone-count'));
+
+  const arrows = document.createElementNS(SVG_NS,'svg');
+  arrows.setAttribute('class','dgate-arrows');
+  arrows.setAttribute('width',W); arrows.setAttribute('height',H);
+  arrows.innerHTML = `
+    <defs>
+      <marker id="ga-t-${mode}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--quant)"/></marker>
+      <marker id="ga-o-${mode}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--qual)"/></marker>
+    </defs>
+    <path class="ga-l" marker-end="url(#ga-t-${mode})"
+          d="M ${.45*W} ${.185*H} C ${.38*W} ${.21*H}, ${.30*W} ${.235*H}, ${.262*W} ${.265*H}"/>
+    <path class="ga-r" marker-end="url(#ga-o-${mode})"
+          d="M ${.55*W} ${.185*H} C ${.62*W} ${.21*H}, ${.70*W} ${.235*H}, ${.738*W} ${.265*H}"/>
+    <text x="${.325*W}" y="${.195*H}" text-anchor="middle" fill="var(--quant)">YES · 수치화 가능</text>
+    <text x="${.675*W}" y="${.195*H}" text-anchor="middle" fill="var(--qual)">NO · 수치화 불가</text>`;
+  cv.appendChild(arrows);
+
+  const gate = document.createElement('div');
+  gate.className = 'dgate';
+  gate.style.left = L.gateX*W+'px';
+  gate.style.top  = L.gateY*H+'px';
+  gate.textContent = '이 경험은 수치화 가능한가?';
+  cv.appendChild(gate);
+
+  /* 경험 카드 */
+  const cards = KJ_CARDS.map((d,i)=>{
+    const el = document.createElement('div');
+    el.className = 'dcard';
+    el.style.setProperty('--cc', d.g === null ? '#94a3b8' : KJ_LV1[d.g].color);
+    el.dataset.rot = ((i*13) % 7) - 3;
+    el.innerHTML = `<span class="dc-dot"></span><span class="dc-text">${d.t}</span>`+
+                   `<span class="dc-badge"></span>`;
+    cv.appendChild(el); return el;
+  });
+
+  /* 외톨이 표시 */
+  const lone = document.createElement('div');
+  lone.className = 'dlone';
+  lone.textContent = '외톨이 — 억지로 묶지 않는다';
+  cv.appendChild(lone);
+
+  /* 표찰 */
+  const lab1 = KJ_LV1.map(g=>{
+    const el = document.createElement('div');
+    el.className = 'dlabel';
+    el.style.setProperty('--lc', g.color);
+    el.innerHTML = `<span class="dl-text">${g.label}</span><span class="dl-badge"></span>`;
+    cv.appendChild(el); return el;
+  });
+  const lab2 = KJ_LV2.slice(0,2).map(g=>{
+    const el = document.createElement('div');
+    el.className = 'dlabel up';
+    el.style.setProperty('--lc', g.color);
+    el.innerHTML = `<span class="dl-text">${g.label}</span><span class="dl-badge"></span>`;
+    cv.appendChild(el); return el;
+  });
+
+  /* 판정 대상 = 2차 편성의 결과 단위 4개 */
+  const units = [
+    { el:lab2[0],        d:KJ_LV2[0] },
+    { el:lab2[1],        d:KJ_LV2[1] },
+    { el:lab1[4],        d:KJ_LV2[2] },   /* 단독 유지된 1차 그룹 */
+    { el:cards[loneIdx], d:KJ_LV2[3] }    /* 외톨이 카드 그대로 */
+  ];
+
+  /* ---- 타이머 ---- */
+  let timers = [];
+  const at = (ms,fn)=> timers.push(setTimeout(fn,ms));
+  const clearAll = ()=>{ timers.forEach(clearTimeout); timers = []; };
+  /* 시퀀스가 도는 동안 프레임을 계속 요청해 전환이 확실히 그려지게 한다 */
+  let tickEnd = 0, ticking = false;
+  const tick = (ms)=>{
+    tickEnd = Math.max(tickEnd, performance.now() + ms);
+    if(ticking) return;
+    ticking = true;
+    const step = ()=>{
+      if(performance.now() < tickEnd) requestAnimationFrame(step);
+      else ticking = false;
+    };
+    requestAnimationFrame(step);
+  };
+  const markPhase = p=> host.querySelectorAll('.dph')
+      .forEach(b=> b.classList.toggle('on', +b.dataset.p === p));
+
+  const resetVerdict = ()=>{
+    [...cards,...lab1,...lab2].forEach(el=>
+      el.classList.remove('judging','judged','v-quant','v-qual'));
+    counts.forEach(c=>{ c.classList.remove('on'); c.textContent=''; });
+    zones.forEach(z=> z.classList.remove('on'));
+    gate.classList.remove('on'); arrows.classList.remove('on');
+  };
+
+  /* ================= ① 펼치기 ================= */
+  function p0(anim){
+    clearAll(); markPhase(0); resetVerdict();
+    box1.concat(box2).forEach(b=> b.classList.remove('on'));
+    lab1.concat(lab2).forEach(l=> l.classList.remove('in'));
+    lone.classList.remove('in');
+    cards.forEach((el,i)=>{
+      el.classList.remove('in','tucked');
+      const c = i % 6, r = Math.floor(i / 6);
+      const x = (L.spreadX(c) + (((i*7)%5)-2)*.008) * W;
+      const y = (L.spreadY(r) + (((i*11)%5)-2)*.012) * H;
+      place(el, x, y, ` rotate(${el.dataset.rot}deg)`);
+      if(anim) at(60 + i*55, ()=> el.classList.add('in'));
+      else el.classList.add('in');
+    });
+  }
+
+  /* ========= ② 1차 편성 — 모으기 → 테두리 → 표찰 ========= */
+  function p1(anim){
+    markPhase(1); resetVerdict();
+    box2.forEach(b=> b.classList.remove('on'));
+    lab2.forEach(l=> l.classList.remove('in'));
+
+    /* (1) 끌리는 것끼리 모은다 — 아직 이름도 테두리도 없다 */
+    members.forEach((mem,gi)=>{
+      const g = pileGeom(gi);
+      mem.forEach((ci,k)=>{
+        const el = cards[ci];
+        const go = ()=>{
+          el.classList.add('in'); el.classList.remove('tucked');
+          place(el, g.cx + ((k%2)? 11 : -11), g.topY + CARD_H/2 + k*g.slot,
+                ` rotate(${(k%2? 1 : -1)}deg)`);
+        };
+        anim ? at(k*60 + gi*90, go) : go();
+      });
+    });
+    /* 외톨이는 제자리에 남는다 */
+    const lp = pilePos(5);
+    const goLone = ()=>{
+      cards[loneIdx].classList.add('in');
+      cards[loneIdx].classList.remove('tucked');
+      place(cards[loneIdx], lp.cx, lp.cy, ' rotate(-2deg)');
+      place(lone, lp.cx, lp.cy - 46);
+    };
+    anim ? at(700, goLone) : goLone();
+
+    /* (2) 모인 뒤에야 테두리가 생기고 */
+    members.forEach((_,gi)=>{
+      const g = pileGeom(gi);
+      const go = ()=>{ frame(box1[gi], g.cx, g.boxCy, CARD_W + 44, g.boxH);
+                       box1[gi].classList.add('on'); };
+      anim ? at(1150 + gi*110, go) : go();
+    });
+
+    /* (3) 그 다음에 표찰을 써 붙인다 */
+    members.forEach((_,gi)=>{
+      const g = pileGeom(gi);
+      const go = ()=>{ place(lab1[gi], g.cx, g.labY); lab1[gi].classList.add('in'); };
+      anim ? at(1800 + gi*130, go) : go();
+    });
+    const goLoneTag = ()=> lone.classList.add('in');
+    anim ? at(2350, goLoneTag) : goLoneTag();
+  }
+
+  /* ========= ③ 2차 편성 — 표찰끼리 다시 모은다 ========= */
+  function p2(anim){
+    markPhase(2); resetVerdict();
+
+    const step = ()=>{
+      box1.forEach(b=> b.classList.remove('on'));
+
+      KJ_LV2.forEach((u,ui)=>{
+        const cx = L.unitCx[ui]*W;
+
+        u.from.forEach((gi,slot)=>{
+          const ly = (u.from.length > 1 ? .50 + slot*.235 : .52) * H;
+          place(lab1[gi], cx, ly);
+          lab1[gi].classList.add('in');
+          /* 소속 카드는 표찰 뒤로 접힌다 (KJ에서 그룹을 한 장으로 취급하듯) */
+          members[gi].forEach((ci,k)=>{
+            cards[ci].classList.add('tucked');
+            place(cards[ci], cx + 5 + k*5, ly + 30 + k*6, ' scale(.9)');
+          });
+        });
+
+        if(u.lone){
+          place(cards[loneIdx], cx, .52*H, ' rotate(-2deg)');
+          place(lone, cx, .52*H - 44);
+          cards[loneIdx].classList.add('in');
+          cards[loneIdx].classList.remove('tucked');
+          lone.classList.add('in');
+        }
+      });
+    };
+    anim ? at(0, step) : step();
+
+    /* 묶인 것에만 2차 테두리와 2차 표찰이 붙는다 */
+    [0,1].forEach(ui=>{
+      const cx = L.unitCx[ui]*W;
+      const go = ()=>{
+        frame(box2[ui], cx, .585*H, CARD_W + 70, .60*H);
+        box2[ui].classList.add('on');
+        place(lab2[ui], cx, .285*H);
+        lab2[ui].classList.add('in');
+      };
+      anim ? at(900 + ui*180, go) : go();
+    });
+  }
+
+  /* ================= ④ 수치화 판정 ================= */
+  function p3(){
+    markPhase(3); resetVerdict();
+
+    /* 판정은 표찰 단위 — 개별 카드와 테두리는 물러난다 */
+    cards.forEach((el,i)=>{ if(i !== loneIdx) el.classList.remove('in'); });
+    box1.concat(box2).forEach(b=> b.classList.remove('on'));
+    [0,1,2,3].forEach(gi=> lab1[gi].classList.remove('in'));
+    lone.classList.remove('in');
+
+    zones.forEach(z=> z.classList.add('on'));
+    at(200,()=>{ gate.classList.add('on'); arrows.classList.add('on'); });
+
+    const slot = { quant:0, qual:0 }, tally = { quant:0, qual:0 };
+
+    units.forEach((u,i)=>{
+      const v = u.d.v, k = slot[v]++, zi = (v === 'quant' ? 0 : 1);
+      const t0 = 700 + i*760;
+      const bad = u.el.querySelector('.dl-badge') || u.el.querySelector('.dc-badge');
+
+      at(t0, ()=>{
+        u.el.classList.add('judging');
+        place(u.el, L.gateX*W, (L.gateY + .095)*H);
+      });
+      at(t0+520, ()=>{
+        u.el.classList.remove('judging');
+        u.el.classList.add('judged','v-'+v);
+        if(bad) bad.textContent = u.d.b;
+      });
+      at(t0+640, ()=> place(u.el, L.zoneCx[zi]*W, L.zoneSlotY(k)*H));
+      at(t0+880, ()=>{
+        tally[v]++;
+        counts[zi].textContent = `${tally[v]}개 단위`;
+        counts[zi].classList.add('on');
+      });
+    });
+  }
+
+  /* ---- 재생 ---- */
+  function play(){
+    clearAll();
+    tick(mode === 'full' ? 13000 : 8000);
+    if(mode === 'kj'){
+      p0(true); at(2400, ()=>p1(true));
+    }else if(mode === 'verdict'){
+      p0(false); p1(false); p2(false); at(800, p3);
+    }else{
+      p0(true); at(2400, ()=>p1(true)); at(5600, ()=>p2(true)); at(8000, p3);
+    }
+    if(mode === 'kj') at(5600, ()=>p2(true));
+  }
+  host._play = play;
+
+  /* ---- 조작 ---- */
+  host.querySelector('.dreplay').addEventListener('click', play);
+  host.querySelectorAll('.dph').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      clearAll();
+      tick(6000);
+      const p = +btn.dataset.p;
+      if(p === 0){ p0(true); }
+      else if(p === 1){ p0(false); p1(true); }
+      else if(p === 2){ p0(false); p1(false); p2(true); }
+      else { p0(false); p1(false); p2(false); at(120, p3); }
+    });
+  });
+
+  /* ---- 폭에 맞춰 축소 ---- */
+  host._fit = ()=>{
+    const w = fit.clientWidth || W;
+    const s = Math.min(1.2, w / W);
+    cv.style.transform = `scale(${s})`;
+    cv.style.left = Math.max(0,(w - W*s)/2) + 'px';
+    fit.style.height = (H * s) + 'px';
+  };
+  host._fit();
+
+  /* 초기 상태 */
+  p0(false);
+  if(mode === 'verdict'){ p1(false); p2(false); }
+  markPhase(phases[0]);
+}
+
+
+function initDemos(){
+  document.querySelectorAll('[data-demo]').forEach(h=>{ if(!h._play) buildDemo(h); });
+
+  /* 하단 전체 데모는 화면에 들어오면 자동 재생 */
+  const full = document.querySelector('.demo-section [data-demo]');
+  if(full && 'IntersectionObserver' in window){
+    let done = false;
+    new IntersectionObserver((ents,obs)=>{
+      ents.forEach(e=>{
+        if(e.isIntersecting && !done){ done = true; full._play(); obs.disconnect(); }
+      });
+    },{threshold:.35}).observe(full);
+  }
+}
+
+/* 패널이 열리면 그 안의 데모를 자동 재생 */
+function playDemosIn(panel){
+  panel.querySelectorAll('[data-demo]').forEach(h=>{
+    if(h._fit) h._fit();
+    if(h._play) setTimeout(h._play, 260);
+  });
+}
+
+/* ---------- 좌우 갈림길 토글 (③-1 / ③-2) ---------- */
+function togglePath(head){
+  const card  = head.closest('.path-card');
+  const body  = card.querySelector('.path-body');
+  const panel = card.closest('.panel');
+  const open  = !card.classList.contains('is-open');
+
+  const delta = body.scrollHeight;            // 펼쳤을 때의 내용 높이
+  const cur   = panel ? panelHeight(panel) : 0;
+
+  card.classList.toggle('is-open', open);
+  head.setAttribute('aria-expanded', open ? 'true' : 'false');
+  body.style.maxHeight = open ? delta + 'px' : '0px';
+
+  // 부모 패널도 같은 시간 동안 함께 늘어나/줄어들게 목표 높이를 미리 지정
+  if(panel && openId){
+    panel.style.maxHeight = (cur + (open ? delta : -delta)) + 'px';
+  }
+}
+
+/* 자식 전환이 끝나면 부모 패널 높이를 정확한 값으로 보정 */
+document.addEventListener('transitionend', e=>{
+  if(!e.target.classList || !e.target.classList.contains('path-body')) return;
+  const panel = e.target.closest('.panel');
+  if(panel && panel.id === 'panel-'+openId){
+    panel.style.maxHeight = panelHeight(panel) + 'px';
+  }
+});
+
+/* ---------- 빨간 점선 (Missing connection to Empathy) ---------- */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function drawEmpathyLinks(){
+  const wrap = document.getElementById('flowWrap');
+  const svg  = document.getElementById('empathySvg');
+  [...svg.querySelectorAll('.empathy-path,.empathy-label,.empathy-plate')].forEach(n=>n.remove());
+
+  if(window.innerWidth <= 900) return;          // 좁은 화면은 배지로 대체
+
+  const wr = wrap.getBoundingClientRect();
+  svg.setAttribute('width',  wr.width);
+  svg.setAttribute('height', wr.height);
+  svg.setAttribute('viewBox', `0 0 ${wr.width} ${wr.height}`);
+
+  const target = document.getElementById('node-'+STAGES[0].id);
+  if(!target) return;
+  const tr = target.getBoundingClientRect();
+  const sources = STAGES.filter(s=>s.missingLink);
+
+  // 1) 곡선을 먼저 전부 그린다
+  const labels = [];
+  sources.forEach((s,i)=>{
+    const el = document.getElementById('node-'+s.id);
+    if(!el) return;
+    const r = el.getBoundingClientRect();
+
+    const sx = r.left + r.width/2 - wr.left;               // 출발: 후반 노드 상단 중앙
+    const sy = r.top  - wr.top - 5;
+    const ex = tr.left + tr.width/2 - wr.left + (i-1)*22;  // 도착: Empathizing 상단
+    const ey = tr.top - wr.top - 6;
+    const lane = 24 + (sources.length - 1 - i) * 34;       // 멀수록 높은 레인 (간격 넉넉히)
+
+    const p = document.createElementNS(SVG_NS,'path');
+    p.setAttribute('class','empathy-path');
+    p.setAttribute('marker-end','url(#redArrow)');
+    p.setAttribute('d', `M ${sx} ${sy} C ${sx} ${lane}, ${ex} ${lane}, ${ex} ${ey}`);
+    svg.appendChild(p);
+
+    labels.push({ x:(sx + ex) / 2, y:(sy + ey + 6*lane) / 8 });   // 곡선 중간점(t=0.5)
+  });
+
+  // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
+  labels.forEach(pos=>{
+    const t = document.createElementNS(SVG_NS,'text');
+    t.setAttribute('class','empathy-label');
+    t.setAttribute('x', pos.x);
+    t.setAttribute('y', pos.y);
+    t.textContent = MISS_LABEL[labelLang];
+    svg.appendChild(t);
+
+    const b = t.getBBox();                                  // 글자 크기만큼 배경판 생성
+    const padX = 8, padY = 4;
+    const plate = document.createElementNS(SVG_NS,'rect');
+    plate.setAttribute('class','empathy-plate');
+    plate.setAttribute('x', b.x - padX);
+    plate.setAttribute('y', b.y - padY);
+    plate.setAttribute('width',  b.width  + padX*2);
+    plate.setAttribute('height', b.height + padY*2);
+    plate.setAttribute('rx', 4);
+    svg.insertBefore(plate, t);                             // 배경판을 글자 뒤로
+  });
+}
+
+/* =========================================================================
+   적용 사례 — 단계 탭 + KJ 연결선
+   ========================================================================= */
+const KJ_PAIRS = [                 /* [출발, 도착, 색] — 1차 편성 → 2차 편성 */
+  ['kj-s1','kj-p1',  '#2563eb'],
+  ['kj-s5','kj-p1',  '#2563eb'],
+  ['kj-s3','kj-p2',  '#60a5fa'],
+  ['kj-s4','kj-p2',  '#60a5fa'],
+  ['kj-s2','kj-lone','#94a3b8'],
+  ['kj-p1','kj-u1',  '#1d4ed8'],
+  ['kj-lone','kj-u1','#1d4ed8'],
+  ['kj-p2','kj-u2',  '#60a5fa']
+];
+
+function drawKJ(){
+  const map = document.querySelector('.kj-map');
+  const svg = document.getElementById('kjLinks');
+  if(!map || !svg) return;
+
+  svg.innerHTML = '';
+  svg.classList.remove('drawn');
+
+  const mr = map.getBoundingClientRect();
+  svg.setAttribute('width', mr.width);
+  svg.setAttribute('height', mr.height);
+  svg.setAttribute('viewBox', `0 0 ${mr.width} ${mr.height}`);
+  if(window.innerWidth <= 900) return;        // 좁은 화면은 카드 안 "← S1" 표기로 대체
+
+  KJ_PAIRS.forEach(([a,b,color])=>{
+    const el1 = document.getElementById(a), el2 = document.getElementById(b);
+    if(!el1 || !el2) return;
+    const r1 = el1.getBoundingClientRect(), r2 = el2.getBoundingClientRect();
+    const x1 = r1.right - mr.left,  y1 = r1.top + r1.height/2 - mr.top;
+    const x2 = r2.left  - mr.left,  y2 = r2.top + r2.height/2 - mr.top;
+    const mx = (x1 + x2) / 2;
+
+    const p = document.createElementNS(SVG_NS,'path');
+    p.setAttribute('d', `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+    p.setAttribute('stroke', color);
+    svg.appendChild(p);
+    const len = p.getTotalLength();
+    p.style.setProperty('--len', len);
+  });
+
+  requestAnimationFrame(()=> svg.classList.add('drawn'));   // 선이 그려지는 애니메이션
+}
+
+function showCase(idx){
+  const tabs  = [...document.querySelectorAll('.ctab')];
+  const panes = [...document.querySelectorAll('.cpane')];
+  tabs.forEach((t,i)=> t.classList.toggle('on', i === idx));
+  panes.forEach((p,i)=>{
+    const on = i === idx;
+    p.hidden = !on;
+    p.classList.toggle('on', on);
+  });
+
+  /* 순차 등장 — 확실히 재생되도록 Web Animations로 직접 실행 */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce && panes[idx].animate){
+    const running = [];
+    panes[idx].querySelectorAll('.canim').forEach((el,i)=>{
+      el.getAnimations().forEach(a=>a.cancel());
+      running.push(el.animate(
+        [{opacity:0, transform:'translateY(14px)'},{opacity:1, transform:'none'}],
+        { duration:460, delay:Math.min(i*60, 700), fill:'backwards',
+          easing:'cubic-bezier(.16,.84,.44,1)' }
+      ));
+    });
+    /* 안전장치 — 어떤 이유로든 프레임이 돌지 않아도 내용이 가려진 채 남지 않게 */
+    setTimeout(()=>running.forEach(a=>{ if(a.playState !== 'finished') a.cancel(); }), 1500);
+  }
+
+  if(idx === 1) requestAnimationFrame(drawKJ);
+}
+
+function initCase(){
+  if(!document.querySelector('.ctab')) return;
+  document.querySelectorAll('.ctab').forEach(t=>
+    t.addEventListener('click', ()=> showCase(+t.dataset.c)));
+  document.querySelectorAll('.cnext').forEach(b=>
+    b.addEventListener('click', ()=>{
+      showCase(+b.dataset.next);
+      document.querySelector('.case-tabs').scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+  showCase(0);
+}
+
+/* ---------- 토글 버튼 ---------- */
+function initToggle(){
+  const btn  = document.getElementById('linkToggle');
+  const wrap = document.getElementById('flowWrap');
+  btn.addEventListener('click', ()=>{
+    const on = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', on ? 'false' : 'true');   // 기본은 켜짐
+    wrap.classList.toggle('links-off', on);
+  });
+}
+
+/* ---------- 라벨 한국어 토글 ---------- */
+function initLangToggle(){
+  const btn = document.getElementById('langToggle');
+  btn.addEventListener('click', ()=>{
+    const ko = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', ko ? 'true' : 'false');
+    labelLang = ko ? 'ko' : 'en';
+    drawEmpathyLinks();                                       // SVG 라벨 다시 그림
+    document.querySelectorAll('.miss-text')                   // 모바일 배지도 동기화
+            .forEach(el=>{ el.textContent = MISS_LABEL[labelLang]; });
+  });
+}
+
+/* ---------- 참고 이미지 placeholder 처리 ---------- */
+function initRefImage(){
+  const img = document.getElementById('refImg');
+  const box = document.getElementById('refPlaceholder');
+  const show = ()=>{ img.style.display='none'; box.style.display='flex'; };
+  const hide = ()=>{ img.style.display='block'; box.style.display='none'; };
+  if(!img.getAttribute('src')) show(); else hide();
+  img.addEventListener('error', show);
+  img.addEventListener('load', ()=>{ hide(); drawEmpathyLinks(); if(openId) placeCaret(openId); });
+}
+
+/* ---------- 초기화 ---------- */
+renderFlow();
+renderPanels();
+initDemos();
+initCase();
+initToggle();
+initLangToggle();
+initRefImage();
+drawEmpathyLinks();
+
+document.getElementById('flow').addEventListener('click', e=>{
+  const btn = e.target.closest('.node');
+  if(btn) toggleStage(btn.dataset.id);
+});
+document.getElementById('panels').addEventListener('click', e=>{
+  const head = e.target.closest('.path-head');
+  if(head){ togglePath(head); return; }
+  const btn = e.target.closest('[data-close]');
+  if(btn) toggleStage(btn.dataset.close);
+});
+
+let rid;
+window.addEventListener('resize', ()=>{
+  clearTimeout(rid);
+  rid = setTimeout(()=>{
+    drawEmpathyLinks();
+    drawKJ();
+    document.querySelectorAll('[data-demo]').forEach(h=>{ if(h._fit) h._fit(); });
+    if(openId){
+      placeCaret(openId);
+      const p = document.getElementById('panel-'+openId);
+      p.style.maxHeight = panelHeight(p) + 'px';
+    }
+  }, 120);
+});
+</script>
+</body>
+</html>
