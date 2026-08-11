@@ -583,12 +583,14 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
 .dph:hover{border-color:var(--text-3);color:var(--text-2)}
 .dph.on{background:var(--human);border-color:var(--human);color:#fff}
 .dsep{color:var(--text-3);font-size:11px}
-.dreplay{
-  margin-left:auto;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;
+.dreplay,.dpause{
+  font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;
   border:1px solid var(--line);background:var(--surface);color:var(--text-2);
   border-radius:999px;padding:4px 12px;transition:all .2s;
 }
-.dreplay:hover{border-color:var(--human);color:var(--human)}
+.dpause{margin-left:auto}
+.dreplay:hover,.dpause:hover:not(:disabled){border-color:var(--human);color:var(--human)}
+.dpause:disabled{opacity:.4;cursor:default}
 
 /* 고정 캔버스를 폭에 맞춰 축소 → 어느 화면에서도 배치가 동일 */
 .demo-fit{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
@@ -733,8 +735,12 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
 .dgoal.in,.dhx.in,.droom.in,.dalt.in,.dcycle.in,.dnote.in{opacity:1}
 
 .dnote{
-  width:760px;text-align:center;font-size:14px;font-weight:600;color:var(--text-2);
+  width:860px;text-align:center;font-size:14px;font-weight:600;color:var(--text-2);
 }
+.dnote-sub{
+  display:block;margin-top:6px;font-size:12px;font-weight:500;color:var(--text-3);
+}
+.dnote-sub b{color:var(--text-2)}
 .dgoal{
   padding:8px 18px;border-radius:999px;white-space:nowrap;
   background:var(--human-soft);color:var(--human);font-size:14px;font-weight:700;
@@ -780,11 +786,13 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
   transition:width .9s var(--ease);
 }
 .dab-v{flex:0 0 26px;font-size:10px;font-weight:700;color:var(--text-3);text-align:right}
-.dalt-sum{
+.dalt-flat{
   margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);
-  font-size:11.5px;color:var(--text-3);
+  font-size:11px;color:var(--text-3);
 }
-.dalt-sum b{font-size:15px;color:var(--text)}
+.dalt-flat b{font-size:12.5px;color:var(--text-2)}
+.dalt-sum{margin-top:3px;font-size:11.5px;color:var(--text-3)}
+.dalt-sum b{font-size:16px;color:var(--text)}
 .dalt-sum em{font-style:normal;font-size:10.5px}
 .dalt-v{margin:8px 0 0;font-size:11.5px;line-height:1.6;color:var(--text-2)}
 .dalt-tag{
@@ -793,6 +801,7 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
 /* ⑥ Ideate에서는 "대안이 셋 나왔다"만 — 점수는 ⑦에서 붙는다 */
 .dalt.compact .dalt-plan,
 .dalt.compact .dalt-bars,
+.dalt.compact .dalt-flat,
 .dalt.compact .dalt-sum,
 .dalt.compact .dalt-v,
 .dalt.compact .dalt-tag{display:none}
@@ -2723,17 +2732,21 @@ const EDGES = [[0,1],[1,2],[2,3],[3,1],[1,5],[1,4]];
 const ALTS = [
   { n:'대안 A', f:'개방감 · 회복 경험 중심',
     plan:['LDK를 하나의 공용영역으로 통합','거실을 전면부에 배치','발코니 · 창호 직접 연결'],
-    s:[.85,.50,.70,.55],
-    v:'개방감은 가장 높지만, 사적 영역이 노출돼 스트레스 지표가 낮다.' },
+    s:[.90,.60,.85,.50],
+    v:'회복·미적 지표가 높아 <b>단순 평균으로는 가장 높다</b>. 그러나 이 프로젝트가 1순위로 둔 수행(동선) 지표가 가장 낮다.' },
   { n:'대안 B', f:'프라이버시 · 은신감 중심',
     plan:['침실군을 후면으로 분리','현관에 완충 공간 · 시선 차단','공용/사적 영역 명확히 구분'],
-    s:[.50,.90,.65,.50],
-    v:'은신감은 확보되나, 공용공간 연결이 약해 수행 지표가 낮다.' },
+    s:[.45,.90,.65,.50],
+    v:'은신감은 확보되나, 공용공간이 갈라져 동선이 길어지고 수행 지표를 잃는다.' },
   { n:'대안 C', f:'동선 효율 · 기능 수행성 중심',
     plan:['복도 길이 최소화 · 순환 동선','주방-식당-거실 인접 배치','수납 접근성 우선'],
-    s:[.65,.70,.75,.90],
-    v:'네 지표가 고르게 높고 동선 효율이 가장 우수하다.' }
+    s:[.55,.60,.70,.95],
+    v:'개별 지표는 A보다 낮지만, <b>1순위인 수행 지표에서 크게 앞서</b> 가중 점수가 뒤집힌다.' }
 ];
+
+/* 선정 기준은 단순 합계가 아니라 2. Define에서 정한 우선순위 가중치다.
+   (이 예시 프로젝트: 재택근무 부부 → 동선·기능 수행성을 최우선으로 두었다고 가정) */
+const HX_WEIGHT = [.25, .15, .20, .40];   // 회복 · 스트레스 · 미적 · 수행
 
 function buildDemo(host){
   const mode = host.dataset.demo;                       // 'kj' | 'verdict' | 'full'
@@ -2751,6 +2764,7 @@ function buildDemo(host){
           `${i?'<span class="dsep">→</span>':''}<button class="dph" type="button" data-p="${p}">${PHASE_NAMES[p]}</button>`
         ).join('')}
       </div>
+      <button class="dpause" type="button">⏸ 일시정지</button>
       <button class="dreplay" type="button">↻ 다시 재생</button>
     </div>
     <div class="demo-fit">
@@ -2895,7 +2909,8 @@ function buildDemo(host){
        `<div class="dab"><span class="dab-k">${h.ko}</span>
           <div class="dab-t"><i></i></div>
           <span class="dab-v" data-j="${j}"></span></div>`).join('')}</div>
-     <div class="dalt-sum">합계 <b class="dalt-sumv">—</b> <em>/ 4.00</em></div>
+     <div class="dalt-flat">단순 평균 <b class="dalt-flatv">—</b></div>
+     <div class="dalt-sum">가중 점수 <b class="dalt-sumv">—</b> <em>/ 1.00 · 선정 기준</em></div>
      <p class="dalt-v">${a.v}</p>
      <span class="dalt-tag"></span>`));
   const cycleEl = mk('dcycle',
@@ -2911,12 +2926,15 @@ function buildDemo(host){
 
   const POOL = [...goalEls, ...hxEls, ...roomEls, ...altEls, cycleEl, stageNote];
 
+  const weighted = (i)=> ALTS[i].s.reduce((sum,v,j)=> sum + v*HX_WEIGHT[j], 0);
+
   /* 대안 카드를 처음 상태로 — 다시 재생할 때 이전 판정이 남지 않게 */
   const resetAlt = (a)=>{
     a.classList.remove('win','lose');
     a.querySelectorAll('.dab-t i').forEach(b=> b.style.width = '0%');
     a.querySelectorAll('.dab-v').forEach(v=> v.textContent = '');
     a.querySelector('.dalt-sumv').textContent = '—';
+    a.querySelector('.dalt-flatv').textContent = '—';
     a.querySelector('.dalt-tag').textContent = '';
   };
 
@@ -2935,21 +2953,57 @@ function buildDemo(host){
   ];
 
   /* ---- 타이머 ---- */
-  let timers = [];
-  const at = (ms,fn)=> timers.push(setTimeout(fn,ms));
-  const clearAll = ()=>{ timers.forEach(clearTimeout); timers = []; };
-  /* 시퀀스가 도는 동안 프레임을 계속 요청해 전환이 확실히 그려지게 한다 */
-  let tickEnd = 0, ticking = false;
-  const tick = (ms)=>{
-    tickEnd = Math.max(tickEnd, performance.now() + ms);
-    if(ticking) return;
-    ticking = true;
-    const step = ()=>{
-      if(performance.now() < tickEnd) requestAnimationFrame(step);
-      else ticking = false;
-    };
-    requestAnimationFrame(step);
-  };
+  /* 자체 시계로 도는 스케줄러 — 멈췄다 이어서 재생할 수 있고,
+     도는 동안 프레임을 계속 요청하므로 전환도 확실히 그려진다. */
+  let queue = [], running = false, startedAt = 0, elapsed = 0, rafId = null, grace = 0;
+
+  const clock = ()=> elapsed + (running ? performance.now() - startedAt : 0);
+
+  function loop(){
+    rafId = null;
+    if(!running) return;
+    const t = clock();
+    if(queue.length){
+      const due = queue.filter(q=> q.due <= t);
+      if(due.length){ queue = queue.filter(q=> q.due > t); due.forEach(q=> q.fn()); }
+    }
+    if(queue.length || performance.now() < grace){
+      if(rafId == null) rafId = requestAnimationFrame(loop);   // 콜백이 이미 예약했으면 중복 예약 금지
+    }else{
+      elapsed = clock(); running = false;            // 시퀀스 종료
+      setPauseUI();
+    }
+  }
+  function run(){
+    grace = performance.now() + 1600;
+    if(!running){ running = true; startedAt = performance.now(); }
+    if(rafId == null) rafId = requestAnimationFrame(loop);
+    setPauseUI();
+  }
+  const at = (ms,fn)=>{ queue.push({ due: clock() + ms, fn }); run(); };
+  const clearAll = ()=>{ queue = []; };
+  const tick = (ms)=>{ grace = Math.max(grace, performance.now() + ms); run(); };
+
+  function pause(){
+    if(!running) return;
+    elapsed = clock(); running = false;
+    if(rafId != null){ cancelAnimationFrame(rafId); rafId = null; }
+    setPauseUI();
+  }
+  function resume(){
+    if(running || !queue.length) return;
+    running = true; startedAt = performance.now();
+    grace = performance.now() + 1600;
+    rafId = requestAnimationFrame(loop);
+    setPauseUI();
+  }
+  function setPauseUI(){
+    const b = host.querySelector('.dpause');
+    if(!b) return;
+    const canResume = !running && queue.length > 0;
+    b.textContent = canResume ? '▶ 이어서' : '⏸ 일시정지';
+    b.disabled = !running && !canResume;
+  }
   const markPhase = p=> host.querySelectorAll('.dph')
       .forEach(b=> b.classList.toggle('on', +b.dataset.p === p));
 
@@ -3124,7 +3178,7 @@ function buildDemo(host){
     lone.classList.remove('in');
     showPool([...goalEls, ...hxEls, stageNote]);
 
-    stageNote.textContent = '판정을 통과한 경험 단위가 HX Goal과 Spatial Direction의 교차점으로 정리된다';
+    stageNote.innerHTML = '판정을 통과한 경험 단위가 HX Goal과 Spatial Direction의 교차점으로 정리된다';
     place(stageNote, .5*W, .10*H);
 
     /* ④에서 살아남은 표찰 3개를 위쪽에 남겨 근거로 보여준다 */
@@ -3152,7 +3206,7 @@ function buildDemo(host){
     lab1.concat(lab2).forEach(l=> l.classList.remove('in'));
     showPool([...hxEls, ...roomEls, ...altEls, stageNote]);
 
-    stageNote.textContent = 'HX 지표 → 공간 간 관계 정의 → 배치 구조화 → 초기 설계 대안';
+    stageNote.innerHTML = 'HX 지표 → 공간 간 관계 정의 → 배치 구조화 → 초기 설계 대안';
     place(stageNote, .5*W, .07*H);
 
     hxEls.forEach((h,i)=>{ h.classList.add('sm'); place(h, (.17 + i*.22)*W, .165*H); });
@@ -3181,8 +3235,11 @@ function buildDemo(host){
     markPhase(6); resetVerdict();
     showPool([...altEls, stageNote]);
 
-    stageNote.textContent = '도면 기반 HX 평가 · 사용자 검증 · 시뮬레이션으로 대안을 검증한다';
-    place(stageNote, .5*W, .12*H);
+    stageNote.innerHTML = '도면 기반 HX 평가 · 사용자 검증 · 시뮬레이션으로 대안을 검증한다'
+      + '<span class="dnote-sub">선정 기준은 단순 평균이 아니라 <b>2. Define에서 정한 우선순위 가중치</b>다 — '
+      + HX4.map((h,i)=>`${h.ko} ${Math.round(HX_WEIGHT[i]*100)}%`).join(' · ')
+      + '<br>단순 평균이라면 <b>A</b>가 앞서지만, 이 프로젝트가 <b>수행(동선)</b>을 1순위로 두었기 때문에 <b>C</b>가 선정된다.</span>';
+    place(stageNote, .5*W, .13*H);
 
     altEls.forEach((a,i)=>{
       resetAlt(a);
@@ -3197,13 +3254,14 @@ function buildDemo(host){
       a.querySelectorAll('.dab-v').forEach((v,j)=>{
         v.textContent = ALTS[i].s[j].toFixed(2);
       });
-      a.querySelector('.dalt-sumv').textContent =
-        ALTS[i].s.reduce((x,y)=>x+y,0).toFixed(2);
+      a.querySelector('.dalt-sumv').textContent = weighted(i).toFixed(3);
+      a.querySelector('.dalt-flatv').textContent =
+        (ALTS[i].s.reduce((x,y)=>x+y,0)/4).toFixed(3);
     });
 
     const judge = ()=>{
-      const sum = ALTS.map(a=> a.s.reduce((x,y)=>x+y,0));
-      const best = sum.indexOf(Math.max(...sum));
+      const sc = ALTS.map((_,i)=> weighted(i));
+      const best = sc.indexOf(Math.max(...sc));
       altEls.forEach((a,i)=>{
         a.classList.add(i === best ? 'win' : 'lose');
         a.querySelector('.dalt-tag').textContent =
@@ -3220,7 +3278,7 @@ function buildDemo(host){
     markPhase(7); resetVerdict();
     showPool([...altEls, cycleEl, stageNote]);
 
-    stageNote.textContent = '설계는 Final Design에서 끝나지 않는다 — 사용 후 경험이 다음 프로젝트로 돌아간다';
+    stageNote.innerHTML = '설계는 Final Design에서 끝나지 않는다 — 사용 후 경험이 다음 프로젝트로 돌아간다';
     place(stageNote, .5*W, .16*H);
 
     altEls.forEach((a,i)=> place(a, (.20 + i*.30)*W, .42*H));
@@ -3251,6 +3309,9 @@ function buildDemo(host){
 
   /* ---- 조작 ---- */
   host.querySelector('.dreplay').addEventListener('click', play);
+  host.querySelector('.dpause').addEventListener('click', ()=>{
+    (running ? pause : resume)();
+  });
   host.querySelectorAll('.dph').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       clearAll();
@@ -3281,6 +3342,7 @@ function buildDemo(host){
   p0(false);
   if(mode === 'verdict'){ p1(false); p2(false); }
   markPhase(phases[0]);
+  setPauseUI();                                   // 재생 전에는 비활성
 }
 
 
