@@ -426,23 +426,39 @@ figcaption b{color:var(--text);font-weight:600}
 }
 .block-h em{font-style:normal;font-weight:500;font-size:11.5px;color:var(--text-3)}
 
-/* 0. Diagnosis 진단 축 */
-.axes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.axis{
-  border:1px solid var(--line);border-top:3px solid var(--human);border-radius:8px;
-  background:var(--surface-2);padding:12px 14px;position:relative;
+/* 작은 표 */
+table.detail.mt{min-width:0;font-size:13px}
+table.detail.mt th{white-space:normal}
+table.detail.mt td:first-child{font-weight:600;white-space:nowrap}
+.fb-to{
+  display:inline-block;font-size:11.5px;font-weight:700;border-radius:5px;padding:2px 9px;
+  background:rgba(217,45,32,.12);color:var(--red);
 }
-.axis-no{
-  position:absolute;top:8px;right:10px;font-size:10px;font-weight:700;color:var(--text-3);
-}
-.axis b{display:block;font-size:13.5px;margin-bottom:4px}
-.axis span{font-size:12.5px;color:var(--text-2);line-height:1.5}
 
-/* 목록형 */
-.bul{display:flex;flex-wrap:wrap;gap:8px}
-.bul span{
-  border:1px solid var(--line);border-radius:6px;background:var(--surface-2);
-  padding:7px 12px;font-size:13px;
+/* 방법론 카드 */
+.mcards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mcard{
+  border:1px solid var(--line);border-top:3px solid var(--human);border-radius:8px;
+  background:var(--surface-2);padding:13px 16px;
+}
+.mcard b{display:block;font-size:14px;margin-bottom:3px}
+.mc-d{display:block;font-size:12px;color:var(--text-3);margin-bottom:8px;line-height:1.5}
+.mcard ul{margin:0;padding-left:17px}
+.mcard li{font-size:12.5px;line-height:1.7;color:var(--text-2)}
+
+/* 어피니티 vs 카드소팅 */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tool{
+  border:1px solid var(--line);border-top:3px solid var(--tk);border-radius:8px;
+  background:var(--surface-2);padding:13px 16px;
+}
+.tool b{display:block;font-size:14px;color:var(--tk);margin-bottom:3px}
+.tool-d{display:block;font-size:12.5px;color:var(--text-2);margin-bottom:8px;line-height:1.55}
+.tool ul{margin:0 0 10px;padding-left:17px}
+.tool li{font-size:12.5px;line-height:1.65;color:var(--text-2)}
+.tool-out{
+  font-size:12.5px;font-weight:700;color:var(--tk);
+  border-top:1px dashed var(--line);padding-top:9px;
 }
 
 /* Insight HX */
@@ -455,9 +471,21 @@ figcaption b{color:var(--text);font-weight:600}
 .hx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
 .hx-item{
   border:1px solid var(--quant);border-radius:8px;background:var(--quant-soft);
-  color:var(--quant);font-size:13px;font-weight:700;text-align:center;padding:11px 8px;
+  padding:11px 12px;
 }
+.hx-item b{display:block;font-size:13px;font-weight:700;color:var(--quant)}
+.hx-ko{display:block;font-size:11.5px;color:var(--text-2);margin:2px 0 6px}
+.hx-dir{display:block;font-size:12px;color:var(--text-2);line-height:1.55}
 .hx-out{margin-top:10px;text-align:center;font-size:12.5px;color:var(--text-2)}
+
+/* 초기 설계 대안 */
+.alts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.alt{
+  border:1px solid var(--line);border-left:3px solid var(--human);border-radius:8px;
+  background:var(--surface-2);padding:12px 14px;
+}
+.alt b{display:block;font-size:13.5px;margin-bottom:3px}
+.alt span{font-size:12.5px;color:var(--text-2);line-height:1.5}
 
 /* 내부 흐름 */
 .ifl{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px}
@@ -481,6 +509,12 @@ figcaption b{color:var(--text);font-weight:600}
 .ifl-box.is-no .yn{color:var(--qual)}
 .ifl-branch{margin-top:4px}
 .ifl-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ifl-after{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:10px}
+.ifl-down{color:var(--text-3);font-size:14px}
+.ifl-box.is-final{
+  flex:0 1 auto;max-width:420px;text-align:center;
+  border-color:var(--human);background:var(--human-soft);
+}
 
 /* --- 다음 단계 연결 배너 --- */
 .linknote{
@@ -880,6 +914,39 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
 .nonq-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 
 /* =========================================================================
+   5-D-1. AI 연결 / 핵심 의의
+   ========================================================================= */
+.ai-link,.meaning{margin-top:56px}
+.ai-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.ai-card{
+  border:1px solid var(--line);border-top:3px solid var(--ac);border-radius:9px;
+  background:var(--surface-2);padding:15px 17px;
+}
+.ai-card > b{display:block;font-size:14.5px;color:var(--ac);margin-bottom:3px}
+.ai-card > span{display:block;font-size:12.5px;color:var(--text-2);margin-bottom:11px;line-height:1.55}
+.ai-card pre{
+  margin:0;padding:12px 13px;border-radius:7px;background:var(--surface);
+  border:1px solid var(--line);overflow-x:auto;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:11.5px;line-height:1.7;color:var(--text-2);
+}
+.gnodes{display:flex;flex-wrap:wrap;gap:6px}
+.gn,.ge{font-size:11.5px;font-weight:600;border-radius:6px;padding:4px 9px}
+.gn{background:var(--human-soft);color:var(--human)}
+.ge{background:var(--surface-3);color:var(--text-2)}
+.ai-note{margin:11px 0 0;font-size:12.5px;color:var(--text-3);line-height:1.6}
+.rw{font-size:11px;font-weight:700;border-radius:5px;padding:2px 8px}
+.rw.plus{background:var(--quant-soft);color:var(--quant)}
+.rw.minus{background:var(--qual-soft);color:var(--qual)}
+.poe-use{
+  margin-top:18px;border:1px dashed var(--line);border-radius:9px;
+  background:var(--surface-2);padding:15px 18px;
+}
+.mean-list{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:13px}
+.mean-list li{font-size:13.5px;line-height:1.7;color:var(--text-2)}
+.mean-list li b{display:block;color:var(--text);font-size:14.5px;margin-bottom:2px}
+
+/* =========================================================================
    5-D. 참고문헌
    ========================================================================= */
 .refs{margin-top:56px}
@@ -928,7 +995,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   .grp-arrow .sep{transform:rotate(90deg)}
   .node{width:100%}
   .node--term{width:100%}
-  .axes,.hx-grid{grid-template-columns:1fr 1fr}
+  .hx-grid,.mcards,.tools,.alts,.ai-grid{grid-template-columns:1fr}
   .ifl-cols{grid-template-columns:1fr}
   .node-slot.is-first{flex:0 0 auto}
   .sep-wrap{flex:0 0 26px;height:26px}
@@ -969,8 +1036,10 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     사용자 경험에서 출발해 건축을 설계하려는 누구나 따를 수 있도록 제안하는 <b>일반 프로세스</b>입니다.
     Design Thinking을 건축 실무 단계(Pre-design → Programming → Schematic Design → Design Development →
     Construction Documents)에 맞춰 <b>0. Diagnosis부터 6. Deliver까지 일곱 단계</b>로 확장했습니다.
-    경험을 <b>HX 목표</b>로 정의하고, 그중 <b>정량 지표화 가능 여부</b>에 따라 갈래를 나누며,
-    Evaluate와 POE Data가 <b>다시 Empathize로 되돌아오는 순환 구조</b>를 갖습니다.
+    경험을 <b>HX 목표</b>(Restorativeness · Stress &amp; Anxiety · Aesthetics &amp; Pleasure · Motivation)로 정의하고,
+    평가 기준을 <b>도면 기반 정량 지표</b>와 <b>사용자·전문가 정성 지표</b>로 나눈 뒤,
+    Evaluate의 결과가 <b>문제 유형에 따라 서로 다른 단계로 되돌아가고</b> POE Data가 다시 Empathize로 환류되는
+    <b>순환 구조</b>를 갖습니다.
     각 단계 노드를 클릭하면 상세 내용이 펼쳐집니다.
   </p>
   <p class="sub" style="margin-top:-24px">
@@ -1038,7 +1107,10 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     원본 모델에서 이 자리는 <b>"Missing connection to Empathy"</b> — 설계 후반이 초기 공감과 끊겨
     수집한 사용자 경험이 설계 결정까지 이어지지 못한다는 <b>한계 표시</b>였습니다.
     본 프로세스는 그 단절을 <b>피드백 루프로 해결한 것</b>이므로, 같은 자리의 빨간 점선이
-    이제는 <b>Ideate · Prototype · Evaluate · Deliver · POE Data가 Empathize로 되돌아가는 경로</b>를 뜻합니다.
+    이제는 <b>되돌아가는 경로</b>를 뜻합니다. 목적지는 하나가 아닙니다 —
+    치수·재료에서 목표가 훼손되면 <b>Prototype</b>, 공간 관계가 부적절하면 <b>Ideate</b>,
+    HX 목표 설정이 부정확하면 <b>Define</b>, 조사 자체가 부족하면 <b>Empathize</b>로 갑니다.
+    POE Data는 사용 후 경험을 다음 프로젝트의 Empathize로 환류합니다.
     <br><span style="color:var(--text-3);font-size:12px">
       이 표현은 Hettithanthri et al. (2023)이 명명한 것입니다 —
       <i>"We observed the design process has no mechanism to revert back to the user nor context during
@@ -1346,6 +1418,104 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   </section>
 
   <!-- ===================================================================
+       [ AI 도면 생성 연결 ] 온톨로지 · 공간 그래프 · 보상함수
+       =================================================================== -->
+  <section class="ai-link">
+    <hr class="rule">
+    <p class="section-title">확장 — AI 도면 생성과의 연결</p>
+    <h2 class="case-h">HX 목표를 기계가 읽을 수 있는 형태로</h2>
+    <p class="demo-note" style="margin:0 0 20px">
+      Define과 Ideate에서 정의한 공간 조건은 <b>온톨로지 규칙</b>으로, Ideate의 공간 관계는
+      <b>공간 그래프</b>로, Evaluate의 HX 평가는 <b>보상함수</b>로 옮길 수 있습니다.
+      이 세 가지가 본 프로세스를 경험 기반 AI 도면 생성 시스템으로 확장하는 접점입니다.
+    </p>
+
+    <div class="ai-grid">
+      <div class="ai-card" style="--ac:var(--quant)">
+        <b>온톨로지 규칙</b>
+        <span>Define · Ideate에서 정의한 조건을 IF–THEN 규칙으로</span>
+        <pre>IF LivingRoom adjacentTo Balcony
+AND LivingRoom hasWindow
+THEN RestorativenessScore increases
+
+IF Bedroom directlyVisibleFrom Entrance
+THEN StressAnxietyScore increases
+
+IF Kitchen adjacentTo DiningRoom
+AND DiningRoom adjacentTo LivingRoom
+THEN MotivationScore increases
+
+IF Corridor is long
+AND Corridor hasNoWindow
+THEN StressAnxietyScore increases</pre>
+      </div>
+
+      <div class="ai-card" style="--ac:var(--human)">
+        <b>공간 그래프</b>
+        <span>Ideate의 공간 관계를 노드·엣지로</span>
+        <div class="gnodes">
+          <span class="gn">Room Node</span><span class="gn">Wall Node</span>
+          <span class="gn">Door Node</span><span class="gn">Window Node</span>
+          <span class="ge">Room–Room Edge</span><span class="ge">Room–Wall Edge</span>
+          <span class="ge">Circulation Edge</span><span class="ge">Visibility Edge</span>
+        </div>
+        <p class="ai-note">AI가 평면을 생성하거나 평가할 때 쓰는 구조적 입력값이 된다.</p>
+      </div>
+
+      <div class="ai-card" style="--ac:var(--qual)">
+        <b>보상함수</b>
+        <span>Evaluate의 HX 평가를 가점 · 감점으로</span>
+        <table class="detail mt">
+          <thead><tr><th>평가 항목</th><th>보상</th></tr></thead>
+          <tbody>
+            <tr><td>거실–발코니 연결</td><td><span class="rw plus">가점</span></td></tr>
+            <tr><td>LDK 연결성</td><td><span class="rw plus">가점</span></td></tr>
+            <tr><td>벽체 정렬</td><td><span class="rw plus">가점</span></td></tr>
+            <tr><td>창문 없는 침실</td><td><span class="rw minus">감점</span></td></tr>
+            <tr><td>긴 폐쇄형 복도</td><td><span class="rw minus">감점</span></td></tr>
+            <tr><td>침실의 현관 직접 노출</td><td><span class="rw minus">감점</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="poe-use">
+      <p class="block-h" style="margin-bottom:9px">POE Data의 쓰임</p>
+      <div class="bul">
+        <span>다음 프로젝트의 사용자 경험 데이터</span>
+        <span>기존 HX 평가 기준 보정</span>
+        <span>설계 규칙 · 온톨로지 업데이트</span>
+        <span>AI 도면 생성 모델의 보상함수 개선</span>
+        <span>사용자 유형별 공간 선호 데이터 축적</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================
+       [ 핵심 의의 ]
+       =================================================================== -->
+  <section class="meaning">
+    <hr class="rule">
+    <p class="section-title">핵심 의의</p>
+    <ol class="mean-list">
+      <li><b>사용자 경험의 지속적 연결</b>
+        Empathize에서 수집된 경험이 초기 조사에 머무르지 않고 Define · Ideate · Prototype · Evaluate · Deliver 전 과정에 반영된다.</li>
+      <li><b>경험의 공간 조건화</b>
+        추상적인 사용자 경험을 공간 관계, 배치 구조, 평면 대안, 온톨로지 규칙으로 번역한다.</li>
+      <li><b>정량 · 정성 평가의 결합</b>
+        Isovist · VGA · Space Syntax · 동선 분석 같은 정량 평가와 선호도 · 의미분별척도 · 전문가 평가 같은 정성 평가를 함께 쓴다.</li>
+      <li><b>순환형 피드백 구조</b>
+        Evaluate와 POE Data를 통해 설계 과정과 사용 후 경험이 다시 Empathize로 환류된다.</li>
+      <li><b>AI 도면 생성과의 연결 가능성</b>
+        HX 목표와 공간 조건을 온톨로지 규칙 · 공간 그래프 · 보상함수로 전환함으로써 경험 기반 AI 도면 생성 시스템으로 확장할 수 있다.</li>
+    </ol>
+    <p class="demo-note" style="margin-top:18px">
+      본 프로세스는 기존 건축 설계 프로세스를 <b>대체하는 것이 아니라</b>, 기존 단계에 사용자 경험 기반의
+      조사 · 정의 · 평가 · 피드백 구조를 결합한 것입니다.
+    </p>
+  </section>
+
+  <!-- ===================================================================
        [ 참고문헌 ] 확보 현황 포함
        =================================================================== -->
   <section class="refs">
@@ -1410,8 +1580,15 @@ const GROUPS = [
   { id:'cd',   name:'Construction Documents', nodes:['deliver','final','poe'] }
 ];
 
-/* 피드백 루프 — 이 노드들에서 Empathize로 되돌아간다 */
-const FEEDBACK_FROM = ['ideate','prototype','evaluate','deliver','poe'];
+/* 피드백 루프 — 문제 유형에 따라 되돌아가는 단계가 다르다 (Evaluate 8.6) */
+const FEEDBACK = [
+  { from:'evaluate', to:'prototype', label:'Prototype', why:'치수·재료 구체화에서 경험 목표가 훼손됨' },
+  { from:'evaluate', to:'ideate',    label:'Ideate',    why:'공간 관계가 부적절함' },
+  { from:'evaluate', to:'define',    label:'Define',    why:'HX 목표 설정이 부정확함' },
+  { from:'evaluate', to:'empathize', label:'Empathize', why:'사용자 조사 자체가 부족함' },
+  { from:'poe',      to:'empathize', label:'Empathize', why:'사용 후 경험 데이터를 다음 프로젝트로 환류' }
+];
+const FEEDBACK_FROM = [...new Set(FEEDBACK.map(f=> f.from))];
 
 const STAGES = [
   /* ---------------------------------------------------------------- 0 */
@@ -1419,21 +1596,53 @@ const STAGES = [
     id:'diagnosis', no:'0', kind:'stage',
     en:'Diagnosis', ko:'진단', sub:'Research Scope 설정',
     accent:'human',
-    tagline:'프로젝트 성격을 진단해 이후 단계에서 쓸 방법론을 결정한다.',
 
-    purpose:'프로젝트의 성격을 먼저 진단하여, 이후 단계에서 <b>어떤 방법론을 어디까지 적용할지</b>의 범위(Research Scope)를 정한다.',
-    method:'네 개의 축으로 진단한다 — Client-User Relation · User Scale · Project Type · Stakeholder Complexity.',
+    purpose:'본격적인 경험 조사에 들어가기 전, 프로젝트의 맥락을 진단하고 <b>리서치 범위</b>를 설정한다. 대지·법규·예산·규모에 더해 <b>누구의 경험을</b> · <b>어떤 사용자 집단을</b> · <b>어떤 UX 방법론으로</b> 조사할지를 결정한다.',
+    method:'네 개의 축으로 진단한다 — Client–User Relation · User Scale · Project Type · Stakeholder Complexity. 각 축의 판정 결과가 Empathize에서 쓸 방법론을 지정한다.',
     owner:{
-      human:'네 축을 판단하고 이후 단계에 적용할 방법론 범위를 결정한다.',
+      human:'네 축을 판단하고 이후 단계의 방법론 범위를 결정한다.',
       ai:'이 단계에는 AI 역할을 두지 않는다.'
     },
     evidence:[],
-    outputs:['이후 단계에 적용할 방법론 범위 (Research Scope)'],
-    axes:[
-      { t:'Client-User Relation', d:'클라이언트와 사용자가 같은가, 다른가' },
-      { t:'User Scale',           d:'사용자 규모' },
-      { t:'Project Type',         d:'프로젝트 유형' },
-      { t:'Stakeholder Complexity', d:'이해관계자 복잡도' }
+    outputs:[
+      'Client–User 관계 정의',
+      '사용자 규모 및 유형 정의',
+      '프로젝트 유형 정의',
+      '이해관계자 구조 분석',
+      'Research Scope 설정',
+      'Empathize 단계에서 사용할 UX 방법론 후보'
+    ],
+    axisTables:[
+      { name:'1) Client–User Relation', note:'건축에서 발주자가 항상 실제 사용자인 것은 아니다.',
+        head:['유형','설명','리서치 방향'],
+        rows:[
+          ['클라이언트 = 사용자','개인 주택, 맞춤형 주거','심층 인터뷰, 생활 시나리오 중심'],
+          ['클라이언트 ≠ 사용자','분양형 공동주택, 공공주택','대표 사용자 조사, 페르소나, 설문 중심'],
+          ['클라이언트 = 사용자 집단','재개발 조합, 커뮤니티 주거','이해관계자 맵, 워크숍, 갈등 조정 중심']
+        ]},
+      { name:'2) User Scale', note:'사용자 수가 많아질수록 개별 맞춤보다 대표 사용자 유형화와 우선순위가 중요해진다.',
+        head:['사용자 규모','주요 고려사항','적합한 방법론'],
+        rows:[
+          ['개인','개인 취향, 루틴, 프라이버시','심층 인터뷰, 생활 시나리오'],
+          ['가족','구성원별 니즈 충돌, 공용/사적 공간 관계','가족 인터뷰, 카드소팅, 여정 지도'],
+          ['다수 사용자','공통 니즈, 사용자 유형화, 보편적 주거 경험','설문, 세그먼트 분석, 페르소나']
+        ]},
+      { name:'3) Project Type', note:'신축은 기대 경험 중심으로, 재개발은 기존 주거지에서 형성된 경험과 장소성을 반드시 고려한다.',
+        head:['프로젝트 유형','조사 초점','적합한 방법론'],
+        rows:[
+          ['신축','기대 경험, 생활 시나리오, 선호 공간','인터뷰, 선호 이미지 테스트, 카드소팅'],
+          ['리모델링','기존 공간의 불편, 사용 패턴, 개선 요구','관찰, 행동 매핑, POE, 사용자 여정 지도'],
+          ['재개발 / 재건축','기존 거주 경험, 공동체, 장소성, 이주·정착','현장조사, 커뮤니티 워크숍, 이해관계자 맵'],
+          ['분양형 공동주택','대표 사용자 유형, 보편적 평면 선호','설문, 페르소나, A/B 테스트'],
+          ['공공 / 임대주택','접근성, 안전, 생활 안정성, 다양성','포용성 체크리스트, 전문가 평가, 취약 사용자 조사']
+        ]},
+      { name:'4) Stakeholder Complexity', note:'복잡도가 높을수록 경험 목표가 서로 충돌한다. 모두 반영하기보다 핵심 목표를 우선순위화해야 한다.',
+        head:['복잡도','특징','조사 방향'],
+        rows:[
+          ['낮음','개인 또는 소수 의사결정자','인터뷰 중심'],
+          ['중간','가족, 공동 소유자, 소규모 사용자 집단','구성원별 니즈 수집 및 조정'],
+          ['높음','조합, 공공기관, 시행사, 미래 입주자, 지역사회','이해관계자 맵, 워크숍, 우선순위 조정']
+        ]}
     ],
     table:[]
   },
@@ -1443,10 +1652,9 @@ const STAGES = [
     id:'empathize', no:'1', kind:'stage',
     en:'Empathize', ko:'공감', sub:'적합한 UX 방법론을 선정하여 경험 수집',
     accent:'human',
-    tagline:'0번 진단 결과에 따라 방법론을 선택 적용한다.',
 
-    purpose:'사용자와 클라이언트의 경험을 <b>복합적으로 수집</b>한다. 0번 진단 결과에 따라 쓸 방법론을 골라 적용한다.',
-    method:'사용자 인터뷰 · 사용자 관찰 · 생활 시나리오 조사 · 기존 공간 불편 수집 · 대지/지역 맥락 분석 · 이해관계자 맵(Stakeholder map)',
+    purpose:'Diagnosis에서 설정한 Research Scope를 바탕으로 사용자와 프로젝트 맥락을 조사해 <b>경험 데이터</b>를 수집한다.',
+    method:'기존 Pre-design이 대지·법규·예산·규모를 조사한다면, 여기서는 <b>생활 방식 · 불편 · 감각적·정서적 요구 · 공간 사용 패턴</b>을 함께 수집한다.',
     owner:{
       human:'경험 수집의 전 과정을 사람이 수행한다.',
       ai:'이 단계에는 AI 역할을 두지 않는다.'
@@ -1456,8 +1664,21 @@ const STAGES = [
       'van der Linden, V., Dong, H., &amp; Heylighen, A. (2019). <i>Populating architectural design: Introducing scenario-based design in residential care projects.</i> International Journal of Design, 13(1), 21–36. <span class="ev-tag">SSCI Q1</span><br><span class="ev-q">"Architects typically take an expert mind-set of designing for users, rarely involving users directly." (p.22)</span>',
       'Ghaznavi, S., Haghparast, F., Pourahmad Ghalejough, A., &amp; Sakian Mohamadi, H. (2025). <i>Implementing user-centered design in architecture using virtual reality.</i> Design Studies, 99, 101329. <span class="ev-tag">SSCI Q1</span>'
     ],
-    outputs:['수집된 경험 원자료 (사용자·클라이언트 경험 기록)'],
-    bullets:['사용자 인터뷰','사용자 관찰','생활 시나리오 조사','기존 공간 불편 수집','대지 · 지역 맥락 분석','이해관계자 맵 (Stakeholder map)'],
+    outputs:['사용자 인터뷰 기록','관찰 기록','생활 시나리오','사용자 여정 지도','기존 공간 불편 목록','대지 및 지역 맥락 분석','Stakeholder Map','Experience Data'],
+    methodCards:[
+      { t:'사용자 인터뷰', d:'생활 방식 · 공간 사용 경험 · 불편 · 기대 경험을 심층 파악',
+        li:['현재 주거공간에서 가장 불편한 점은?','집에서 가장 오래 머무르는 공간은?','가족이 함께 모이는 공간은?','혼자 있고 싶은 공간은?','채광·조망·프라이버시·동선 중 무엇이 가장 중요한가?'] },
+      { t:'사용자 관찰', d:'실제 공간에서 어떻게 이동하고 머무는지 관찰',
+        li:['현관에서 거실까지의 이동','주방과 식당 사이의 동선','가족 구성원 간 공간 점유 방식','수납공간 사용 방식','소음·시선 노출이 발생하는 지점'] },
+      { t:'생활 시나리오 조사', d:'하루 생활 흐름을 시간대별로 정리',
+        li:['아침 — 출근 준비·식사·세탁 / 현관-욕실-주방-다용도실 동선','낮 — 재택근무·휴식 / 조용한 작업 공간, 채광','저녁 — 가족 식사·휴식 / LDK 연결성, 거실 개방감','밤 — 수면·개인 시간 / 침실 은신감, 소음 차단'] },
+      { t:'기존 공간 관련 수집', d:'리모델링·재개발에서 기존 공간의 경험 데이터',
+        li:['기존 공간의 장점','기존 공간의 불편','유지하고 싶은 생활 방식','사라지면 안 되는 장소성','기존 동선과 생활권'] },
+      { t:'대지 · 지역 맥락 분석', d:'건축은 사용자만으로 결정되지 않는다',
+        li:['일조와 조망','소음원','보행 접근성','주변 시설','지역 커뮤니티','대중교통 접근성'] },
+      { t:'이해관계자 맵', d:'복잡한 프로젝트의 관계자를 시각화',
+        li:['누가 의사결정권을 가지는가','누가 실제 영향을 받는가','충돌하는 요구를 사전에 파악','경험 조사 대상 범위 설정'] }
+    ],
     table:[]
   },
 
@@ -1466,12 +1687,11 @@ const STAGES = [
     id:'define', no:'2', kind:'stage',
     en:'Define', ko:'정의', sub:'HX 목표 정의',
     accent:'human',
-    tagline:'수집한 경험을 묶고 우선순위를 매겨 HX 목표로 정의한다.',
 
-    purpose:'수집된 경험을 정리·분해하여 <b>HX(Human Experience) 목표</b>로 정의한다.',
-    method:'경험 군집화 → 우선순위 결정 → 정량 지표화 가능 여부 판별 → 분기.',
+    purpose:'수집한 경험 데이터를 구조화해 <b>HX 목표와 평가 기준</b>으로 정의한다. 발화와 관찰을 단순 요구사항 목록으로 옮기는 것이 아니라, 경험 이슈를 군집화하고 우선순위를 정한 뒤 설계에서 다룰 수 있는 목표로 바꾼다.',
+    method:'경험 데이터 수집 → 경험 군집화 → 우선순위 설정 → 평가 기준 설정 → HX 목표 정의.',
     owner:{
-      human:'군집화, 우선순위 결정, 정성 해석을 담당한다.',
+      human:'군집화, 카드소팅 진행, 우선순위 결정, 정성 해석을 담당한다.',
       ai:'정량 지표 산출과 정성 해석 보조(LLM 기반)를 담당한다.'
     },
     evidence:[
@@ -1479,49 +1699,85 @@ const STAGES = [
       'Lee, P.-H., &amp; Han, Q. (2026). <i>User-centric sustainable design in mass-customized housing using Kano model and quality function deployment.</i> Architectural Engineering and Design Management, 22(2), 308–324. <span class="ev-tag">Q1</span>',
       'Zhu, J., Gao, W., Zhu, N., &amp; Wang, L. (2026). <i>Specific design strategies for elderly-friendly residential spaces in nursing homes: an integrated model approach based on empathy map-KANO-AHP-PUGH.</i> Frontiers in Psychology, 17, 1824564. <span class="ev-tag">Q1</span>'
     ],
-    outputs:['HX 목표','정량 지표 / 정성 해석으로 갈린 경험 항목','→ Insight'],
+    outputs:['경험 군집화 결과','카드소팅 결과','사용자 니즈 우선순위','HX 지표 매핑표','평가 기준 초안','Insight 도출 근거'],
     inner:{
       steps:[
-        { t:'경험 군집화',    d:'어피니티 다이어그램(KJ 방법) · 카드소팅' },
-        { t:'우선순위 결정',  d:'Kano · QFD' },
-        { t:'정량 지표화 가능한가?', d:'', q:true }
+        { t:'경험 데이터 수집', d:'Empathize 산출물', from:true },
+        { t:'경험 군집화',     d:'어피니티 다이어그램(KJ법) · 카드소팅' },
+        { t:'우선순위 설정',   d:'Kano · QFD' },
+        { t:'평가 기준 설정',  d:'정량 지표화 가능한가?', q:true }
       ],
       branch:{
-        yes:{ t:'정량 지표화', d:'Isovist · VGA · LDK 등' },
-        no: { t:'정성 해석',   d:'전문가 혹은 LLM 기반' }
-      }
+        yes:{ t:'도면 기반 정량 지표', d:'Isovist · VGA · LDK 연결성 · 동선 길이' },
+        no: { t:'사용자 / 전문가 정성 지표', d:'선호도 테스트 · 의미분별척도 · 전문가 평가 · LLM 기반 해석' }
+      },
+      after:{ t:'HX 목표 정의', d:'두 갈래를 합쳐 이후 단계가 겨눌 목표로 확정' }
     },
+    twoTools:{
+      a:{ t:'어피니티 다이어그램 (KJ법)', d:'사용자 <b>발화에서 경험 이슈를 발견</b>하는 방법',
+          ex:['"집에 들어오자마자 거실이 다 보여서 부담스럽다"','"손님이 왔을 때 침실 쪽이 노출되는 것이 싫다"','"현관 앞에 완충 공간이 있으면 좋겠다"','"침실은 집 안쪽에 있었으면 좋겠다"'],
+          out:'프라이버시 / 은신감 / 사적 영역 보호' },
+      b:{ t:'카드소팅', d:'사용자가 <b>공간과 경험을 어떻게 분류하고 관계 짓는지</b> 확인하는 방법',
+          ex:['현관 · 거실 · 주방 · 식당 · 안방 · 침실 · 욕실','드레스룸 · 발코니 · 다용도실 · 수납공간','가족이 모이는 공간 · 조용한 공간 · 외부 시선에서 보호되는 공간'],
+          out:'가족 공용공간 / 사적 공간 / 기능 지원 공간 / 보호되어야 하는 공간' }
+    },
+    miniTables:[
+      { name:'Kano 모델 — 요구의 성격 구분', head:['구분','의미','주거 예시'],
+        rows:[
+          ['기본 요구','없으면 불만이 큰 요소','침실 창문, 욕실 접근성, 안전한 동선'],
+          ['성능 요구','좋을수록 만족도가 높아지는 요소','수납공간, 채광, 거실 면적'],
+          ['매력 요구','없어도 불만은 없지만 있으면 만족이 커지는 요소','홈오피스, 팬트리, 가변형 공간']
+        ]},
+      { name:'QFD — 사용자 요구를 설계 특성으로', head:['사용자 요구','설계 특성'],
+        rows:[
+          ['거실이 답답하지 않았으면 좋겠다','거실 폭, 창호 면적, 시야 깊이, 발코니 연결'],
+          ['침실은 조용했으면 좋겠다','소음원과 거리, 벽체 구성, 사적 영역 배치'],
+          ['가족이 자연스럽게 모였으면 좋겠다','LDK 인접성, 공용공간 중심 배치']
+        ]}
+    ],
     table:[]
   },
 
   /* ------------------------------------------------------- Insight 산출물 */
   {
     id:'insight', no:'', kind:'artifact',
-    en:'Insight', ko:'인사이트', sub:'2. Define의 산출물',
+    en:'Insight', ko:'인사이트', sub:'Programming → Schematic Design 연결',
     accent:'human',
-    tagline:'HX Goal과 Spatial Direction이 교차하는 지점.',
 
-    purpose:'<b>HX Goal</b>과 <b>Spatial Direction</b>이 교차하는 지점. 정의된 경험 목표가 공간의 방향으로 번역되는 자리다.',
-    method:'두 축의 교차점을 HX 지표 네 가지가 받친다. 이 지표는 <b>3. Ideate의 입력</b>으로 다시 사용된다.',
+    purpose:'Define과 Ideate를 잇는 <b>중간 산출물</b>. Define의 HX 목표는 바로 평면으로 전환되기 어렵기 때문에, Insight는 <b>HX Goal</b>과 <b>Spatial Direction</b>을 함께 담는다.',
+    method:'HX Goal(사용자가 경험해야 할 핵심 목표)과 Spatial Direction(그 경험을 공간적으로 구현할 방향)을 짝지어 서술한다.',
     owner:{
       human:'HX Goal과 Spatial Direction의 교차 지점을 해석한다.',
-      ai:'HX 지표 산출을 보조한다.'
+      ai:'HX 지표 산출과 공간화 방향 후보 제시를 보조한다.'
     },
     evidence:[],
-    outputs:['HX 지표 4종 → 3. Ideate의 입력'],
-    hx:['Restorativeness','Stress &amp; Anxiety','Aesthetics &amp; Pleasure','Motivation'],
+    outputs:['HX Goal','Spatial Direction','설계 인사이트 문장','Ideate 단계로 전달할 공간화 방향'],
+    hxTable:[
+      { k:'Restorativeness', ko:'회복 경험', dir:'자연광, 조망, 발코니, 외부 접면' },
+      { k:'Stress &amp; Anxiety', ko:'스트레스 · 불안', dir:'개방감, 복도 폐쇄감, 침실 노출도, 공간 밀도' },
+      { k:'Aesthetics &amp; Pleasure', ko:'미적 · 쾌락 경험', dir:'질서감, 비례, 정렬, 형태 안정성' },
+      { k:'Motivation', ko:'동기 · 수행 경험', dir:'접근성, 동선 효율, LDK 연결성, 기능 수행성' }
+    ],
+    miniTables:[
+      { name:'HX Goal × Spatial Direction', head:['HX Goal','Spatial Direction'],
+        rows:[
+          ['회복 경험 강화','거실과 발코니 연결, 자연광 확보, 조망 방향 배치'],
+          ['스트레스 · 불안 감소','긴 폐쇄형 복도 지양, 현관 시선 차단, 침실 노출도 감소'],
+          ['미적 · 쾌락 경험 향상','벽체 정렬, 비정형 잔여공간 최소화, 공간 비례 안정화'],
+          ['동기 · 수행 경험 강화','LDK 연결성 확보, 주방-식당 동선 단축, 수납 접근성 개선']
+        ]}
+    ],
     table:[]
   },
 
   /* ---------------------------------------------------------------- 3 */
   {
     id:'ideate', no:'3', kind:'stage',
-    en:'Ideate', ko:'아이디어', sub:'정의된 HX 목표를 구체적인 공간 관계, 평면 대안으로 전환',
+    en:'Ideate', ko:'아이디어', sub:'HX 목표를 공간 관계와 초기 설계 대안으로',
     accent:'human',
-    tagline:'HX 지표를 공간의 관계와 배치로 옮긴다.',
 
-    purpose:'정의된 <b>HX 목표를 구체적인 공간 관계와 평면 대안으로</b> 전환한다.',
-    method:'HX 지표 → 공간 간 관계 정의 → 배치 구조화 → 초기 설계 대안.',
+    purpose:'Define에서 도출된 HX 목표와 Insight를 <b>구체적인 공간 관계 · 배치 구조 · 초기 설계 대안</b>으로 전환한다. 아이디어를 떠올리는 단계가 아니라 <b>경험 목표를 건축적 질서로 번역</b>하는 단계다.',
+    method:'Insight → 공간 관계 정의 → 배치 구조화 → 초기 설계 대안.',
     owner:{
       human:'공간 관계와 배치 방향을 결정한다.',
       ai:'조건을 만족하는 대안을 다수 생성해 탐색 폭을 넓힌다.'
@@ -1530,15 +1786,37 @@ const STAGES = [
       'Dow, S. P., Glassco, A., Kass, J., Schwarz, M., Schwartz, D. L., &amp; Klemmer, S. R. (2010). <i>Parallel prototyping leads to better design results, more divergence, and increased self-efficacy.</i> ACM Transactions on Computer-Human Interaction, 17(4), Article 18. <span class="ev-tag">SCIE · Q1</span>',
       'Postle, B., &amp; Salingaros, N. A. (2025). <i>LLM and Pattern Language Synthesis: A Hybrid Tool for Human-Centered Architectural Design.</i> Buildings, 15, 2400. <span class="ev-tag">Scopus Q1 · JCR Q2</span>'
     ],
-    outputs:['초기 설계 대안 (단선 평면 · 단면 · 입면 · 매스 스터디)'],
+    outputs:['공간 관계 정의 · 인접행렬 · 버블 다이어그램','조닝도 · 동선도 · 파티 다이어그램','초기 평면 대안','단선 평면 · 단면 · 입면','매스 스터디'],
     inner:{
       steps:[
-        { t:'HX 지표',          d:'Insight에서 전달' , from:true },
-        { t:'공간 간 관계 정의', d:'인접행렬 · 기능관계도 · 버블 다이어그램' },
-        { t:'배치 구조화',      d:'조닝도 · 블로킹 · 동선도 · 매싱' },
-        { t:'초기 설계 대안',   d:'단선 평면 · 단면 · 입면 · 매스 스터디' }
+        { t:'Insight',        d:'HX Goal + Spatial Direction', from:true },
+        { t:'공간 관계 정의',  d:'인접행렬 · 기능관계도 · 버블 다이어그램' },
+        { t:'배치 구조화',    d:'조닝도 · 블로킹 · 스태킹 · 동선도 · 파티 다이어그램 · 매싱 스터디' },
+        { t:'초기 설계 대안',  d:'단선 평면 · 단면 · 입면 · 매스 스터디' }
       ]
     },
+    miniTables:[
+      { name:'Insight → 공간 관계 정의', head:['Insight','공간 관계 정의'],
+        rows:[
+          ['가족 공용공간 연결성 강화','거실 - 주방 - 식당 인접'],
+          ['침실 은신감 확보','침실군과 공용공간 분리'],
+          ['회복 경험 강화','거실과 발코니 / 창호 인접'],
+          ['동선 효율 향상','현관 - 거실 - 주방 연결 단축']
+        ]},
+      { name:'공간 관계 → 배치 구조화', head:['공간 관계','배치 구조화 방향'],
+        rows:[
+          ['거실-주방-식당 인접','LDK를 하나의 공용영역으로 구성'],
+          ['침실군과 공용공간 분리','사적 영역을 후면 또는 측면으로 배치'],
+          ['발코니와 거실 연결','공용공간을 전면부에 배치'],
+          ['동선 효율 향상','복도 길이 최소화, 순환 동선 검토']
+        ]}
+    ],
+    alts:[
+      { n:'대안 A', f:'개방감과 회복 경험 중심' },
+      { n:'대안 B', f:'프라이버시와 은신감 중심' },
+      { n:'대안 C', f:'동선 효율과 기능 수행성 중심' }
+    ],
+    altNote:'초기 대안은 하나의 정답을 찾기보다, <b>서로 다른 경험 목표를 강조하는 여러 대안</b>으로 구성한다.',
     table:[]
   },
 
@@ -1547,24 +1825,33 @@ const STAGES = [
     id:'prototype', no:'4', kind:'stage',
     en:'Prototype', ko:'프로토타입', sub:'초기 설계안의 치수 · 재료 · 시스템 구체화',
     accent:'human',
-    tagline:'설계안을 지을 수 있는 물건으로 만든다.',
 
-    purpose:'초기 설계안의 <b>치수 · 재료 · 시스템</b>을 구체화한다.',
+    purpose:'Schematic Design에서 만든 초기 대안을 <b>실제 검토 가능한 설계안</b>으로 발전시킨다. 평면의 아이디어를 치수 · 구조 · 재료 · 마감 · BIM 수준으로 구체화한다.',
     method:'설계안 상세화 착수 → 치수 및 구조 구체화 → 재료 및 마감 결정 → BIM / Mockup.',
     owner:{
-      human:'설계자가 구체화를 주도한다.',
-      ai:'치수·물량 검토를 보조한다.'
+      human:'설계자가 구체화를 주도하며, 경험 목표가 훼손되지 않는지 확인한다.',
+      ai:'BIM 기반 충돌 검토와 물량·면적 검토를 보조한다.'
     },
     evidence:[],
-    outputs:['BIM 모델 · Mockup'],
+    outputs:['복선 평면','구체화된 평면 · 단면 · 입면','치수 계획','구조 및 설비 반영안','재료 및 마감 계획','BIM 모델','Mockup','기본설계안'],
     inner:{
       steps:[
-        { t:'설계안 상세화 착수', d:'3번 산출물을 받아 상세 전개 시작' },
-        { t:'치수 및 구조 구체화', d:'' },
-        { t:'재료 및 마감 결정',  d:'' },
-        { t:'BIM / Mockup',      d:'' }
+        { t:'설계안 상세화 착수', d:'초기 설계 대안을 받아 전개 시작', from:true },
+        { t:'치수 및 구조 구체화', d:'실별 면적 · 복도 폭 · 창호 · 구조 그리드 · 코어 · 설비 샤프트' },
+        { t:'재료 및 마감 결정',  d:'바닥 · 벽 · 천장 · 조명 · 색채 · 방음 · 차음 · 질감' },
+        { t:'BIM / Mockup',      d:'평가 가능한 형태로 구체화' }
       ]
     },
+    warnNote:'구조·설비 검토 과정에서 <b>Schematic Design 단계의 경험 목표가 훼손되지 않는지</b> 확인해야 한다. 거실 개방감을 위해 전면 창호와 발코니 연결을 계획했다면, 그 연결성이 끝까지 유지되어야 한다.',
+    miniTables:[
+      { name:'HX 목표 → 재료 · 마감 검토 방향', head:['HX 목표','검토 방향'],
+        rows:[
+          ['회복 경험','자연 재료, 따뜻한 조명, 외부 조망과 연결'],
+          ['스트레스 · 불안 감소','소음 저감, 시각적 혼잡도 감소, 부드러운 색채'],
+          ['미적 · 쾌락 경험','마감 일관성, 정렬감, 비례감'],
+          ['동기 · 수행 경험','관리 용이성, 활동별 적합한 마감, 기능적 조명']
+        ]}
+    ],
     table:[]
   },
 
@@ -1573,18 +1860,52 @@ const STAGES = [
     id:'evaluate', no:'5', kind:'stage',
     en:'Evaluate', ko:'검증', sub:'HX 기반 검증 및 피드백',
     accent:'quant',
-    tagline:'HX 목표가 실제로 달성되었는지 검증하고 되돌린다.',
 
-    purpose:'설계안이 <b>HX 목표를 실제로 달성했는지</b> 검증하고, 그 결과를 이전 단계로 되돌린다.',
-    method:'도면 기반 HX 평가 · 사용자 선호도 테스트 · 의미분별척도(SD Scale) · A/B 테스트 · Isovist / Space Syntax 분석 · VR 기반 사용성 테스트 · 피드백 수집',
+    purpose:'Prototype에서 구체화된 설계안이 <b>Define에서 설정한 HX 목표를 충족하는지</b> 검증한다.',
+    method:'설계 대안 → 도면 기반 HX 평가 → 사용자 검증 → 시뮬레이션 분석 → 피드백 도출.',
     owner:{
       human:'평가 설계와 해석, 피드백 반영 판단을 담당한다.',
-      ai:'Isovist · Space Syntax 분석과 VR 사용성 데이터 처리를 담당한다.'
+      ai:'Isovist · VGA · Space Syntax · 채광 · 음향 분석과 VR 사용성 데이터 처리를 담당한다.'
     },
     evidence:[],
-    outputs:['HX 검증 결과','이전 단계로 되돌아가는 피드백'],
-    bullets:['도면 기반 HX 평가','사용자 선호도 테스트','의미분별척도 (SD Scale)','A/B 테스트','Isovist / Space Syntax 분석','VR 기반 사용성 테스트','피드백 수집'],
-    feedbackNote:'이 단계의 피드백은 <b>Ideate · Prototype · Empathize</b>로 되돌아갑니다.',
+    outputs:['HX 평가표','사용자 검증 결과','시뮬레이션 결과','수정 요구사항','대안 비교표','피드백 루프 기록'],
+    inner:{
+      steps:[
+        { t:'설계 대안',        d:'Prototype 산출물', from:true },
+        { t:'도면 기반 HX 평가', d:'도면에서 계산 가능한 정량 지표' },
+        { t:'사용자 검증',      d:'선호도 테스트 · A/B · SD Scale · VR · 인터뷰' },
+        { t:'시뮬레이션 분석',   d:'동선 · 채광 · 피난 · 음향 · Isovist · VGA · Space Syntax' },
+        { t:'피드백 도출',      d:'문제 유형에 따라 되돌아갈 단계를 정한다' }
+      ]
+    },
+    miniTables:[
+      { name:'도면 기반 HX 평가 — 평가 요소와 대응 HX', head:['평가 요소','관련 HX'],
+        rows:[
+          ['창호 연결성','Restorativeness'],
+          ['발코니 인접성','Restorativeness'],
+          ['복도 길이','Stress &amp; Anxiety / Motivation'],
+          ['침실 노출도','Stress &amp; Anxiety'],
+          ['LDK 연결성','Motivation'],
+          ['실 간 접근성','Motivation'],
+          ['벽체 정렬','Aesthetics &amp; Pleasure'],
+          ['잔여공간 비율','Aesthetics &amp; Pleasure']
+        ]},
+      { name:'시뮬레이션 분석 — 연결 가능 경험', head:['분석 방법','연결 가능 경험'],
+        rows:[
+          ['Isovist / VGA','개방감, 시야 깊이, 공간 인지성'],
+          ['Space Syntax','접근성, 연결성, 동선 효율'],
+          ['채광 분석','회복 경험, 쾌적성'],
+          ['음향 분석','스트레스 · 불안 감소'],
+          ['피난 분석','안전감, 이동 명확성']
+        ]},
+      { name:'의미분별척도 (SD Scale) 예시', head:['질문','척도'],
+        rows:[
+          ['이 거실은 개방적으로 느껴지는가?','폐쇄적 1 – 2 – 3 – 4 – 5 – 6 – 7 개방적'],
+          ['이 침실은 안정적으로 느껴지는가?','불안정함 1 – 2 – 3 – 4 – 5 – 6 – 7 안정적'],
+          ['이 동선은 이해하기 쉬운가?','혼란스러움 1 – 2 – 3 – 4 – 5 – 6 – 7 명확함']
+        ]}
+    ],
+    fbTable:true,
     table:[]
   },
 
@@ -1593,23 +1914,36 @@ const STAGES = [
     id:'deliver', no:'6', kind:'stage',
     en:'Deliver', ko:'실시설계', sub:'실시설계 반영 및 최종 검증',
     accent:'human',
-    tagline:'지을 수 있는 도면으로 확정하고 POE를 준비한다.',
 
-    purpose:'검증된 설계안을 <b>실시설계에 반영</b>하고 최종 검증한다.',
-    method:'실시설계 도면 반영 · 창호/재료/조명/방음 상세 검토 · HX 체크리스트 검증 · 시공 가능성 검토 · POE 계획 수립',
+    purpose:'평가를 통과한 설계안을 <b>실시설계 도면과 문서에 반영</b>하고, 최종적으로 경험 품질이 유지되는지 검증한다.',
+    method:'실시설계 반영 → HX 체크리스트 검증 → 시공 가능성 검토 → POE 계획 수립.',
     owner:{
       human:'실시설계 반영과 시공 가능성 판단, POE 계획 수립을 담당한다.',
       ai:'이 단계에는 AI 역할을 두지 않는다.'
     },
     evidence:[],
-    outputs:['Final Design','POE Data (입주 후 평가 데이터) → 1. Empathize로 순환'],
-    bullets:['실시설계 도면 반영','창호 · 마감 · 조명 · 차음 상세 검토','HX 체크리스트 검증','시공 가능성 검토','POE 계획 수립'],
+    outputs:['실시설계 도면','시방서','최종 HX 체크리스트','시공성 검토 결과','POE 계획서','Final Design'],
+    methodCards:[
+      { t:'실시설계 반영', d:'',
+        li:['실시설계 도면 반영','창호 상세 검토','마감 상세 검토','조명 상세 검토','차음 및 방음 상세 검토','구조 및 설비 정합성 검토','시공 가능성 검토'] },
+      { t:'POE 계획 수립', d:'사용 후 경험 데이터를 다음 프로젝트의 Empathize로 환류하기 위해',
+        li:['실제 거주 만족도','공간별 사용 빈도','동선 불편','채광과 환기 만족도','소음 및 프라이버시 문제','공용공간 사용 방식','설계 의도와 실제 사용 간 차이'] }
+    ],
+    miniTables:[
+      { name:'HX 체크리스트 — 실시설계에서도 유지되는가', head:['HX 목표','검증 질문'],
+        rows:[
+          ['회복 경험','주요 거주 공간에 자연광과 조망이 확보되는가?'],
+          ['스트레스 · 불안 감소','침실과 욕실 등 사적 공간이 과도하게 노출되지 않는가?'],
+          ['미적 · 쾌락 경험','벽체 정렬과 공간 비례가 안정적인가?'],
+          ['동기 · 수행 경험','일상 동선이 효율적이고 이해하기 쉬운가?']
+        ]}
+    ],
     table:[]
   },
 
   /* --------------------------------------------------- 최종 산출물 노드 */
   { id:'final', no:'', kind:'terminal', en:'Final Design', ko:'', sub:'', accent:'quant' },
-  { id:'poe',   no:'', kind:'terminal', en:'POE Data',     ko:'', sub:'입주 후 평가', accent:'quant' }
+  { id:'poe',   no:'', kind:'terminal', en:'POE Data',     ko:'', sub:'Post-Occupancy Evaluation', accent:'quant' }
 ];
 
 
@@ -1823,43 +2157,113 @@ function renderSteps(s){
     </div>`;
 }
 
-/* ---------- 0. Diagnosis 진단 축 ---------- */
-function renderAxes(s){
-  if(!s.axes) return '';
+/* ---------- 작은 표 (공통) ---------- */
+function miniTable(t){
   return `
     <div class="block anim">
-      <div class="block-h">진단 축 <em>이 네 가지가 이후 단계의 방법론 범위를 정한다</em></div>
-      <div class="axes">
-        ${s.axes.map((a,i)=>`
-          <div class="axis"><span class="axis-no">${i+1}</span>
-            <b>${a.t}</b><span>${a.d}</span></div>`).join('')}
+      <div class="block-h">${t.name}${t.note ? `<em>${t.note}</em>` : ''}</div>
+      <div class="table-scroll">
+        <table class="detail mt">
+          <thead><tr>${t.head.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+const renderMiniTables = (s)=> (s.miniTables||[]).map(miniTable).join('');
+
+/* ---------- 0. Diagnosis 진단 축 ---------- */
+function renderAxes(s){
+  if(!s.axisTables) return '';
+  return `<div class="block-h anim" style="margin-top:22px">진단 축 네 가지
+            <em>각 축의 판정이 Empathize에서 쓸 방법론을 지정한다</em></div>` +
+         s.axisTables.map(miniTable).join('');
+}
+
+/* ---------- 방법론 카드 (Empathize · Deliver) ---------- */
+function renderMethodCards(s){
+  if(!s.methodCards) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">주요 방법론</div>
+      <div class="mcards">
+        ${s.methodCards.map(c=>`
+          <div class="mcard">
+            <b>${c.t}</b>${c.d ? `<span class="mc-d">${c.d}</span>` : ''}
+            <ul>${c.li.map(x=>`<li>${x}</li>`).join('')}</ul>
+          </div>`).join('')}
       </div>
     </div>`;
 }
 
-/* ---------- 목록형 방법 ---------- */
-function renderBullets(s){
-  if(!s.bullets) return '';
+/* ---------- 어피니티 vs 카드소팅 ---------- */
+function renderTwoTools(s){
+  if(!s.twoTools) return '';
+  const one = (x,accent)=>`
+    <div class="tool" style="--tk:var(--${accent})">
+      <b>${x.t}</b><span class="tool-d">${x.d}</span>
+      <ul>${x.ex.map(e=>`<li>${e}</li>`).join('')}</ul>
+      <div class="tool-out">→ ${x.out}</div>
+    </div>`;
   return `
     <div class="block anim">
-      <div class="block-h">세부 항목</div>
-      <div class="bul">${s.bullets.map(b=>`<span>${b}</span>`).join('')}</div>
+      <div class="block-h">두 도구는 하는 일이 다르다</div>
+      <div class="tools">${one(s.twoTools.a,'human')}${one(s.twoTools.b,'quant')}</div>
     </div>`;
 }
 
 /* ---------- Insight HX 지표 ---------- */
 function renderHX(s){
-  if(!s.hx) return '';
+  if(!s.hxTable) return '';
   return `
     <div class="block anim">
       <div class="block-h">HX 지표 <em>Insight를 받치는 네 가지 · 3. Ideate의 입력으로 다시 사용된다</em></div>
       <div class="hx-cross">
         <span class="hx-axis">HX Goal</span><span class="hx-x">×</span><span class="hx-axis">Spatial Direction</span>
       </div>
-      <div class="hx-grid">${s.hx.map(h=>`<div class="hx-item">${h}</div>`).join('')}</div>
+      <div class="hx-grid">
+        ${s.hxTable.map(h=>`
+          <div class="hx-item">
+            <b>${h.k}</b><span class="hx-ko">${h.ko}</span>
+            <span class="hx-dir">${h.dir}</span>
+          </div>`).join('')}
+      </div>
       <div class="hx-out">→ <b>3. Ideate</b>의 입력</div>
     </div>`;
 }
+
+/* ---------- 초기 설계 대안 ---------- */
+function renderAlts(s){
+  if(!s.alts) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">초기 설계 대안 <em>${s.altNote||''}</em></div>
+      <div class="alts">
+        ${s.alts.map(a=>`<div class="alt"><b>${a.n}</b><span>${a.f}</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ---------- 피드백 루프 표 (Evaluate) ---------- */
+function renderFbTable(s){
+  if(!s.fbTable) return '';
+  return `
+    <div class="block anim">
+      <div class="block-h">피드백 루프 <em>Evaluate 결과는 문제 유형에 따라 서로 다른 단계로 되돌아간다</em></div>
+      <div class="table-scroll">
+        <table class="detail mt">
+          <thead><tr><th>문제 상황</th><th>되돌아갈 단계</th></tr></thead>
+          <tbody>${FEEDBACK.filter(f=> f.from === 'evaluate').map(f=>
+            `<tr><td>${f.why}</td><td><span class="fb-to">${f.label}</span></td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ---------- 경고 노트 ---------- */
+const renderWarn = (s)=> s.warnNote
+  ? `<div class="linknote anim" style="border-color:var(--qual);background:var(--qual-soft)">
+       <span class="ico" style="color:var(--qual)">!</span><span>${s.warnNote}</span></div>` : '';
 
 /* ---------- 단계 내부 흐름 ---------- */
 function renderInner(s){
@@ -1888,6 +2292,11 @@ function renderInner(s){
       <div class="block-h">내부 흐름</div>
       <div class="ifl">${st}</div>
       ${br}
+      ${s.inner.after ? `
+        <div class="ifl-after">
+          <span class="ifl-down" aria-hidden="true">↓</span>
+          <div class="ifl-box is-final"><b>${s.inner.after.t}</b><span>${s.inner.after.d}</span></div>
+        </div>` : ''}
     </div>`;
 }
 
@@ -2024,13 +2433,16 @@ function renderPanels(){
             <div class="field-body">${phList(s.outputs,'')}</div>
           </div>
 
-          ${renderAxes(s)}
           ${renderInner(s)}
-          ${renderBullets(s)}
+          ${renderWarn(s)}
+          ${renderTwoTools(s)}
           ${renderHX(s)}
+          ${renderAxes(s)}
+          ${renderMethodCards(s)}
+          ${renderMiniTables(s)}
+          ${renderAlts(s)}
+          ${renderFbTable(s)}
           ${renderSteps(s)}
-          ${s.feedbackNote ? `<div class="linknote anim" style="border-color:var(--red);background:rgba(217,45,32,.07)"><span class="ico" style="color:var(--red)">↩</span><span>${s.feedbackNote}</span></div>` : ''}
-          ${s.linkNote ? `<div class="linknote anim"><span class="ico">→</span><span>${s.linkNote}</span></div>` : ''}
           ${renderTable(s.table)}
 
         </div>
@@ -2609,22 +3021,22 @@ function drawEmpathyLinks(){
   svg.setAttribute('height', wr.height);
   svg.setAttribute('viewBox', `0 0 ${wr.width} ${wr.height}`);
 
-  const target = document.getElementById('node-empathize');
-  if(!target) return;
-  const tr = target.getBoundingClientRect();
-  const ex = tr.left + tr.width/2 - wr.left;
-  const ey = tr.bottom - wr.top + 4;                      // 도착: Empathize 하단
-
-  /* 피드백은 아래쪽 레인을 타고 왼쪽으로 돌아 Empathize 밑으로 올라온다 */
-  const sources = FEEDBACK_FROM.map(id=> document.getElementById('node-'+id)).filter(Boolean);
-  const base = wr.height - 24;
-
+  /* 피드백은 아래쪽 레인을 타고 돌아 목적지 노드 밑으로 올라온다.
+     목적지는 하나가 아니다 — 문제 유형에 따라 Prototype·Ideate·Define·Empathize로 갈린다. */
+  const base = wr.height - 20;
   const labels = [];
-  sources.forEach((el,i)=>{
-    const r = el.getBoundingClientRect();
+
+  FEEDBACK.forEach((f,i)=>{
+    const se = document.getElementById('node-'+f.from);
+    const te = document.getElementById('node-'+f.to);
+    if(!se || !te) return;
+    const r = se.getBoundingClientRect(), t = te.getBoundingClientRect();
+
     const sx = r.left + r.width/2 - wr.left;
     const sy = r.bottom - wr.top + 4;                     // 출발: 노드 하단
-    const lane = base - (sources.length - 1 - i) * 30;    // 뒤쪽 단계일수록 깊은 레인
+    const ex = t.left + t.width/2 - wr.left;
+    const ey = t.bottom - wr.top + 4;                     // 도착: 목적지 하단
+    const lane = base - (FEEDBACK.length - 1 - i) * 26;   // 멀리 갈수록 깊은 레인
 
     const p = document.createElementNS(SVG_NS,'path');
     p.setAttribute('class','empathy-path');
@@ -2633,8 +3045,7 @@ function drawEmpathyLinks(){
       `M ${sx} ${sy} C ${sx} ${lane}, ${ex} ${lane}, ${ex} ${ey}`);
     svg.appendChild(p);
 
-    /* 라벨은 가장 깊은 레인 하나에만 — 다섯 개를 다 붙이면 서로 겹친다 */
-    if(i === 0) labels.push({ x:(sx + ex)/2, y:lane - 12 });
+    labels.push({ x:(sx + ex)/2, y:lane - 9, t:'→ '+f.label });
   });
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
@@ -2643,7 +3054,7 @@ function drawEmpathyLinks(){
     t.setAttribute('class','empathy-label');
     t.setAttribute('x', pos.x);
     t.setAttribute('y', pos.y);
-    t.textContent = MISS_LABEL[labelLang];
+    t.textContent = pos.t || MISS_LABEL[labelLang];
     svg.appendChild(t);
 
     const b = t.getBBox();                                  // 글자 크기만큼 배경판 생성
