@@ -723,6 +723,75 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
 .dlabel.v-quant{background:var(--quant)}
 .dlabel.v-qual{background:var(--qual)}
 
+/* --- ⑤~⑧ 단계 요소 --- */
+.dgoal,.dhx,.droom,.dalt,.dcycle,.dnote{
+  position:absolute;left:0;top:0;box-sizing:border-box;
+  opacity:0;pointer-events:none;
+  transition:transform .55s var(--ease),opacity .35s ease,
+             border-color .3s ease,background .3s ease;
+}
+.dgoal.in,.dhx.in,.droom.in,.dalt.in,.dcycle.in,.dnote.in{opacity:1}
+
+.dnote{
+  width:760px;text-align:center;font-size:14px;font-weight:600;color:var(--text-2);
+}
+.dgoal{
+  padding:8px 18px;border-radius:999px;white-space:nowrap;
+  background:var(--human-soft);color:var(--human);font-size:14px;font-weight:700;
+}
+.dgoal--x{background:none;color:var(--text-3);padding:0;font-size:18px}
+
+.dhx{
+  width:212px;padding:12px 14px;border-radius:9px;
+  border:1px solid var(--quant);background:var(--quant-soft);
+}
+.dhx b{display:block;font-size:13.5px;color:var(--quant)}
+.dhx-ko{display:block;font-size:11.5px;color:var(--text-2);margin:2px 0 5px}
+.dhx-d{display:block;font-size:11.5px;color:var(--text-2);line-height:1.5}
+.dhx.sm{width:198px;padding:8px 12px}
+.dhx.sm .dhx-d{display:none}
+.dhx.sm .dhx-ko{margin:1px 0 0}
+
+.droom{
+  padding:11px 20px;border-radius:999px;white-space:nowrap;
+  border:1.5px solid var(--human);background:var(--surface);
+  font-size:13.5px;font-weight:700;color:var(--text);
+}
+.dedges{position:absolute;left:0;top:0;opacity:0;transition:opacity .5s ease}
+.dedges.in{opacity:1}
+.dedges line{stroke:var(--human);stroke-width:1.6;stroke-opacity:.5}
+
+.dalt{
+  width:290px;padding:13px 16px;border-radius:9px;
+  border:1px solid var(--line);border-top:3px solid var(--text-3);background:var(--surface);
+}
+.dalt b{display:block;font-size:14px}
+.dalt-f{display:block;font-size:11.5px;color:var(--text-2);margin:2px 0 9px}
+.dalt-bars{display:flex;flex-direction:column;gap:5px}
+.dab{display:flex;align-items:center;gap:8px}
+.dab-k{flex:0 0 46px;font-size:10.5px;color:var(--text-3);text-align:right}
+.dab-t{flex:1;height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden}
+.dab-t i{
+  display:block;height:100%;width:0;border-radius:4px;background:var(--quant);
+  transition:width .9s var(--ease);
+}
+.dalt-tag{
+  display:block;margin-top:9px;font-size:11px;font-weight:700;min-height:15px;color:var(--text-3);
+}
+.dalt.win{border-top-color:var(--quant);box-shadow:inset 0 0 0 1px var(--quant)}
+.dalt.win .dalt-tag{color:var(--quant)}
+.dalt.lose{opacity:.55}
+.dalt.lose .dalt-tag{color:var(--red)}
+.dalt.lose .dab-t i{background:var(--text-3)}
+
+.dcycle{
+  display:flex;align-items:center;gap:12px;padding:13px 22px;border-radius:999px;
+  border:1.5px dashed var(--red);background:rgba(217,45,32,.06);white-space:nowrap;
+}
+.dcycle span{font-size:14px;font-weight:700;color:var(--text)}
+.dcycle .hi{color:var(--red)}
+.dcycle i{font-style:normal;color:var(--red);font-weight:700}
+
 /* --- 하단 전체 데모 섹션 --- */
 .demo-section{margin-top:56px}
 .demo-section .demo{margin-top:14px}
@@ -2613,13 +2682,35 @@ const L = {
   gateX:.5, gateY:.13
 };
 
-const PHASE_NAMES = ['① 펼치기','② 1차 편성','③ 2차 편성','④ 수치화 판정'];
+const PHASE_NAMES = ['① 펼치기','② 1차 편성','③ 2차 편성','④ 수치화 판정',
+                     '⑤ Insight','⑥ Ideate','⑦ Evaluate','⑧ 순환'];
+
+/* ⑤~⑦에서 쓰는 데이터 */
+const HX4 = [
+  { k:'Restorativeness',        ko:'회복',      d:'자연광 · 조망 · 발코니' },
+  { k:'Stress &amp; Anxiety',   ko:'스트레스',   d:'개방감 · 침실 노출도' },
+  { k:'Aesthetics &amp; Pleasure', ko:'미적',   d:'정렬 · 비례 · 질서감' },
+  { k:'Motivation',             ko:'수행',      d:'동선 효율 · LDK 연결성' }
+];
+const ROOMS = [
+  { t:'현관',   p:[.16,.40] }, { t:'거실',   p:[.34,.46] },
+  { t:'주방',   p:[.50,.36] }, { t:'식당',   p:[.50,.56] },
+  { t:'침실',   p:[.68,.40] }, { t:'발코니', p:[.34,.26] }
+];
+const EDGES = [[0,1],[1,2],[2,3],[3,1],[1,5],[1,4]];
+const ALTS = [
+  { n:'대안 A', f:'개방감 · 회복 경험 중심',      s:[.85,.55,.70,.60] },
+  { n:'대안 B', f:'프라이버시 · 은신감 중심',     s:[.55,.90,.65,.55] },
+  { n:'대안 C', f:'동선 효율 · 기능 수행성 중심', s:[.50,.60,.75,.90] }
+];
 
 function buildDemo(host){
   const mode = host.dataset.demo;                       // 'kj' | 'verdict' | 'full'
   const W = mode === 'full' ? 1180 : 1000;
   const H = mode === 'full' ? 740  : 720;
-  const phases = mode === 'kj' ? [0,1,2] : mode === 'verdict' ? [2,3] : [0,1,2,3];
+  const phases = mode === 'kj' ? [0,1,2]
+               : mode === 'verdict' ? [2,3]
+               : [0,1,2,3,4,5,6,7];
 
   /* ---- 뼈대 ---- */
   host.innerHTML = `
@@ -2753,6 +2844,42 @@ function buildDemo(host){
     cv.appendChild(el); return el;
   });
 
+  /* ---- ⑤~⑧에서 쓰는 요소들 ---- */
+  const mk = (cls, html, parent)=>{
+    const el = document.createElement('div');
+    el.className = cls; el.innerHTML = html;
+    (parent || cv).appendChild(el); return el;
+  };
+
+  const goalEls = [
+    mk('dgoal','HX Goal'), mk('dgoal dgoal--x','×'), mk('dgoal','Spatial Direction')
+  ];
+  const hxEls = HX4.map(h=> mk('dhx',
+    `<b>${h.k}</b><span class="dhx-ko">${h.ko}</span><span class="dhx-d">${h.d}</span>`));
+  const roomEls = ROOMS.map(r=> mk('droom', r.t));
+  const altEls = ALTS.map(a=> mk('dalt',
+    `<b>${a.n}</b><span class="dalt-f">${a.f}</span>
+     <div class="dalt-bars">${HX4.map(h=>
+       `<div class="dab"><span class="dab-k">${h.ko}</span>
+          <div class="dab-t"><i></i></div></div>`).join('')}</div>
+     <span class="dalt-tag"></span>`));
+  const cycleEl = mk('dcycle',
+    `<span>Final Design</span><i>→</i><span>POE Data</span><i>→</i><span class="hi">Empathize</span>`);
+
+  /* 공간 인접선 */
+  const edgeSvg = document.createElementNS(SVG_NS,'svg');
+  edgeSvg.setAttribute('class','dedges');
+  edgeSvg.setAttribute('width',W); edgeSvg.setAttribute('height',H);
+  cv.appendChild(edgeSvg);
+
+  const stageNote = mk('dnote','');
+
+  const POOL = [...goalEls, ...hxEls, ...roomEls, ...altEls, cycleEl, stageNote];
+  const showPool = (list)=>{
+    POOL.forEach(el=> el.classList.toggle('in', list.includes(el)));
+    edgeSvg.classList.remove('in');
+  };
+
   /* 판정 대상 = 2차 편성의 결과 단위 4개 */
   const units = [
     { el:lab2[0],        d:KJ_LV2[0] },
@@ -2780,6 +2907,9 @@ function buildDemo(host){
   const markPhase = p=> host.querySelectorAll('.dph')
       .forEach(b=> b.classList.toggle('on', +b.dataset.p === p));
 
+  /* ⑤~⑧ 요소를 모두 감춘다 (①~④로 되돌아갈 때) */
+  const hidePool = ()=>{ if(typeof showPool === 'function') showPool([]); };
+
   const resetVerdict = ()=>{
     [...cards,...lab1,...lab2].forEach(el=>
       el.classList.remove('judging','judged','v-quant','v-qual'));
@@ -2791,6 +2921,7 @@ function buildDemo(host){
   /* ================= ① 펼치기 ================= */
   function p0(anim){
     clearAll(); markPhase(0); resetVerdict();
+    hidePool();
     box1.concat(box2).forEach(b=> b.classList.remove('on'));
     lab1.concat(lab2).forEach(l=> l.classList.remove('in'));
     lone.classList.remove('in');
@@ -2808,6 +2939,7 @@ function buildDemo(host){
   /* ========= ② 1차 편성 — 모으기 → 테두리 → 표찰 ========= */
   function p1(anim){
     markPhase(1); resetVerdict();
+    hidePool();
     box2.forEach(b=> b.classList.remove('on'));
     lab2.forEach(l=> l.classList.remove('in'));
 
@@ -2855,6 +2987,7 @@ function buildDemo(host){
   /* ========= ③ 2차 편성 — 표찰끼리 다시 모은다 ========= */
   function p2(anim){
     markPhase(2); resetVerdict();
+    hidePool();
 
     const step = ()=>{
       box1.forEach(b=> b.classList.remove('on'));
@@ -2900,6 +3033,7 @@ function buildDemo(host){
   /* ================= ④ 수치화 판정 ================= */
   function p3(){
     markPhase(3); resetVerdict();
+    hidePool();
 
     /* 판정은 표찰 단위 — 개별 카드와 테두리는 물러난다 */
     cards.forEach((el,i)=>{ if(i !== loneIdx) el.classList.remove('in'); });
@@ -2935,18 +3069,134 @@ function buildDemo(host){
     });
   }
 
+  /* ============ ⑤ Insight — 판정 결과가 HX 지표로 ============ */
+  function p5(anim){
+    markPhase(4); resetVerdict();
+    cards.forEach(el=> el.classList.remove('in'));
+    box1.concat(box2).forEach(b=> b.classList.remove('on'));
+    lab1.concat(lab2).forEach(l=> l.classList.remove('in'));
+    lone.classList.remove('in');
+    showPool([...goalEls, ...hxEls, stageNote]);
+
+    stageNote.textContent = '판정을 통과한 경험 단위가 HX Goal과 Spatial Direction의 교차점으로 정리된다';
+    place(stageNote, .5*W, .10*H);
+
+    /* ④에서 살아남은 표찰 3개를 위쪽에 남겨 근거로 보여준다 */
+    [units[0], units[1], units[2]].forEach((u,i)=>{
+      u.el.classList.add('in');
+      place(u.el, (.25 + i*.25)*W, .215*H);
+    });
+
+    const gx = [.36,.5,.64];
+    goalEls.forEach((g,i)=> place(g, gx[i]*W, .40*H));
+    hxEls.forEach((h,i)=>{ h.classList.remove('sm'); place(h, (.17 + i*.22)*W, .655*H); });
+
+    if(anim){
+      goalEls.forEach(g=> g.classList.remove('in'));
+      hxEls.forEach(h=> h.classList.remove('in'));
+      at(250, ()=> goalEls.forEach(g=> g.classList.add('in')));
+      hxEls.forEach((h,i)=> at(700 + i*140, ()=> h.classList.add('in')));
+    }
+  }
+
+  /* ============ ⑥ Ideate — HX 지표가 공간 관계와 대안으로 ============ */
+  function p6(anim){
+    markPhase(5); resetVerdict();
+    cards.forEach(el=> el.classList.remove('in'));
+    lab1.concat(lab2).forEach(l=> l.classList.remove('in'));
+    showPool([...hxEls, ...roomEls, ...altEls, stageNote]);
+
+    stageNote.textContent = 'HX 지표 → 공간 간 관계 정의 → 배치 구조화 → 초기 설계 대안';
+    place(stageNote, .5*W, .07*H);
+
+    hxEls.forEach((h,i)=>{ h.classList.add('sm'); place(h, (.17 + i*.22)*W, .165*H); });
+    roomEls.forEach((r,i)=> place(r, ROOMS[i].p[0]*W, ROOMS[i].p[1]*H));
+    altEls.forEach((a,i)=>{ a.classList.remove('win','lose'); place(a, (.20 + i*.30)*W, .82*H); });
+
+    /* 인접선 */
+    edgeSvg.innerHTML = EDGES.map(([a,b])=>
+      `<line x1="${ROOMS[a].p[0]*W}" y1="${ROOMS[a].p[1]*H}"
+             x2="${ROOMS[b].p[0]*W}" y2="${ROOMS[b].p[1]*H}"/>`).join('');
+
+    if(anim){
+      roomEls.forEach(r=> r.classList.remove('in'));
+      altEls.forEach(a=> a.classList.remove('in'));
+      roomEls.forEach((r,i)=> at(300 + i*110, ()=> r.classList.add('in')));
+      at(1100, ()=> edgeSvg.classList.add('in'));
+      altEls.forEach((a,i)=> at(1700 + i*200, ()=> a.classList.add('in')));
+    }else{
+      edgeSvg.classList.add('in');
+    }
+  }
+
+  /* ============ ⑦ Evaluate — 대안이 HX 점수를 받는다 ============ */
+  function p7(anim){
+    markPhase(6); resetVerdict();
+    showPool([...altEls, stageNote]);
+
+    stageNote.textContent = '도면 기반 HX 평가 · 사용자 검증 · 시뮬레이션으로 대안을 검증한다';
+    place(stageNote, .5*W, .12*H);
+
+    altEls.forEach((a,i)=>{
+      a.classList.remove('win','lose');
+      a.querySelectorAll('.dab-t i').forEach(b=> b.style.width = '0%');
+      a.querySelector('.dalt-tag').textContent = '';
+      place(a, (.20 + i*.30)*W, .48*H);
+    });
+
+    const fill = ()=> altEls.forEach((a,i)=>
+      a.querySelectorAll('.dab-t i').forEach((b,j)=>{
+        b.style.width = (ALTS[i].s[j]*100).toFixed(0)+'%';
+      }));
+
+    const judge = ()=>{
+      const sum = ALTS.map(a=> a.s.reduce((x,y)=>x+y,0));
+      const best = sum.indexOf(Math.max(...sum));
+      altEls.forEach((a,i)=>{
+        a.classList.add(i === best ? 'win' : 'lose');
+        a.querySelector('.dalt-tag').textContent =
+          i === best ? '선정 → Prototype · Deliver' : '↩ 피드백 → Ideate';
+      });
+    };
+
+    if(anim){ at(500, fill); at(1900, judge); }
+    else { fill(); judge(); }
+  }
+
+  /* ============ ⑧ 순환 — POE Data가 다시 Empathize로 ============ */
+  function p8(anim){
+    markPhase(7); resetVerdict();
+    showPool([...altEls, cycleEl, stageNote]);
+
+    stageNote.textContent = '설계는 Final Design에서 끝나지 않는다 — 사용 후 경험이 다음 프로젝트로 돌아간다';
+    place(stageNote, .5*W, .16*H);
+
+    altEls.forEach((a,i)=>{
+      place(a, (.20 + i*.30)*W, .44*H);
+      if(!a.classList.contains('win') && !a.classList.contains('lose')) a.classList.add('lose');
+    });
+    place(cycleEl, .5*W, .78*H);
+    if(anim){ cycleEl.classList.remove('in'); at(600, ()=> cycleEl.classList.add('in')); }
+  }
+
   /* ---- 재생 ---- */
   function play(){
     clearAll();
-    tick(mode === 'full' ? 13000 : 8000);
+    tick(mode === 'full' ? 26000 : 8000);
     if(mode === 'kj'){
-      p0(true); at(2400, ()=>p1(true));
+      p0(true); at(2400, ()=>p1(true)); at(5600, ()=>p2(true));
     }else if(mode === 'verdict'){
       p0(false); p1(false); p2(false); at(800, p3);
     }else{
-      p0(true); at(2400, ()=>p1(true)); at(5600, ()=>p2(true)); at(8000, p3);
+      p0(true);
+      at(2400,  ()=>p1(true));
+      at(5600,  ()=>p2(true));
+      at(8000,  p3);
+      at(13500, ()=>p5(true));
+      at(17000, ()=>p6(true));
+      at(21000, ()=>p7(true));
+      at(24500, ()=>p8(true));
     }
-    if(mode === 'kj') at(5600, ()=>p2(true));
   }
   host._play = play;
 
@@ -2960,7 +3210,11 @@ function buildDemo(host){
       if(p === 0){ p0(true); }
       else if(p === 1){ p0(false); p1(true); }
       else if(p === 2){ p0(false); p1(false); p2(true); }
-      else { p0(false); p1(false); p2(false); at(120, p3); }
+      else if(p === 3){ p0(false); p1(false); p2(false); at(120, p3); }
+      else if(p === 4){ p0(false); p1(false); p2(false); p3(); at(120, ()=>p5(true)); }
+      else if(p === 5){ p5(false); at(120, ()=>p6(true)); }
+      else if(p === 6){ p6(false); at(120, ()=>p7(true)); }
+      else { p7(false); at(120, ()=>p8(true)); }
     });
   });
 
