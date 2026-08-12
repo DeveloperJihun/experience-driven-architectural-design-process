@@ -493,7 +493,15 @@ table.detail.mt td:first-child{font-weight:600;white-space:nowrap}
 .hx-item b{display:block;font-size:13px;font-weight:700;color:var(--quant)}
 .hx-ko{display:block;font-size:11.5px;color:var(--text-2);margin:2px 0 6px}
 .hx-dir{display:block;font-size:12px;color:var(--text-2);line-height:1.55}
-.hx-out{margin-top:10px;text-align:center;font-size:12.5px;color:var(--text-2)}
+.hx-ext{
+  display:block;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);
+  font-size:11px;color:var(--text-3);line-height:1.5;
+}
+.hx-src{
+  margin-top:10px;font-size:12px;color:var(--text-3);text-align:center;line-height:1.6;
+}
+.hx-src b{color:var(--text-2)}
+.hx-out{margin-top:8px;text-align:center;font-size:12.5px;color:var(--text-2)}
 
 /* 초기 설계 대안 */
 .alts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -1417,6 +1425,11 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
         1차에서는 외톨이였던 S2("혼자 있고 싶지만 단절은 싫다")가 <b>2차 편성에서</b>
         "집중할 때 방해받고 싶지 않다"와 만나면서 드러납니다.
         S2를 억지로 어딘가에 넣었다면 이 발견은 나오지 않았습니다.
+        <br><span style="display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--text-2)">
+          이 발견은 문헌과도 맞닿습니다 — Ergan et al. (2018)은 약 400명 실험에서
+          <b>flexibility in isolation/socialization</b>(고립과 사교를 오갈 수 있는 유연성)을
+          사람들이 즉시 알아채면서 경험을 크게 바꾸는 설계 특성으로 꼽았습니다.
+        </span>
       </div>
       <button class="cnext canim" type="button" data-next="2">다음 — 우선순위 →</button>
     </div>
@@ -1660,6 +1673,7 @@ THEN StressAnxietyScore increases</pre>
       <li>Benedikt, M. L. (1979). <i>To take hold of space: isovists and isovist fields.</i> Environment and Planning B, 6(1), 47–65. <span class="ev-tag">원전</span> <a href="https://doi.org/10.1068/b060047" target="_blank" rel="noopener">doi</a></li>
       <li>Buchanan, R. (1992). <i>Wicked Problems in Design Thinking.</i> Design Issues, 8(2), 5–21. <span class="ev-tag">AHCI</span></li>
       <li>Dow, S. P., Glassco, A., Kass, J., Schwarz, M., Schwartz, D. L., &amp; Klemmer, S. R. (2010). <i>Parallel prototyping leads to better design results, more divergence, and increased self-efficacy.</i> ACM Transactions on Computer-Human Interaction, 17(4), Article 18. <span class="ev-tag">SCIE · Q1</span> <a href="https://doi.org/10.1145/1879831.1879836" target="_blank" rel="noopener">doi</a></li>
+      <li class="key">Ergan, S., Shi, Z., &amp; Yu, X. (2018). <i>Towards quantifying human experience in the built environment: A crowdsourcing based experiment to identify influential architectural design features.</i> Journal of Building Engineering, 20, 51–59. <span class="ev-tag">SCIE · Q1</span> <a href="https://doi.org/10.1016/j.jobe.2018.07.004" target="_blank" rel="noopener">doi</a> — <b>HX 지표 4종(Restorativeness · Stress &amp; Anxiety · Aesthetics &amp; Pleasure · Motivation)의 출처</b></li>
       <li>Ghaznavi, S., Haghparast, F., Pourahmad Ghalejough, A., &amp; Sakian Mohamadi, H. (2025). <i>Implementing user-centered design in architecture using virtual reality: A case study of a micro coworking space.</i> Design Studies, 99, 101329. <span class="ev-tag">SSCI Q1</span> <a href="https://doi.org/10.1016/j.destud.2025.101329" target="_blank" rel="noopener">doi</a></li>
       <li class="key">Hettithanthri, U., Hansen, P., &amp; Munasinghe, H. (2023). <i>Exploring the architectural design process assisted in conventional design studio: a systematic literature review.</i> International Journal of Technology and Design Education, 33(5), 1835–1859. <span class="ev-tag">SSCI Q1 · SCIE</span> <a href="https://doi.org/10.1007/s10798-022-09792-9" target="_blank" rel="noopener">doi</a> — <b>본 프로세스가 출발점으로 삼은 원본 모델(Fig. 4)의 출처</b></li>
       <li>Lee, P.-H., &amp; Han, Q. (2026). <i>User-centric sustainable design in mass-customized housing using Kano model and quality function deployment.</i> Architectural Engineering and Design Management, 22(2), 308–324. <span class="ev-tag">Q1</span> <a href="https://doi.org/10.1080/17452007.2025.2456761" target="_blank" rel="noopener">doi</a></li>
@@ -1877,13 +1891,25 @@ const STAGES = [
       human:'HX Goal과 Spatial Direction의 교차 지점을 해석한다.',
       ai:'HX 지표 산출과 공간화 방향 후보 제시를 보조한다.'
     },
-    evidence:[],
+    evidence:[
+      'Ergan, S., Shi, Z., &amp; Yu, X. (2018). <i>Towards quantifying human experience in the built environment: A crowdsourcing based experiment to identify influential architectural design features.</i> Journal of Building Engineering, 20, 51–59. <span class="ev-tag">SCIE · Q1</span><br><span class="ev-q">"…types of influence of architectural design features on human experience can be categorized in four groups as \'restorativeness\', \'stress and anxiety\', \'aesthetics and pleasure\', and \'motivation\'." (p.52, Table 1)</span>',
+      'Ergan, S., Shi, Z., &amp; Yu, X. (2018). 같은 논문, 약 400명 대상 크라우드소싱 실험 결과. <span class="ev-tag">SCIE · Q1</span><br><span class="ev-q">"…certain features such as the openness of space, presence of windows and daylighting, <b>flexibility in isolation/socialization</b>, level of artificial lighting, density of spaces, and color of surfaces are easy to notice by people and are also powerful to change the human experience." (Abstract)</span>'
+    ],
     outputs:['HX Goal','Spatial Direction','설계 인사이트 문장','Ideate 단계로 전달할 공간화 방향'],
+    hxSrc:'네 지표와 각 설계 특성은 Ergan et al. (2018) Table 1을 따른다.',
     hxTable:[
-      { k:'Restorativeness', ko:'회복 경험', dir:'자연광, 조망, 발코니, 외부 접면' },
-      { k:'Stress &amp; Anxiety', ko:'스트레스 · 불안', dir:'개방감, 복도 폐쇄감, 침실 노출도, 공간 밀도' },
-      { k:'Aesthetics &amp; Pleasure', ko:'미적 · 쾌락 경험', dir:'질서감, 비례, 정렬, 형태 안정성' },
-      { k:'Motivation', ko:'동기 · 수행 경험', dir:'접근성, 동선 효율, LDK 연결성, 기능 수행성' }
+      { k:'Restorativeness', ko:'회복 경험',
+        dir:'자연광 수준 · 창의 유무와 크기 · 자연 조망 · 회복적 이미지',
+        ext:'발코니 · 외부 접면' },
+      { k:'Stress &amp; Anxiety', ko:'스트레스 · 불안',
+        dir:'혼잡도(crowding) · 표면 색채 · 인공조명 수준 · 시각적 단서(랜드마크)',
+        ext:'복도 폐쇄감 · 침실 노출도' },
+      { k:'Aesthetics &amp; Pleasure', ko:'미적 · 쾌락 경험',
+        dir:'객체 대칭성 · 공간 정렬 · 공간 형상과 배치 · 객체 윤곽',
+        ext:'비례 · 형태 안정성' },
+      { k:'Motivation', ko:'동기 · 수행 경험',
+        dir:'표면 질감과 재료 · 시설 접근 용이성 · 공간 연결 시퀀스와 이동·사용 패턴',
+        ext:'LDK 연결성 · 동선 효율' }
     ],
     miniTables:[
       { name:'HX Goal × Spatial Direction', head:['HX Goal','Spatial Direction'],
@@ -2353,8 +2379,10 @@ function renderHX(s){
           <div class="hx-item">
             <b>${h.k}</b><span class="hx-ko">${h.ko}</span>
             <span class="hx-dir">${h.dir}</span>
+            ${h.ext ? `<span class="hx-ext">본 프로세스 확장 — ${h.ext}</span>` : ''}
           </div>`).join('')}
       </div>
+      ${s.hxSrc ? `<div class="hx-src">${s.hxSrc} 회색 줄은 논문에 없는 <b>본 프로세스의 확장</b>이다.</div>` : ''}
       <div class="hx-out">→ <b>3. Ideate</b>의 입력</div>
     </div>`;
 }

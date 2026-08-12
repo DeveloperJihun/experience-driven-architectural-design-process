@@ -53,9 +53,21 @@ POE Data는 다시 **1. Empathize**로 순환합니다.
 
 "Missing connection to the empathising phase"라는 표현은 이 논문 저자들이 명명한 것입니다.
 
+## HX 지표
+
+Insight 단계의 네 지표는 아래 논문 Table 1의 분류를 따릅니다.
+
+> Ergan, S., Shi, Z., & Yu, X. (2018).
+> *Towards quantifying human experience in the built environment: A crowdsourcing based experiment to identify influential architectural design features.*
+> Journal of Building Engineering, 20, 51–59.
+> [doi:10.1016/j.jobe.2018.07.004](https://doi.org/10.1016/j.jobe.2018.07.004) · SCIE · Q1
+
+`restorativeness` · `stress and anxiety` · `aesthetics and pleasure` · `motivation`
+각 지표의 설계 특성도 같은 표를 따르며, 본 프로세스가 덧붙인 항목은 페이지에서 회색으로 구분해 표시합니다.
+
 ## 진행 중
 
-- 0. Diagnosis · Insight · 5. Evaluate · 6. Deliver의 **근거 칸은 아직 비어 있습니다.**
+- 0. Diagnosis · 5. Evaluate · 6. Deliver의 **근거 칸은 아직 비어 있습니다.**
 - Wicked Problem(Rittel & Webber, 1973), Kano(1984), Space Syntax(Hillier & Hanson, 1984) **원전 미확보**.
 - "수치화 가능/불가"를 **가르는 판별 기준**을 제시한 선행 연구는 아직 찾지 못했습니다.
 - 적용 사례는 **프로세스 검증용 예시**이며 실제 프로젝트가 아닙니다.
