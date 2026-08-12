@@ -340,6 +340,13 @@ figcaption b{color:var(--text);font-weight:600}
 .ev-note{
   display:block;font-size:12.5px;line-height:1.65;color:var(--qual);
 }
+/* 출처 성격 표식 — 무엇이 인용이고 무엇이 예시·제안인지 눈에 보이게 */
+.mark{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;
+  border-radius:4px;padding:2px 7px;margin-left:7px;white-space:nowrap;vertical-align:middle;
+}
+.mark--ex{background:var(--muted-soft);color:var(--muted);border:1px solid var(--line)}
+.mark--claim{background:var(--qual-soft);color:var(--qual);border:1px solid var(--qual)}
 .cite:has(.ev-note){border-left-color:var(--qual);background:var(--qual-soft)}
 
 /* --- 세부 프로세스 스텝 카드 --- */
@@ -596,7 +603,23 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
   border:1px solid var(--line);background:var(--surface);color:var(--text-2);
   border-radius:999px;padding:4px 12px;transition:all .2s;
 }
-.dpause{margin-left:auto}
+.dspeed{
+  margin-left:auto;display:flex;align-items:center;gap:8px;
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:var(--surface);
+}
+.dspeed-l{font-size:11px;font-weight:700;color:var(--text-3)}
+.dspeed-v{font-size:11.5px;font-weight:700;color:var(--human);min-width:34px;text-align:right}
+.dspeed-r{
+  -webkit-appearance:none;appearance:none;width:104px;height:4px;border-radius:2px;
+  background:var(--surface-3);outline:none;cursor:pointer;
+}
+.dspeed-r::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--human);cursor:pointer;border:0;
+}
+.dspeed-r::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:var(--human);cursor:pointer;border:0;
+}
 .dreplay:hover,.dpause:hover:not(:disabled){border-color:var(--human);color:var(--human)}
 .dpause:disabled{opacity:.4;cursor:default}
 
@@ -1281,7 +1304,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <hr class="rule">
     <p class="section-title">한눈에 보기 — 경험이 설계 조건이 되기까지</p>
     <h2 style="font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px">
-      흩어진 경험 → 군집화 → 수치화 가능 여부 판정
+      흩어진 경험 → 군집화 → 수치화 가능 여부 판정<span class="mark mark--ex">예시 데이터</span>
     </h2>
     <p class="demo-note" style="margin:0 0 4px">
       경험 문장 <b>18장</b>이 <b>펼치기 → 1차 편성 → 2차 편성 → 수치화 판정</b>을 거칩니다.
@@ -1305,7 +1328,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
   <section class="case">
     <hr class="rule">
     <p class="section-title">적용 사례</p>
-    <h2 class="case-h">경험 진술이 설계 수치가 되기까지 — 단독주택 사례</h2>
+    <h2 class="case-h">경험 진술이 설계 수치가 되기까지 — 단독주택 사례<span class="mark mark--ex">예시 데이터</span></h2>
     <p class="case-disc"><span class="dot" aria-hidden="true"></span>프로세스 검증용 예시 사례 · 실제 프로젝트 아님</p>
 
     <!-- 설계 조건 -->
@@ -1341,7 +1364,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <!-- ============ ① 수집 ============ -->
     <div class="cpane" id="cpane-0" style="--tc:var(--human)" role="tabpanel">
       <div class="cpane-h canim">
-        <h4>① 수집 — 인터뷰 진술</h4>
+        <h4>① 수집 — 인터뷰 진술</h4><span class="mark mark--ex">예시 데이터</span>
         <span class="sub">요구서 세 줄 뒤에 있던 실제 장면들</span>
       </div>
       <div class="quotes canim">
@@ -1381,7 +1404,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <!-- ============ ② 군집화 ============ -->
     <div class="cpane" id="cpane-1" style="--tc:var(--human)" role="tabpanel" hidden>
       <div class="cpane-h canim">
-        <h4>② 군집화 — KJ법</h4>
+        <h4>② 군집화 — KJ법</h4><span class="mark mark--ex">예시 데이터</span>
         <span class="sub">분류 항목을 미리 두지 않습니다. 모은 <b>뒤에</b> 표찰을 붙이고, 표찰끼리 다시 모읍니다</span>
       </div>
       <div class="kj-map canim">
@@ -1437,7 +1460,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <!-- ============ ③ 우선순위 ============ -->
     <div class="cpane" id="cpane-2" style="--tc:var(--human)" role="tabpanel" hidden>
       <div class="cpane-h canim">
-        <h4>③ 우선순위 — Kano 모델</h4>
+        <h4>③ 우선순위 — Kano 모델</h4><span class="mark mark--ex">예시 데이터</span>
         <span class="sub">같은 항목에 부부가 다르게 답합니다</span>
       </div>
       <div class="table-scroll canim">
@@ -1482,13 +1505,13 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <!-- ============ ④ 수치화 판정 ============ -->
     <div class="cpane" id="cpane-3" style="--tc:var(--quant)" role="tabpanel" hidden>
       <div class="cpane-h canim">
-        <h4>④ 수치화 판정</h4>
+        <h4>④ 수치화 판정</h4><span class="mark mark--ex">예시 데이터</span>
         <span class="sub">감각의 원인이 잡히면 수치로, 아니면 태그로</span>
       </div>
 
       <div class="crit canim">
         <div class="crit-card" style="--pc:var(--quant)">
-          <h5>수치화 가능</h5>
+          <h5>수치화 가능<span class="mark mark--claim">본 연구의 제안</span></h5>
           <p><b>시선 · 동선 · 치수</b> 중 하나로 환원되는 경우</p>
         </div>
         <div class="crit-card" style="--pc:var(--qual)">
@@ -1498,7 +1521,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
       </div>
 
       <div class="chain-head canim">
-        <div>경험</div><div>감각</div><div>원인</div><div>수치</div>
+        <div>경험</div><div>감각</div><div>원인</div><div>수치 <span class="mark mark--ex">예시 데이터</span></div>
       </div>
 
       <div class="chain-row canim">
@@ -1506,21 +1529,21 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
         <div class="cc k">업무 상태 알림</div>
         <div class="cc">열림 · 닫힘이 보임</div>
         <div class="cc">가변 개구부</div>
-        <div class="cc val">거실→서재 isovist<br>60 % ↔ 0 %</div>
+        <div class="cc val">거실→서재 isovist<br>O % ↔ 0 %</div>
       </div>
       <div class="chain-row canim">
         <span class="chain-tag">준비된 모습</span>
         <div class="cc k">손님 응대</div>
         <div class="cc">설거지가 안 보임</div>
         <div class="cc">조리대 은폐</div>
-        <div class="cc val">후면 상판<br>GL + 1150</div>
+        <div class="cc val">후면 상판<br>GL + O mm</div>
       </div>
       <div class="chain-row canim">
         <span class="chain-tag">연결 조절</span>
         <div class="cc k">감지하되 비감시</div>
         <div class="cc">소리는 들리고 모습은 안 보임</div>
         <div class="cc">상부 개방 · 시선 차단</div>
-        <div class="cc val">직접 시선 0<br>슬릿 200 mm</div>
+        <div class="cc val">직접 시선 0<br>슬릿 O mm</div>
       </div>
 
       <div class="nonq canim">
@@ -1695,7 +1718,7 @@ THEN StressAnxietyScore increases</pre>
         <li><b>Kano, N., et al. (1984).</b> Attractive quality and must-be quality. — Kano 원전. 미확보(현재 2차 문헌 재인용 상태)</li>
         <li><b>Hillier, B., &amp; Hanson, J. (1984).</b> The Social Logic of Space. — Space Syntax 원전. 미확보</li>
         <li><b>Stamps, A. E., III. (2011).</b> Effects of Area, Height, Elongation, and Color on Perceived Spaciousness. Environment and Behavior, 43(2), 252–273. — <b>보류.</b> "경계가 낮을수록 더 넓게 느낀다(r = −.22)"고 보고해 본 프로세스의 "낮은 천장 → 둘러싸인 감각"과 방향이 반대일 수 있습니다. 해당 연구의 boundary 정의를 확인하기 전까지 인용하지 않습니다.</li>
-        <li><b>수치화 가능/불가의 판별 기준</b> — 이 구분 자체를 명시적으로 제시한 선행 연구는 아직 찾지 못했습니다. 본 프로세스의 기여점일 가능성이 있어 조사를 계속하고 있습니다.</li>
+        <li><b>수치화 가능/불가의 판별 기준</b><span class="mark mark--claim">본 연구의 제안</span> — 이 구분(시선·동선·치수 → 정량 / 의미·관습·정체성 → 정성)을 명시적으로 제시한 선행 연구는 찾지 못했습니다. <b>본 연구가 제안하는 기준</b>이며 검증된 것이 아닙니다.</li>
       </ul>
     </div>
   </section>
@@ -1846,7 +1869,7 @@ const STAGES = [
         { t:'경험 데이터 수집', d:'Empathize 산출물', from:true },
         { t:'경험 군집화',     d:'어피니티 다이어그램(KJ법) · 카드소팅' },
         { t:'우선순위 설정',   d:'Kano · QFD' },
-        { t:'평가 기준 설정',  d:'정량 지표화 가능한가?', q:true }
+        { t:'평가 기준 설정',  d:'정량 지표화 가능한가? — <b>판별 기준은 본 연구의 제안</b>', q:true }
       ],
       branch:{
         yes:{ t:'도면 기반 정량 지표', d:'Isovist · VGA · LDK 연결성 · 동선 길이' },
@@ -2177,8 +2200,8 @@ function renderBranch(){
               <tbody>
                 <tr><td>경험</td><td>"아늑한 게 좋아요"</td></tr>
                 <tr><td>감각</td><td>둘러싸인 감각 · 안전하다는 감각</td></tr>
-                <tr><td>감각의 원인</td><td>낮은 천장 · 둘러싼 벽</td></tr>
-                <tr><td>실제 수치</td><td>천장고 O m · 면적 O ㎡</td></tr>
+                <tr><td>감각의 원인</td><td>시야가 닿는 범위가 좁고 사방이 막혀 있음</td></tr>
+                <tr><td>실제 수치</td><td>isovist 수평 크기 O ㎡ · 경계 요철도 O</td></tr>
                 <tr><td>인사이트</td><td>설계에 적용할 정량 조건</td></tr>
               </tbody>
             </table>
@@ -2217,10 +2240,11 @@ function renderBranch(){
             지표값과 주관적 평가의 상관을 통계로 제시한 핵심 실증.</span>
           </blockquote>
           <blockquote class="cite">
-            <span class="ev-note"><b>보류</b> — 천장고와 아늑함의 관계는 아직 근거가 확정되지 않았습니다.
-            Stamps (2011)은 "경계가 낮을수록 더 넓게 느낀다(r = −.22)"고 보고해 방향이 반대일 수 있어,
-            해당 연구의 boundary 정의(천장 vs 외부 벽)를 확인하기 전까지 인용을 보류합니다.
-            Space Syntax 원전(Hillier &amp; Hanson, 1984)도 미확보입니다.</span>
+            <span class="ev-note"><b>수정 이력</b> — 이 체인은 처음에 "낮은 천장 → 둘러싸인 감각"이었으나,
+            천장고와 둘러싸임의 관계를 뒷받침할 근거를 찾지 못했고 Stamps (2011)은 오히려
+            "경계가 낮을수록 더 넓게 느낀다(r = −.22)"고 보고합니다. 그래서 <b>Stamps (2005)가 실제로 받쳐 주는
+            방향</b>(지각된 둘러싸임 ↔ isovist 수평 크기)으로 바꿨습니다.
+            Space Syntax 원전(Hillier &amp; Hanson, 1984)은 여전히 미확보입니다.</span>
           </blockquote>
 
         </div></div>
@@ -2792,6 +2816,12 @@ function buildDemo(host){
           `${i?'<span class="dsep">→</span>':''}<button class="dph" type="button" data-p="${p}">${PHASE_NAMES[p]}</button>`
         ).join('')}
       </div>
+      <label class="dspeed">
+        <span class="dspeed-l">속도</span>
+        <input class="dspeed-r" type="range" min="25" max="200" step="5" value="100"
+               aria-label="재생 속도">
+        <span class="dspeed-v">1.0×</span>
+      </label>
       <button class="dpause" type="button">⏸ 일시정지</button>
       <button class="dreplay" type="button">↻ 다시 재생</button>
     </div>
@@ -2984,8 +3014,16 @@ function buildDemo(host){
   /* 자체 시계로 도는 스케줄러 — 멈췄다 이어서 재생할 수 있고,
      도는 동안 프레임을 계속 요청하므로 전환도 확실히 그려진다. */
   let queue = [], running = false, startedAt = 0, elapsed = 0, rafId = null, grace = 0;
+  let rate = 1;                                   // 재생 배속
 
-  const clock = ()=> elapsed + (running ? performance.now() - startedAt : 0);
+  const clock = ()=> elapsed + (running ? (performance.now() - startedAt) * rate : 0);
+
+  /* 배속을 바꿔도 지금까지 흐른 시간은 유지된다 */
+  function setRate(r){
+    elapsed = clock();
+    startedAt = performance.now();
+    rate = r;
+  }
 
   function loop(){
     rafId = null;
@@ -3317,20 +3355,20 @@ function buildDemo(host){
   /* ---- 재생 ---- */
   function play(){
     clearAll();
-    tick(mode === 'full' ? 26000 : 8000);
+    tick(mode === 'full' ? 40000 : 8000);
     if(mode === 'kj'){
       p0(true); at(2400, ()=>p1(true)); at(5600, ()=>p2(true));
     }else if(mode === 'verdict'){
       p0(false); p1(false); p2(false); at(800, p3);
     }else{
       p0(true);
-      at(2400,  ()=>p1(true));
-      at(5600,  ()=>p2(true));
-      at(8000,  p3);
-      at(13500, ()=>p5(true));
-      at(17000, ()=>p6(true));
-      at(21000, ()=>p7(true));
-      at(24500, ()=>p8(true));
+      at(2600,  ()=>p1(true));
+      at(6200,  ()=>p2(true));
+      at(9000,  p3);
+      at(15500, ()=>p5(true));
+      at(21000, ()=>p6(true));
+      at(27000, ()=>p7(true));
+      at(32000, ()=>p8(true));
     }
   }
   host._play = play;
@@ -3339,6 +3377,13 @@ function buildDemo(host){
   host.querySelector('.dreplay').addEventListener('click', play);
   host.querySelector('.dpause').addEventListener('click', ()=>{
     (running ? pause : resume)();
+  });
+  const rangeEl = host.querySelector('.dspeed-r');
+  const rateEl  = host.querySelector('.dspeed-v');
+  rangeEl.addEventListener('input', ()=>{
+    const r = +rangeEl.value / 100;
+    setRate(r);
+    rateEl.textContent = r.toFixed(1) + '×';
   });
   host.querySelectorAll('.dph').forEach(btn=>{
     btn.addEventListener('click', ()=>{
