@@ -141,7 +141,7 @@ figcaption b{color:var(--text);font-weight:600}
 .flow{
   position:relative;z-index:1;
   display:flex;align-items:flex-start;justify-content:center;
-  flex-wrap:wrap;gap:86px 6px;                        /* 행 간격 = 피드백 레일 통로 */
+  flex-wrap:wrap;gap:104px 6px;                       /* 행 간격 = 피드백 레일 통로 */
 }
 
 /* 건축 프로세스 그룹 */
@@ -3575,9 +3575,10 @@ function drawEmpathyLinks(){
      + ` V ${empG.bottom + 5}`, true, 'is-poe');
   dot(poeG.cx, poeY);
 
+  /* 라벨은 선 위가 아니라 통로 왼쪽 빈 곳에 둔다 — 선과 겹치지 않게 */
   const labels = [
-    { x:evL,  y:railY - 11, anchor:'start', t:MISS_LABEL[labelLang].ev },
-    { x:pex + 16, y:poeY - 10, anchor:'start', t:MISS_LABEL[labelLang].poe, cls:'is-poe' }
+    { x:12, y:railY - 10, anchor:'start', t:MISS_LABEL[labelLang].ev },
+    { x:12, y:poeY  - 10, anchor:'start', t:MISS_LABEL[labelLang].poe, cls:'is-poe' }
   ];
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
@@ -3586,7 +3587,7 @@ function drawEmpathyLinks(){
     t.setAttribute('class','empathy-label' + (pos.cls ? ' '+pos.cls : ''));
     t.setAttribute('x', pos.x);
     t.setAttribute('y', pos.y);
-    if(pos.anchor) t.setAttribute('text-anchor', pos.anchor);
+    if(pos.anchor) t.style.textAnchor = pos.anchor;   // CSS의 middle을 이기려면 인라인이어야 한다
     t.textContent = pos.t;
     svg.appendChild(t);
 
