@@ -815,43 +815,39 @@ table.detail.mini td:first-child{font-weight:700;color:var(--quant);white-space:
   margin:0 0 11px;padding:9px 12px 9px 26px;border-radius:7px;background:var(--surface-2);
 }
 .dalt-plan li{font-size:11.5px;line-height:1.65;color:var(--text-2)}
-.dalt-bars{display:flex;flex-direction:column;gap:5px}
-.dab{display:flex;align-items:center;gap:7px}
-.dab-k{flex:0 0 42px;font-size:10.5px;color:var(--text-3);text-align:right}
-.dab-t{flex:1;height:7px;border-radius:4px;background:var(--surface-3);overflow:hidden}
-.dab-t i{
-  display:block;height:100%;width:0;border-radius:4px;background:var(--quant);
-  transition:width .9s var(--ease);
+/* 평면 도식 */
+.dplan{display:block;width:100%;height:auto;margin:0 0 11px;border-radius:6px}
+.dplan .pl-out{fill:var(--surface-2);stroke:var(--line);stroke-width:1.5}
+.dplan .pl rect{fill:var(--human-soft);stroke:var(--human);stroke-width:1;stroke-opacity:.5}
+.dplan .pl.svc rect{fill:var(--surface-3);stroke:var(--line)}
+.dplan .pl.hi rect{fill:var(--quant-soft);stroke:var(--quant);stroke-width:1.5;stroke-opacity:1}
+.dplan .pl text{
+  fill:var(--text-2);font-family:var(--font);font-size:9px;font-weight:600;
+  text-anchor:middle;dominant-baseline:middle;
 }
-.dab-v{flex:0 0 26px;font-size:10px;font-weight:700;color:var(--text-3);text-align:right}
-.dalt-flat{
-  margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);
-  font-size:11px;color:var(--text-3);
-}
-.dalt-flat b{font-size:12.5px;color:var(--text-2)}
-.dalt-sum{margin-top:3px;font-size:11.5px;color:var(--text-3)}
-.dalt-sum b{font-size:16px;color:var(--text)}
-.dalt-sum em{font-style:normal;font-size:10.5px}
-.dalt-v{margin:8px 0 0;font-size:11.5px;line-height:1.6;color:var(--text-2)}
+.dplan .pl.hi text{fill:var(--quant);font-weight:700}
+.dplan .pl.svc text{fill:var(--text-3);font-weight:500}
+
+/* 강조 / 약화 — 숫자가 아니라 성격 */
+.dalt-eval{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.de-s,.de-w{font-size:10.5px;font-weight:700;border-radius:5px;padding:2px 8px}
+.de-s{background:var(--quant-soft);color:var(--quant)}
+.de-w{background:var(--surface-3);color:var(--text-3)}
 .dalt-tag{
   display:block;margin-top:9px;font-size:11.5px;font-weight:700;min-height:16px;color:var(--text-3);
 }
 /* ⑥ Ideate에서는 "대안이 셋 나왔다"만 — 점수는 ⑦에서 붙는다 */
 .dalt.compact .dalt-plan,
-.dalt.compact .dalt-bars,
-.dalt.compact .dalt-flat,
-.dalt.compact .dalt-sum,
-.dalt.compact .dalt-v,
+.dalt.compact .dplan,
+.dalt.compact .dalt-eval,
 .dalt.compact .dalt-tag{display:none}
 .dalt.compact .dalt-f{margin-bottom:0}
 
 /* 판정 결과 — .in 이 붙어 있을 때만 적용해야 다시 재생 시 잔상이 안 남는다 */
 .dalt.in.win{border-top-color:var(--quant);box-shadow:inset 0 0 0 1.5px var(--quant)}
-.dalt.in.win .dalt-sum b{color:var(--quant)}
 .dalt.in.win .dalt-tag{color:var(--quant)}
 .dalt.in.lose{opacity:.5}
 .dalt.in.lose .dalt-tag{color:var(--red)}
-.dalt.in.lose .dab-t i{background:var(--text-3)}
 
 .dcycle{
   display:flex;align-items:center;gap:12px;padding:13px 22px;border-radius:999px;
@@ -2795,22 +2791,39 @@ const EDGES = [[0,1],[1,2],[2,3],[3,1],[1,5],[1,4]];
 const ALTS = [
   { n:'대안 A', f:'개방감 · 회복 경험 중심',
     plan:['LDK를 하나의 공용영역으로 통합','거실을 전면부에 배치','발코니 · 창호 직접 연결'],
-    s:[.90,.60,.85,.50],
-    v:'회복·미적 지표가 높아 <b>단순 평균으로는 가장 높다</b>. 그러나 이 프로젝트가 1순위로 둔 수행(동선) 지표가 가장 낮다.' },
+    rooms:[
+      ['발코니',4,4,252,22,'svc'],
+      ['거실 · 주방 · 식당 (LDK 통합)',4,30,168,88,'hi'],
+      ['침실',176,30,80,42,''],['침실',176,76,80,42,''],
+      ['현관',4,122,168,24,'svc'],['욕실',176,122,80,24,'svc']
+    ],
+    strong:'회복 · 미적', weak:'수행 · 스트레스' },
+
   { n:'대안 B', f:'프라이버시 · 은신감 중심',
     plan:['침실군을 후면으로 분리','현관에 완충 공간 · 시선 차단','공용/사적 영역 명확히 구분'],
-    s:[.45,.90,.65,.50],
-    v:'은신감은 확보되나, 공용공간이 갈라져 동선이 길어지고 수행 지표를 잃는다.' },
+    rooms:[
+      ['발코니',4,4,120,20,'svc'],
+      ['거실',4,28,120,66,''],['주방',128,28,60,66,''],
+      ['전실',4,98,58,48,'svc'],['현관',66,98,58,48,'svc'],
+      ['복도',128,98,60,48,'svc'],
+      ['침실군 (후면 분리)',192,28,64,118,'hi']
+    ],
+    strong:'스트레스', weak:'수행 · 회복' },
+
   { n:'대안 C', f:'동선 효율 · 기능 수행성 중심',
     plan:['복도 길이 최소화 · 순환 동선','주방-식당-거실 인접 배치','수납 접근성 우선'],
-    s:[.55,.60,.70,.95],
-    v:'개별 지표는 A보다 낮지만, <b>1순위인 수행 지표에서 크게 앞서</b> 가중 점수가 뒤집힌다.' }
+    rooms:[
+      ['발코니',4,4,252,20,'svc'],
+      ['주방',4,28,76,54,''],['식당',84,28,76,54,''],['거실',164,28,92,54,''],
+      ['순환 동선',4,86,252,20,'hi'],
+      ['침실',4,110,80,36,''],['침실',88,110,80,36,''],['욕실',172,110,84,36,'svc']
+    ],
+    strong:'수행', weak:'회복', pick:true }
 ];
 
-/* 선정 기준은 단순 합계가 아니라 2. Define에서 정한 우선순위 가중치다.
-   (이 예시 프로젝트: 재택근무 부부 → 동선·기능 수행성을 최우선으로 두었다고 가정) */
-const HX_WEIGHT = [.25, .15, .20, .40];   // 회복 · 스트레스 · 미적 · 수행
-
+/* 선정은 점수가 아니라 2. Define에서 정한 우선순위가 결정한다.
+   (이 예시 프로젝트: 재택근무 부부 → 동선·기능 수행성을 1순위로 두었다고 가정) */
+const HX_PRIORITY = '수행 → 회복 → 미적 → 스트레스';
 function buildDemo(host){
   const mode = host.dataset.demo;                       // 'kj' | 'verdict' | 'full'
   const W = mode === 'full' ? 1180 : 1000;
@@ -2971,17 +2984,25 @@ function buildDemo(host){
   const hxEls = HX4.map(h=> mk('dhx',
     `<b>${h.k}</b><span class="dhx-ko">${h.ko}</span><span class="dhx-d">${h.d}</span>`));
   const roomEls = ROOMS.map(r=> mk('droom', r.t));
+  const planSVG = (a)=> `
+    <svg class="dplan" viewBox="0 0 260 150" role="img" aria-label="${a.n} 평면 도식">
+      <rect class="pl-out" x="1" y="1" width="258" height="148" rx="4"/>
+      ${a.rooms.map(([t,x,y,w,h,k])=>`
+        <g class="pl ${k}">
+          <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2"/>
+          <text x="${x + w/2}" y="${y + h/2}">${t}</text>
+        </g>`).join('')}
+    </svg>`;
+
   const altEls = ALTS.map(a=> mk('dalt',
     `<b>${a.n}</b><span class="dalt-f">${a.f}</span>
-     <ul class="dalt-plan">${a.plan.map(p=>`<li>${p}</li>`).join('')}</ul>
-     <div class="dalt-bars">${HX4.map((h,j)=>
-       `<div class="dab"><span class="dab-k">${h.ko}</span>
-          <div class="dab-t"><i></i></div>
-          <span class="dab-v" data-j="${j}"></span></div>`).join('')}</div>
-     <div class="dalt-flat">단순 평균 <b class="dalt-flatv">—</b></div>
-     <div class="dalt-sum">가중 점수 <b class="dalt-sumv">—</b> <em>/ 1.00 · 선정 기준</em></div>
-     <p class="dalt-v">${a.v}</p>
+     ${planSVG(a)}
+     <ul class="dalt-plan">${a.plan.map(x=>`<li>${x}</li>`).join('')}</ul>
+     <div class="dalt-eval">
+       <span class="de-s">강조 ${a.strong}</span><span class="de-w">약화 ${a.weak}</span>
+     </div>
      <span class="dalt-tag"></span>`));
+
   const cycleEl = mk('dcycle',
     `<span>Final Design</span><i>→</i><span>POE Data</span><i>→</i><span class="hi">Empathize</span>`);
 
@@ -2995,15 +3016,9 @@ function buildDemo(host){
 
   const POOL = [...goalEls, ...hxEls, ...roomEls, ...altEls, cycleEl, stageNote];
 
-  const weighted = (i)=> ALTS[i].s.reduce((sum,v,j)=> sum + v*HX_WEIGHT[j], 0);
-
   /* 대안 카드를 처음 상태로 — 다시 재생할 때 이전 판정이 남지 않게 */
   const resetAlt = (a)=>{
     a.classList.remove('win','lose');
-    a.querySelectorAll('.dab-t i').forEach(b=> b.style.width = '0%');
-    a.querySelectorAll('.dab-v').forEach(v=> v.textContent = '');
-    a.querySelector('.dalt-sumv').textContent = '—';
-    a.querySelector('.dalt-flatv').textContent = '—';
     a.querySelector('.dalt-tag').textContent = '';
   };
 
@@ -3313,9 +3328,8 @@ function buildDemo(host){
     showPool([...altEls, stageNote]);
 
     stageNote.innerHTML = '도면 기반 HX 평가 · 사용자 검증 · 시뮬레이션으로 대안을 검증한다'
-      + '<span class="dnote-sub">선정 기준은 단순 평균이 아니라 <b>2. Define에서 정한 우선순위 가중치</b>다 — '
-      + HX4.map((h,i)=>`${h.ko} ${Math.round(HX_WEIGHT[i]*100)}%`).join(' · ')
-      + '<br>단순 평균이라면 <b>A</b>가 앞서지만, 이 프로젝트가 <b>수행(동선)</b>을 1순위로 두었기 때문에 <b>C</b>가 선정된다.</span>';
+      + '<span class="dnote-sub">대안을 점수로 줄 세우는 것이 아니라, <b>2. Define에서 정한 우선순위</b>에 비추어 고른다 — '
+      + HX_PRIORITY + ' 순.<br>이 프로젝트는 <b>수행(동선)</b>이 1순위이므로 그것을 강조한 <b>대안 C</b>가 선정된다.</span>';
     place(stageNote, .5*W, .13*H);
 
     altEls.forEach((a,i)=>{
@@ -3324,21 +3338,8 @@ function buildDemo(host){
       place(a, (.20 + i*.30)*W, .46*H);
     });
 
-    const fill = ()=> altEls.forEach((a,i)=>{
-      a.querySelectorAll('.dab-t i').forEach((b,j)=>{
-        b.style.width = (ALTS[i].s[j]*100).toFixed(0)+'%';
-      });
-      a.querySelectorAll('.dab-v').forEach((v,j)=>{
-        v.textContent = ALTS[i].s[j].toFixed(2);
-      });
-      a.querySelector('.dalt-sumv').textContent = weighted(i).toFixed(3);
-      a.querySelector('.dalt-flatv').textContent =
-        (ALTS[i].s.reduce((x,y)=>x+y,0)/4).toFixed(3);
-    });
-
     const judge = ()=>{
-      const sc = ALTS.map((_,i)=> weighted(i));
-      const best = sc.indexOf(Math.max(...sc));
+      const best = ALTS.findIndex(x=> x.pick);
       altEls.forEach((a,i)=>{
         a.classList.add(i === best ? 'win' : 'lose');
         a.querySelector('.dalt-tag').textContent =
@@ -3346,8 +3347,7 @@ function buildDemo(host){
       });
     };
 
-    if(anim){ at(500, fill); at(1900, judge); }
-    else { fill(); judge(); }
+    if(anim) at(1400, judge); else judge();
   }
 
   /* ============ ⑧ 순환 — POE Data가 다시 Empathize로 ============ */
@@ -3358,7 +3358,7 @@ function buildDemo(host){
     stageNote.innerHTML = '설계는 Final Design에서 끝나지 않는다 — 사용 후 경험이 다음 프로젝트로 돌아간다';
     place(stageNote, .5*W, .16*H);
 
-    altEls.forEach((a,i)=> place(a, (.20 + i*.30)*W, .42*H));
+    altEls.forEach((a,i)=> place(a, (.20 + i*.30)*W, .45*H));
     place(cycleEl, .5*W, .84*H);
     if(anim){ cycleEl.classList.remove('in'); at(600, ()=> cycleEl.classList.add('in')); }
   }
