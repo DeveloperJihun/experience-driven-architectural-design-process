@@ -244,6 +244,10 @@ figcaption b{color:var(--text);font-weight:600}
 /* 라벨: 배경판(plate)으로 선을 끊어 겹침 없이 읽히게 한다 */
 .empathy-plate{fill:var(--bg);stroke:var(--red);stroke-width:1;stroke-opacity:.35}
 .empathy-dot{fill:var(--red);fill-opacity:.85}
+/* POE 환류는 목적지가 하나뿐이라 다른 색으로 구분한다 */
+.empathy-path.is-poe{stroke:var(--quant);stroke-dasharray:2 5}
+.empathy-label.is-poe{fill:var(--quant)}
+.empathy-plate.is-poe{stroke:var(--quant)}
 .empathy-label{
   fill:var(--red);font-family:var(--font);font-size:12px;font-weight:700;
   text-anchor:middle;dominant-baseline:middle;
@@ -265,6 +269,9 @@ figcaption b{color:var(--text);font-weight:600}
 }
 .fb-item b{color:var(--text);font-weight:700}
 .fb-item i{font-style:normal;color:var(--red);font-weight:700;margin:0 3px}
+.fb-item.is-poe{border-color:var(--quant)}
+.fb-item.is-poe i{color:var(--quant)}
+.fb-item em{font-style:normal;font-size:11px;font-weight:700;color:var(--quant)}
 .fb-legend.is-off{opacity:.35}
 
 /* =========================================================================
@@ -1258,7 +1265,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     이제는 <b>되돌아가는 경로</b>를 뜻합니다. 목적지는 하나가 아닙니다 —
     치수·재료에서 목표가 훼손되면 <b>Prototype</b>, 공간 관계가 부적절하면 <b>Ideate</b>,
     HX 목표 설정이 부정확하면 <b>Define</b>, 조사 자체가 부족하면 <b>Empathize</b>로 갑니다.
-    POE Data는 사용 후 경험을 다음 프로젝트의 Empathize로 환류합니다.
+    <b>POE Data는 Empathize 한 곳으로만 갑니다</b> — 그래서 선을 따로 그렸습니다.
     <br><span style="color:var(--text-3);font-size:12px">
       이 표현은 Hettithanthri et al. (2023)이 명명한 것입니다 —
       <i>"We observed the design process has no mechanism to revert back to the user nor context during
@@ -1277,6 +1284,10 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
                 markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="var(--red)"></path>
         </marker>
+        <marker id="poeArrow" viewBox="0 0 10 10" refX="8.5" refY="5"
+                markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--quant)"></path>
+        </marker>
       </defs>
     </svg>
     <div class="flow" id="flow"></div>
@@ -1289,7 +1300,7 @@ tr.clash td:first-child{box-shadow:inset 3px 0 0 var(--red)}
     <span class="fb-item"><b>Evaluate</b> 공간 관계가 부적절 <i>→</i> Ideate</span>
     <span class="fb-item"><b>Evaluate</b> HX 목표가 부정확 <i>→</i> Define</span>
     <span class="fb-item"><b>Evaluate</b> 조사 자체가 부족 <i>→</i> Empathize</span>
-    <span class="fb-item"><b>POE Data</b> 사용 후 경험 환류 <i>→</i> Empathize</span>
+    <span class="fb-item is-poe"><b>POE Data</b> 사용 후 경험 환류 <i>→</i> Empathize <em>— 여기로만</em></span>
   </div>
 
   <!-- ===================================================================
@@ -2125,8 +2136,8 @@ const STAGES = [
 
 /* 빨간 점선 라벨 — 영문 / 한국어 토글 */
 const MISS_LABEL = {
-  en:'Feedback loop',
-  ko:'피드백 루프'
+  en:{ ev:'Evaluate feedback', poe:'POE → Empathize only' },
+  ko:{ ev:'Evaluate 피드백',   poe:'POE는 Empathize로만' }
 };
 let labelLang = 'en';
 
@@ -3515,46 +3526,68 @@ function drawEmpathyLinks(){
     const r = el.getBoundingClientRect();
     return { cx:r.left + r.width/2 - wr.left, top:r.top - wr.top, bottom:r.bottom - wr.top };
   };
-  const sources = [...new Set(FEEDBACK.map(f=> f.from))].map(geom).filter(Boolean);
-  const targets = [...new Set(FEEDBACK.map(f=> f.to))].map(geom).filter(Boolean);
-  if(!sources.length || !targets.length) return;
+  /* Evaluate의 피드백과 POE의 환류는 성격이 다르므로 레일을 나눈다.
+     하나로 합치면 POE Data도 Prototype·Ideate·Define으로 갈 수 있는 것처럼 보인다. */
+  const evG  = geom('evaluate'), poeG = geom('poe'), empG = geom('empathize');
+  const evTargets = [...new Set(FEEDBACK.filter(f=> f.from === 'evaluate').map(f=> f.to))]
+                      .map(geom).filter(Boolean);
+  if(!evG || !poeG || !empG || !evTargets.length) return;
 
-  const railY = (rows[0].bottom + rows[1].top) / 2;        // 행 사이 한가운데
-  const xs = [...sources, ...targets].map(g=> g.cx);
-  const railL = Math.min(...xs), railR = Math.max(...xs);
+  const gapTop = rows[0].bottom, gapBot = rows[1].top, gapH = gapBot - gapTop;
+  const railY = gapTop + Math.max(22, gapH * 0.34);        // Evaluate 레일
+  const poeY  = Math.min(gapBot - 16, railY + Math.max(20, gapH * 0.28));   // POE 전용 레인
 
-  const line = (d, arrow)=>{
+  const line = (d, arrow, cls)=>{
     const p = document.createElementNS(SVG_NS,'path');
-    p.setAttribute('class','empathy-path');
-    if(arrow) p.setAttribute('marker-end','url(#redArrow)');
+    p.setAttribute('class','empathy-path' + (cls ? ' '+cls : ''));
+    if(arrow) p.setAttribute('marker-end', cls === 'is-poe' ? 'url(#poeArrow)' : 'url(#redArrow)');
     p.setAttribute('d', d);
     svg.appendChild(p);
   };
-
-  line(`M ${railL} ${railY} H ${railR}`);                  // 레일
-  sources.forEach(g=> line(`M ${g.cx} ${g.top - 4} V ${railY}`));          // 올라오는 쪽
-  targets.forEach(g=> g.bottom < railY
-    ? line(`M ${g.cx} ${railY} V ${g.bottom + 5}`, true)                   // 윗행으로
-    : line(`M ${g.cx} ${railY} V ${g.top - 5}`, true));                    // 아랫행으로
-
-  /* 레일 접점 표시 — 어디서 들어오고 어디로 나가는지 */
-  [...sources, ...targets].forEach(g=>{
+  const dot = (x,y)=>{
     const c = document.createElementNS(SVG_NS,'circle');
     c.setAttribute('class','empathy-dot');
-    c.setAttribute('cx', g.cx); c.setAttribute('cy', railY); c.setAttribute('r', 3);
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',3);
     svg.appendChild(c);
+  };
+
+  /* --- Evaluate 레일: 네 단계 어디로든 --- */
+  const evXs = [evG.cx, ...evTargets.map(g=> g.cx)];
+  const evL = Math.min(...evXs), evR = Math.max(...evXs);
+  line(`M ${evL} ${railY} H ${evR}`);
+  line(`M ${evG.cx} ${evG.top - 4} V ${railY}`);
+  dot(evG.cx, railY);
+  evTargets.forEach(g=>{
+    const isEmp = Math.abs(g.cx - empG.cx) < 1;
+    const x = isEmp ? g.cx - 11 : g.cx;                    // POE 화살표와 겹치지 않게
+    if(isEmp) line(`M ${g.cx} ${railY} H ${x}`);
+    g.bottom < railY ? line(`M ${x} ${railY} V ${g.bottom + 5}`, true)
+                     : line(`M ${x} ${railY} V ${g.top - 5}`, true);
+    dot(g.cx, railY);
   });
 
-  const labels = [{ x:railL, y:railY - 11, anchor:'start' }];
+  /* --- POE 전용: Empathize 한 곳으로만 --- */
+  const pex = empG.cx + 13, r = 8;
+  line(`M ${poeG.cx} ${poeG.top - 4} V ${poeY - r}`
+     + ` Q ${poeG.cx} ${poeY} ${poeG.cx - r} ${poeY}`
+     + ` L ${pex + r} ${poeY}`
+     + ` Q ${pex} ${poeY} ${pex} ${poeY - r}`
+     + ` V ${empG.bottom + 5}`, true, 'is-poe');
+  dot(poeG.cx, poeY);
+
+  const labels = [
+    { x:evL,  y:railY - 11, anchor:'start', t:MISS_LABEL[labelLang].ev },
+    { x:pex + 16, y:poeY - 10, anchor:'start', t:MISS_LABEL[labelLang].poe, cls:'is-poe' }
+  ];
 
   // 2) 라벨은 곡선 위에 배경판과 함께 얹는다 → 선과 글자가 겹치지 않음
   labels.forEach(pos=>{
     const t = document.createElementNS(SVG_NS,'text');
-    t.setAttribute('class','empathy-label');
+    t.setAttribute('class','empathy-label' + (pos.cls ? ' '+pos.cls : ''));
     t.setAttribute('x', pos.x);
     t.setAttribute('y', pos.y);
     if(pos.anchor) t.setAttribute('text-anchor', pos.anchor);
-    t.textContent = pos.t || MISS_LABEL[labelLang];
+    t.textContent = pos.t;
     svg.appendChild(t);
 
     const b = t.getBBox();                                  // 글자 크기만큼 배경판 생성
